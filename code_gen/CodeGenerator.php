@@ -168,8 +168,8 @@ class CodeGenerator {
 				$lines[] = 		"#endif";
 			}
 			$lines[] = 		"}";
-			$lines[] =		"break;";
 			$lines[] = 		$handler->getMacroUndefinitions();
+			$lines[] =		"break;";
 			$lines[] =		"";
 		}
 

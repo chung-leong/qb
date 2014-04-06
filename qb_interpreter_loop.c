@@ -18,10 +18,10 @@
 
 /* $Id$ */
 
-
 #include "qb.h"
 #include "qb_interpreter_structures.h"
 #include "qb_interpreter_functions.h"
+
 #if defined(USE_TAIL_CALL_INTERPRETER_LOOP)
 void qb_main(qb_interpreter_context *__restrict cxt) {
 }
@@ -48782,8 +48782,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->next_handler;
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_JMP:
 #define INSTR		((qb_instruction_jump * __restrict) ip)
@@ -48800,8 +48800,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_RET:
 		{
@@ -48819,8 +48819,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			return;
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_EXIT_I32:
 #define INSTR		((qb_instruction_exit_SCA * __restrict) ip)
@@ -48830,9 +48830,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			cxt->exit_type = QB_VM_FORK;
 			return;
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_FCALL_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_ARR_SCA_line_id * __restrict) ip)
@@ -48852,13 +48852,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_ARR_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef op3
+		break;
 		
 		case QB_END_STATIC:
 #define INSTR		((qb_instruction * __restrict) ip)
@@ -48867,8 +48867,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			cxt->function->instruction_start = ip;
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_FORK_U32:
 #define INSTR		((qb_instruction_exit_SCA * __restrict) ip)
@@ -48879,9 +48879,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			cxt->exit_type = QB_VM_FORK;
 			return;
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_FORK_ID_U32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -48891,9 +48891,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fork_identifier_U32(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_FORK_ID_U32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -48903,9 +48903,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fork_identifier_U32(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_FORK_CNT_U32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -48915,9 +48915,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fork_count_U32(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_FORK_CNT_U32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -48927,9 +48927,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fork_count_U32(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_RESUME:
 #define INSTR		((qb_instruction * __restrict) ip)
@@ -48937,8 +48937,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->next_handler;
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_SPOON:
 #define INSTR		((qb_instruction * __restrict) ip)
@@ -48949,8 +48949,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			return;
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_INC_IF_GT_U32_U32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -48976,10 +48976,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_IF_LT_U32_U32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -49005,10 +49005,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_U32_U32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -49034,10 +49034,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U32_U32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -49063,10 +49063,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U32_U32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -49092,10 +49092,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IDX_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -49109,11 +49109,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IDX_GUARD_ADD_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49129,13 +49129,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_IDX_GUARD_MUL_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49151,13 +49151,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_IDX_GUARD_MAC_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49174,7 +49174,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
@@ -49182,6 +49181,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef op4
 #undef res
+		break;
 		
 		case QB_SZ_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -49195,11 +49195,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SZ_GUARD_EX_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -49213,11 +49213,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_EXT_GUARD_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49232,12 +49232,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
+		break;
 		
 		case QB_EXT_GUARD_MUL_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49254,7 +49254,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
@@ -49262,6 +49261,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef op4
 #undef res
+		break;
 		
 		case QB_EXT_GUARD_SUB_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49276,12 +49276,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EXT_GUARD_SUB_MUL_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49297,13 +49297,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_IDX_CHECK_ADD_U32_U32_U32_I32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49320,7 +49320,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
@@ -49328,6 +49327,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef op4
 #undef res
+		break;
 		
 		case QB_IDX_CHECK_MUL_U32_U32_U32_I32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49344,7 +49344,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
@@ -49352,6 +49351,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef op4
 #undef res
+		break;
 		
 		case QB_IDX_CHECK_MAC_U32_U32_U32_U32_I32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -49369,7 +49369,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
@@ -49378,6 +49377,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef op5
 #undef res
+		break;
 		
 		case QB_IDX_ACCOM_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49390,12 +49390,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_index_U32(cxt, op1, &op2, op3, op4);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef op4
+		break;
 		
 		case QB_IDX_ACCOM_MUL_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_U32_U32_SCA * __restrict) ip)
@@ -49411,7 +49411,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_index_multiply_U32(cxt, op1, &op2, op3, &op4, op5, op6, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_U32_U32_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49420,6 +49419,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef op6
 #undef res
+		break;
 		
 		case QB_IDX_ACCOM_PUSH_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_U32_U32_SCA * __restrict) ip)
@@ -49432,12 +49432,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_push_U32(cxt, &op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_U32_U32_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_ACCOM_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49450,12 +49450,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_U32(cxt, op1, &op2, op3, op4);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef op4
+		break;
 		
 		case QB_SZ_ACCOM_DIM_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49470,7 +49470,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_update_dimension_U32(cxt, op1, &op2, &op3, op4, op5, op6);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49478,6 +49477,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef op5
 #undef op6
+		break;
 		
 		case QB_SZ_ACCOM_DIM2_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49496,7 +49496,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_2_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49508,6 +49507,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op8
 #undef op9
 #undef op10
+		break;
 		
 		case QB_SZ_ACCOM_DIM3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49530,7 +49530,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_3_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49546,6 +49545,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op12
 #undef op13
 #undef op14
+		break;
 		
 		case QB_SZ_ACCOM_DIM4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49572,7 +49572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_4_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14, &op15, &op16, op17, op18);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49592,6 +49591,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef op17
 #undef op18
+		break;
 		
 		case QB_SZ_ACCOM_DIM5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49622,7 +49622,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_5_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14, &op15, &op16, op17, op18, &op19, &op20, op21, op22);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49646,6 +49645,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op20
 #undef op21
 #undef op22
+		break;
 		
 		case QB_SZ_ACCOM_DIM6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49680,7 +49680,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_6_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14, &op15, &op16, op17, op18, &op19, &op20, op21, op22, &op23, &op24, op25, op26);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49708,6 +49707,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op24
 #undef op25
 #undef op26
+		break;
 		
 		case QB_SZ_ACCOM_DIM7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49746,7 +49746,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_7_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14, &op15, &op16, op17, op18, &op19, &op20, op21, op22, &op23, &op24, op25, op26, &op27, &op28, op29, op30);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49778,6 +49777,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op28
 #undef op29
 #undef op30
+		break;
 		
 		case QB_SZ_ACCOM_DIM8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32 * __restrict) ip)
@@ -49820,7 +49820,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_accommodate_size_copy_dimension_8_U32(cxt, op1, op2, &op3, &op4, op5, op6, &op7, &op8, op9, op10, &op11, &op12, op13, op14, &op15, &op16, op17, op18, &op19, &op20, op21, op22, &op23, &op24, op25, op26, &op27, &op28, op29, op30, &op31, &op32, op33, op34);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_U32);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49856,6 +49855,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op32
 #undef op33
 #undef op34
+		break;
 		
 		case QB_SZ_CHOOSE_2_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -49869,13 +49869,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_choose_size_larger_of_two_U32(op1, op2, op3, op4, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef op4
 #undef res
+		break;
 		
 		case QB_SZ_CHOOSE_2_TOP_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -49887,11 +49887,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_choose_size_larger_of_two_top_level_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SZ_CHOOSE_3_U32_U32_U32_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -49907,7 +49907,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_choose_size_largest_of_three_U32(op1, op2, op3, op4, op5, op6, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -49916,6 +49915,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef op6
 #undef res
+		break;
 		
 		case QB_SZ_CHOOSE_3_TOP_U32_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -49928,12 +49928,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_choose_size_largest_of_three_top_level_U32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MUL_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -49945,11 +49945,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -49961,11 +49961,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -49980,7 +49980,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -49988,6 +49987,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_U32_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -50000,12 +50000,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_U32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_U32_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -50018,12 +50018,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_U32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_U32_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -50040,7 +50040,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50050,6 +50049,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -50064,12 +50064,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -50084,12 +50084,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -50107,7 +50107,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -50116,6 +50115,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -50130,12 +50130,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -50150,12 +50150,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -50173,7 +50173,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -50182,6 +50181,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50193,11 +50193,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50209,11 +50209,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50228,7 +50228,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50236,6 +50235,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50247,11 +50247,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50263,11 +50263,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50282,7 +50282,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50290,6 +50289,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_U32_U32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50301,11 +50301,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U32_U32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -50317,11 +50317,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U32_U32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -50335,13 +50335,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_U32_U32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50353,11 +50353,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U32_U32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -50369,11 +50369,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U32_U32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -50387,13 +50387,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_SET_U32_U32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50408,7 +50408,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50416,6 +50415,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_U32_U32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50430,7 +50430,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50438,6 +50437,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50449,11 +50449,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50465,11 +50465,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50484,7 +50484,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50492,6 +50491,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50503,11 +50503,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50519,11 +50519,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50538,7 +50538,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50546,6 +50545,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50557,11 +50557,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50573,11 +50573,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50592,7 +50592,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_U32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50600,6 +50599,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50611,11 +50611,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -50627,11 +50627,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U32_U32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -50646,7 +50646,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_U32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -50654,6 +50653,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_U32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -50665,11 +50665,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_U32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_U32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -50681,11 +50681,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_U32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_U32_U32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -50697,11 +50697,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_U32_U32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -50713,11 +50713,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U32_U32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -50729,11 +50729,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U32_U32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -50745,11 +50745,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U32_U32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -50761,11 +50761,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U32_U32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -50777,11 +50777,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U32_U32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -50793,11 +50793,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U32_U32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -50809,11 +50809,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_U32_U32_S32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -50827,13 +50827,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_U32_U32_S32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -50847,13 +50847,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_U32_U32_S32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -50866,12 +50866,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_U32_U32_S32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -50884,12 +50884,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_APAD_U32_S32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -50901,11 +50901,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_count_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ARAND_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -50918,12 +50918,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_random_U32(cxt, op1, op2, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARAND_U32_U32_U32_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -50936,12 +50936,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_random_U32(cxt, op1, op2, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_T_I32_SCA:
 #define INSTR		((qb_instruction_branch_SCA * __restrict) ip)
@@ -50966,9 +50966,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_IF_T_I32_ELE:
 #define INSTR		((qb_instruction_branch_ELE * __restrict) ip)
@@ -50993,9 +50993,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_IF_F_I32_SCA:
 #define INSTR		((qb_instruction_branch_SCA * __restrict) ip)
@@ -51020,9 +51020,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_IF_F_I32_ELE:
 #define INSTR		((qb_instruction_branch_ELE * __restrict) ip)
@@ -51047,9 +51047,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_IF_EQ_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -51075,10 +51075,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -51104,10 +51104,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -51133,10 +51133,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -51162,10 +51162,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S32_S32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -51191,10 +51191,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S32_S32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -51220,10 +51220,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S32_S32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -51249,10 +51249,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S32_S32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -51278,10 +51278,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -51296,10 +51296,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -51314,10 +51314,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -51332,10 +51332,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -51350,10 +51350,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -51368,10 +51368,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -51386,10 +51386,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -51404,10 +51404,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -51422,10 +51422,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -51440,10 +51440,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -51458,10 +51458,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -51476,10 +51476,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -51494,10 +51494,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -51512,10 +51512,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -51530,10 +51530,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I32_I32_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -51548,10 +51548,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I32_I32_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -51566,10 +51566,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_I32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -51579,9 +51579,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -51591,9 +51591,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I32(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -51604,10 +51604,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_I32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -51617,9 +51617,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -51629,9 +51629,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I32(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -51642,10 +51642,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -51663,11 +51663,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -51685,11 +51685,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -51700,10 +51700,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -51714,10 +51714,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -51730,12 +51730,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -51747,11 +51747,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -51763,11 +51763,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -51782,7 +51782,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -51790,6 +51789,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -51801,11 +51801,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -51817,11 +51817,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -51836,7 +51836,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -51844,6 +51843,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_S32_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -51856,12 +51856,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_S32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_S32_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -51874,12 +51874,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_S32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_S32_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -51896,7 +51896,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -51906,6 +51905,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -51917,11 +51917,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -51933,11 +51933,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -51952,7 +51952,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -51960,6 +51959,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -51974,12 +51974,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -51994,12 +51994,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -52017,7 +52017,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -52026,6 +52025,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -52040,12 +52040,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -52060,12 +52060,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -52083,7 +52083,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -52092,6 +52091,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -52102,10 +52102,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -52116,10 +52116,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -52132,12 +52132,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_AND_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52149,11 +52149,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52165,11 +52165,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52184,7 +52184,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_and_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52192,6 +52191,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_OR_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52203,11 +52203,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52219,11 +52219,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52238,7 +52238,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_or_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52246,6 +52245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_XOR_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52257,11 +52257,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52273,11 +52273,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52292,7 +52292,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_xor_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52300,6 +52299,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_NOT_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -52310,10 +52310,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -52324,10 +52324,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -52340,12 +52340,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_not_multiple_times_I32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52357,11 +52357,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52373,11 +52373,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52392,7 +52392,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52400,6 +52399,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52411,11 +52411,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52427,11 +52427,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52446,7 +52446,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52454,6 +52453,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52465,11 +52465,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -52481,11 +52481,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -52499,13 +52499,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52517,11 +52517,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -52533,11 +52533,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -52551,13 +52551,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_S32_S32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52569,11 +52569,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S32_S32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -52585,11 +52585,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S32_S32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -52603,13 +52603,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_S32_S32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52621,11 +52621,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S32_S32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -52637,11 +52637,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S32_S32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -52655,13 +52655,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_I32_I32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52676,7 +52676,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52684,6 +52683,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_I32_I32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52698,7 +52698,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52706,6 +52705,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_S32_S32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52720,7 +52720,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52728,6 +52727,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_S32_S32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52742,7 +52742,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52750,6 +52749,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NOT_SET_I32_I32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -52762,12 +52762,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ANY_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -52779,11 +52779,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_any_I32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ANY_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -52795,11 +52795,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_any_I32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ALL_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -52811,11 +52811,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_all_I32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ALL_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -52827,11 +52827,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_all_I32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AND_I32_I32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52843,11 +52843,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_logical_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_OR_I32_I32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52859,11 +52859,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_logical_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_XOR_I32_I32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52875,11 +52875,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_logical_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NOT_I32_I32:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -52890,10 +52890,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_logical_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -52904,10 +52904,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -52918,10 +52918,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -52934,12 +52934,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -52951,11 +52951,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -52967,11 +52967,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -52986,7 +52986,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -52994,6 +52993,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -53005,11 +53005,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -53021,11 +53021,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -53040,7 +53040,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53048,6 +53047,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -53059,11 +53059,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -53075,11 +53075,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -53094,7 +53094,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_S32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53102,6 +53101,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -53113,11 +53113,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -53129,11 +53129,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S32(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S32_S32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -53148,7 +53148,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_S32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53156,6 +53155,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_S32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -53167,11 +53167,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_S32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_S32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -53183,11 +53183,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_S32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_S32_S32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -53199,11 +53199,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_S32_S32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -53215,11 +53215,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S32_S32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -53231,11 +53231,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S32_S32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -53247,11 +53247,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S32_S32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -53263,11 +53263,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S32_S32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -53279,11 +53279,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S32_S32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -53295,11 +53295,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S32_S32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -53311,11 +53311,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_S32_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -53329,13 +53329,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_S32_S32_S32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -53349,13 +53349,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_S32_S32_S32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -53368,12 +53368,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_S32_S32_S32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -53386,12 +53386,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -53404,12 +53404,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -53422,12 +53422,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I32_I32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -53441,13 +53441,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -53460,12 +53460,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I32(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I32_I32_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -53478,12 +53478,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I32(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I32_I32_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -53497,13 +53497,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_I32(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_I32_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53518,7 +53518,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53526,6 +53525,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_I32_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53540,7 +53540,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53548,6 +53547,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I32_I32_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53562,7 +53562,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53570,6 +53569,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I32_I32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53584,7 +53584,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53592,6 +53591,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_I32_U32_I32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -53605,13 +53605,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_I32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_I32_U32_I32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -53625,13 +53625,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_I32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_I32_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -53644,12 +53644,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_I32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_I32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -53668,7 +53668,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -53678,6 +53677,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_I32_I32_U32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -53693,7 +53693,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53702,6 +53701,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_I32_I32_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53716,7 +53716,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53724,6 +53723,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_I32_I32_U32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -53739,7 +53739,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53748,6 +53747,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_I32_I32_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -53762,7 +53762,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53770,6 +53769,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_I32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -53781,11 +53781,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_I32(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -53802,7 +53802,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I32(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -53812,6 +53811,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -53828,7 +53828,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I32(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -53838,6 +53837,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ASLICE_S32_S32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -53850,12 +53850,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_count_I32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_ASLICE_S32_S32_U32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA * __restrict) ip)
@@ -53868,12 +53868,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_count_I32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREPLACE_I32_S32_S32_U32_U32_U32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -53892,7 +53892,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I32(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53904,6 +53903,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_I32_S32_S32_U32_U32_U32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -53922,7 +53922,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I32(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -53934,6 +53933,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -53948,7 +53948,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_I32(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -53956,6 +53955,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -53973,7 +53973,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -53984,6 +53983,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54004,7 +54004,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54018,6 +54017,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54041,7 +54041,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54058,6 +54057,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54084,7 +54084,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54104,6 +54103,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54133,7 +54133,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54156,6 +54155,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54188,7 +54188,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54214,6 +54213,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -54249,7 +54249,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_I32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -54278,6 +54277,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_I32_S32_I32_I32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -54293,7 +54293,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_I32(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -54302,6 +54301,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_EQ_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -54327,10 +54327,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -54356,10 +54356,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -54385,10 +54385,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -54414,10 +54414,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -54443,10 +54443,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -54472,10 +54472,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -54501,10 +54501,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -54530,10 +54530,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -54548,10 +54548,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -54566,10 +54566,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -54584,10 +54584,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -54602,10 +54602,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -54620,10 +54620,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -54638,10 +54638,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -54656,10 +54656,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -54674,10 +54674,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -54692,10 +54692,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -54710,10 +54710,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -54728,10 +54728,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -54746,10 +54746,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -54764,10 +54764,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -54782,10 +54782,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_F32_F32_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -54800,10 +54800,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_F32_F32_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -54818,10 +54818,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_F32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -54831,9 +54831,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_F32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -54843,9 +54843,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_F32(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -54856,10 +54856,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_F32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -54869,9 +54869,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_F32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -54881,9 +54881,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_F32(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -54894,10 +54894,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_F32_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -54915,11 +54915,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_F32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -54937,11 +54937,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -54952,10 +54952,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -54966,10 +54966,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -54982,12 +54982,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -54999,11 +54999,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55015,11 +55015,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55034,7 +55034,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55042,6 +55041,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55053,11 +55053,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55069,11 +55069,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55088,7 +55088,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55096,6 +55095,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_F32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -55108,12 +55108,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_F32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -55126,12 +55126,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -55148,7 +55148,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55158,6 +55157,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55169,11 +55169,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55185,11 +55185,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55204,7 +55204,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55212,6 +55211,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55223,11 +55223,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55239,11 +55239,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55258,7 +55258,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55266,6 +55265,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55277,11 +55277,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55293,11 +55293,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55312,7 +55312,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55320,6 +55319,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_FLR_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55331,11 +55331,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floored_division_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_FLR_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55347,11 +55347,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floored_division_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_FLR_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55366,7 +55366,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_floored_division_modulo_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55374,6 +55373,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -55384,10 +55384,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -55398,10 +55398,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -55414,12 +55414,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_F32_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55431,11 +55431,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_F32_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -55447,11 +55447,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_F32_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -55465,13 +55465,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_F32_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55483,11 +55483,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_F32_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -55499,11 +55499,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_F32_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -55517,13 +55517,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_F32_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55535,11 +55535,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_F32_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -55551,11 +55551,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_F32_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -55569,13 +55569,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_F32_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55587,11 +55587,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_F32_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -55603,11 +55603,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_F32_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -55621,13 +55621,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_F32_F32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55642,7 +55642,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55650,6 +55649,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_F32_F32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55664,7 +55664,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55672,6 +55671,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_F32_F32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55686,7 +55686,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55694,6 +55693,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_F32_F32_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55708,7 +55708,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55716,6 +55715,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ABS_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -55726,10 +55726,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -55740,10 +55740,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -55756,12 +55756,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55773,11 +55773,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55789,11 +55789,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55808,7 +55808,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55816,6 +55815,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -55827,11 +55827,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -55843,11 +55843,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -55862,7 +55862,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -55870,6 +55869,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SIN_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -55880,10 +55880,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sin_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -55894,10 +55894,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sin_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -55910,12 +55910,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sin_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASIN_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -55926,10 +55926,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asin_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASIN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -55940,10 +55940,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asin_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASIN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -55956,12 +55956,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_asin_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_COS_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -55972,10 +55972,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cos_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COS_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -55986,10 +55986,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cos_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COS_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56002,12 +56002,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cos_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ACOS_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56018,10 +56018,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acos_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOS_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56032,10 +56032,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acos_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOS_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56048,12 +56048,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_acos_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TAN_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56064,10 +56064,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tan_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TAN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56078,10 +56078,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tan_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TAN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56094,12 +56094,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_tan_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATAN_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56110,10 +56110,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATAN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56124,10 +56124,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATAN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56140,12 +56140,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atan_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATAN2_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -56157,11 +56157,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan2_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ATAN2_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -56173,11 +56173,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan2_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ATAN2_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -56192,7 +56192,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atan2_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -56200,6 +56199,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SINH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56210,10 +56210,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SINH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56224,10 +56224,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SINH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56240,12 +56240,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sinh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASINH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56256,10 +56256,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASINH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56270,10 +56270,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASINH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56286,12 +56286,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_asinh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_COSH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56302,10 +56302,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COSH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56316,10 +56316,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COSH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56332,12 +56332,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cosh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ACOSH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56348,10 +56348,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOSH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56362,10 +56362,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOSH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56378,12 +56378,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_acosh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TANH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56394,10 +56394,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TANH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56408,10 +56408,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TANH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56424,12 +56424,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_tanh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATANH_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56440,10 +56440,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATANH_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56454,10 +56454,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATANH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56470,12 +56470,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atanh_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEIL_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56486,10 +56486,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_ceil_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_CEIL_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56500,10 +56500,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_ceil_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_CEIL_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56516,12 +56516,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_ceil_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FLOOR_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56532,10 +56532,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floor_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FLOOR_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56546,10 +56546,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floor_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FLOOR_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56562,12 +56562,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_floor_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RINT_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56578,10 +56578,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rint_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RINT_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56592,10 +56592,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rint_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RINT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56608,12 +56608,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rint_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ROUND_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56624,10 +56624,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ROUND_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56638,10 +56638,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ROUND_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56654,12 +56654,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_round_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56670,10 +56670,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56684,10 +56684,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56700,12 +56700,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG1P_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56716,10 +56716,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log1p_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG1P_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56730,10 +56730,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log1p_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG1P_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56746,12 +56746,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log1p_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG2_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56762,10 +56762,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log2_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG2_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56776,10 +56776,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log2_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG2_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56792,12 +56792,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log2_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG10_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56808,10 +56808,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log10_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG10_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56822,10 +56822,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log10_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG10_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56838,12 +56838,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log10_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXP_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56854,10 +56854,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56868,10 +56868,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56884,12 +56884,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXPM1_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56900,10 +56900,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_m1_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXPM1_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56914,10 +56914,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_m1_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXPM1_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56930,12 +56930,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp_m1_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXP2_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -56946,10 +56946,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp2_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP2_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -56960,10 +56960,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp2_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP2_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -56976,12 +56976,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp2_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_POW_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -56993,11 +56993,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pow_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_POW_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -57009,11 +57009,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pow_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_POW_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -57028,7 +57028,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_pow_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57036,6 +57035,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SQRT_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57046,10 +57046,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SQRT_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57060,10 +57060,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SQRT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57076,12 +57076,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sqrt_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HYPOT_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -57093,11 +57093,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hypot_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_HYPOT_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -57109,11 +57109,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hypot_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_HYPOT_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -57128,7 +57128,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hypot_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57136,6 +57135,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LCG_F32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -57145,9 +57145,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_F32(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_LCG_F32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -57157,9 +57157,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_F32(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_LCG_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -57170,10 +57170,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_multiple_times_F32(cxt, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FIN_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57184,10 +57184,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_finite_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FIN_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57198,10 +57198,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_finite_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FIN_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57214,12 +57214,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_finite_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INF_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57230,10 +57230,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_infinite_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_INF_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57244,10 +57244,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_infinite_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_INF_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57260,12 +57260,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_infinite_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NAN_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57276,10 +57276,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_na_n_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NAN_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57290,10 +57290,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_na_n_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NAN_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57306,12 +57306,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_na_n_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSQRT_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57322,10 +57322,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rsqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RSQRT_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57336,10 +57336,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rsqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RSQRT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57352,12 +57352,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rsqrt_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLAMP_F32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -57370,12 +57370,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clamp_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_CLAMP_F32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -57388,12 +57388,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clamp_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_CLAMP_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -57410,7 +57410,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_clamp_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57420,6 +57419,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FRACT_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57430,10 +57430,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fract_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FRACT_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57444,10 +57444,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fract_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FRACT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57460,12 +57460,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_fract_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIX_F32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -57478,12 +57478,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_mix_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MIX_F32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -57496,12 +57496,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_mix_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MIX_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -57518,7 +57518,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_mix_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57528,6 +57527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SIGN_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57538,10 +57538,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sign_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIGN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57552,10 +57552,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sign_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIGN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57568,12 +57568,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sign_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_STEP_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -57585,11 +57585,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_step_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_STEP_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -57601,11 +57601,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_step_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_STEP_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -57620,7 +57620,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_step_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57628,6 +57627,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SSTEP_F32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -57640,12 +57640,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_smooth_step_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SSTEP_F32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -57658,12 +57658,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_smooth_step_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SSTEP_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -57680,7 +57680,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_smooth_step_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57690,6 +57689,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAD2DEG_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57700,10 +57700,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_radian_to_degree_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RAD2DEG_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57714,10 +57714,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_radian_to_degree_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RAD2DEG_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57730,12 +57730,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_radian_to_degree_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEG2RAD_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -57746,10 +57746,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_degree_to_radian_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_DEG2RAD_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -57760,10 +57760,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_degree_to_radian_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_DEG2RAD_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -57776,12 +57776,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_degree_to_radian_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ROUND_F32_I32_I32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -57794,12 +57794,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_ROUND_F32_I32_I32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -57812,12 +57812,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_ROUND_F32_I32_I32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -57834,7 +57834,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -57844,6 +57843,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_F32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -57855,11 +57855,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_F32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_F32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -57871,11 +57871,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_F32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -57887,11 +57887,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -57903,11 +57903,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -57919,11 +57919,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -57935,11 +57935,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -57951,11 +57951,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -57967,11 +57967,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -57983,11 +57983,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -57999,11 +57999,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_F32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -58017,13 +58017,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_F32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_F32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -58037,13 +58037,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_F32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_F32_F32_F32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -58056,12 +58056,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_F32_F32_F32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -58074,12 +58074,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_F32_F32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -58092,12 +58092,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_F32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_F32_F32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -58110,12 +58110,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_F32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_F32_F32_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -58129,13 +58129,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -58148,12 +58148,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_F32(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_F32_F32_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -58166,12 +58166,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_F32(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_F32_F32_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -58185,13 +58185,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_F32(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_F32_F32_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58206,7 +58206,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58214,6 +58213,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_F32_F32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58228,7 +58228,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58236,6 +58235,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_F32_F32_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58250,7 +58250,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58258,6 +58257,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_F32_F32_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58272,7 +58272,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58280,6 +58279,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -58293,13 +58293,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -58313,13 +58313,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_F32_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -58332,12 +58332,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_F32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_F32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -58356,7 +58356,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -58366,6 +58365,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_F32_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -58381,7 +58381,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58390,6 +58389,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_F32_F32_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58404,7 +58404,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58412,6 +58411,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_F32_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -58427,7 +58427,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58436,6 +58435,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_F32_F32_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -58450,7 +58450,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58458,6 +58457,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_F32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -58469,11 +58469,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_F32(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -58490,7 +58490,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_F32(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58500,6 +58499,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -58516,7 +58516,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_F32(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58526,6 +58525,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AREPLACE_F32_S32_S32_U32_U32_U32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58544,7 +58544,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_F32(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58556,6 +58555,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_F32_S32_S32_U32_U32_U32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58574,7 +58574,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_F32(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58586,6 +58585,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58600,7 +58600,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_F32(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58608,6 +58607,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58625,7 +58625,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58636,6 +58635,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58656,7 +58656,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58670,6 +58669,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58693,7 +58693,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58710,6 +58709,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58736,7 +58736,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58756,6 +58755,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58785,7 +58785,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58808,6 +58807,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58840,7 +58840,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58866,6 +58865,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -58901,7 +58901,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_F32(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -58930,6 +58929,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_F32_S32_F32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -58945,7 +58945,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_F32(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58954,6 +58953,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -58970,7 +58970,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_4x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -58980,6 +58979,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -58996,7 +58996,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_4x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59006,6 +59005,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59024,7 +59024,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59036,6 +59035,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59052,7 +59052,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_3x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59062,6 +59061,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59078,7 +59078,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_3x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59088,6 +59087,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59106,7 +59106,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59118,6 +59117,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59134,7 +59134,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_2x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59144,6 +59143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59160,7 +59160,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_2x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59170,6 +59169,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59188,7 +59188,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59200,6 +59199,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59216,7 +59216,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59226,6 +59225,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59242,7 +59242,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59252,6 +59251,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59270,7 +59270,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59282,6 +59281,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59298,7 +59298,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_4x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59308,6 +59307,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59324,7 +59324,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_4x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59334,6 +59333,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59352,7 +59352,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59364,6 +59363,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59380,7 +59380,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_3x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59390,6 +59389,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59406,7 +59406,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_3x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59416,6 +59415,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59434,7 +59434,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59446,6 +59445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59462,7 +59462,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_2x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59472,6 +59471,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59488,7 +59488,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_2x_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59498,6 +59497,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59516,7 +59516,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59528,6 +59527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F32_U32_U32_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -59544,7 +59544,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59554,6 +59553,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F32_U32_U32_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -59570,7 +59570,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_F32(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59580,6 +59579,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F32_U32_U32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -59598,7 +59598,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59610,6 +59609,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -59624,7 +59624,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_alpha_blend_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59632,6 +59631,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -59646,7 +59646,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_alpha_blend_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59654,6 +59653,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -59668,7 +59668,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_alpha_blend_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59676,6 +59675,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -59690,7 +59690,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_alpha_blend_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -59698,6 +59697,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PREMULT_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59710,12 +59710,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_apply_premultiplication_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PREMULT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59728,12 +59728,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_apply_premultiplication_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPREMULT_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59746,12 +59746,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_remove_premultiplication_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPREMULT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59764,12 +59764,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_remove_premultiplication_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59782,12 +59782,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsv_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59800,12 +59800,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsv_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59818,12 +59818,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsv_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59836,12 +59836,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsv_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59854,12 +59854,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsv2rgb_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59872,12 +59872,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsv2rgb_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59890,12 +59890,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsv2rgb_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59908,12 +59908,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsv2rgb_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59926,12 +59926,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsl_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59944,12 +59944,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsl_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59962,12 +59962,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsl_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59980,12 +59980,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsl_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -59998,12 +59998,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsl2rgb_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60016,12 +60016,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsl2rgb_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60034,12 +60034,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsl2rgb_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60052,12 +60052,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsl2rgb_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60072,7 +60072,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_4x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60080,6 +60079,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60094,7 +60094,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60102,6 +60101,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60116,7 +60116,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_4x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60124,6 +60123,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60138,7 +60138,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60146,6 +60145,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60160,7 +60160,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_4x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60168,6 +60167,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60182,7 +60182,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60190,6 +60189,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60202,12 +60202,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60220,12 +60220,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60238,12 +60238,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60256,12 +60256,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_4X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -60273,11 +60273,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_4x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_4X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -60289,11 +60289,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_4x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60306,12 +60306,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_determinant_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_4X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -60325,13 +60325,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_4X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -60345,13 +60345,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60366,7 +60366,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_dot_product_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60374,6 +60373,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_4X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -60385,11 +60385,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_4x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_4X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -60401,11 +60401,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_4x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60418,12 +60418,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_4X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -60437,13 +60437,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_4X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -60457,13 +60457,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60478,7 +60478,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60486,6 +60485,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60498,12 +60498,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60516,12 +60516,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_4X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -60538,7 +60538,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_4x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60548,6 +60547,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_4X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -60564,7 +60564,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cross_product_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60574,6 +60573,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60588,7 +60588,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60596,6 +60595,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60610,7 +60610,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60618,6 +60617,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60632,7 +60632,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60640,6 +60639,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60654,7 +60654,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60662,6 +60661,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_4X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -60677,7 +60677,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_4x_F32(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60686,6 +60685,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_4X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -60701,7 +60701,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60710,6 +60709,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60724,7 +60724,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60732,6 +60731,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60746,7 +60746,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60754,6 +60753,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60768,7 +60768,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_row_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60776,6 +60775,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60790,7 +60790,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60798,6 +60797,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60810,12 +60810,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -60828,12 +60828,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60848,7 +60848,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60856,6 +60855,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60870,7 +60870,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60878,6 +60877,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60892,7 +60892,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60900,6 +60899,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60914,7 +60914,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60922,6 +60921,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60936,7 +60936,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60944,6 +60943,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60958,7 +60958,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60966,6 +60965,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -60980,7 +60980,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -60988,6 +60987,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61002,7 +61002,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61010,6 +61009,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_4X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61024,7 +61024,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61032,6 +61031,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_4X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61046,7 +61046,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61054,6 +61053,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_4X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61066,12 +61066,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_4X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61084,12 +61084,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_4X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -61100,10 +61100,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_4x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_4X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -61114,10 +61114,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_4x_multiple_times_F32(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_4X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -61128,10 +61128,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_4x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_4X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -61142,10 +61142,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_4x_multiple_times_F32(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_4X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -61162,7 +61162,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_4x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61172,6 +61171,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_4X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -61188,7 +61188,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61198,6 +61197,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61212,7 +61212,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_3x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61220,6 +61219,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61234,7 +61234,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61242,6 +61241,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61256,7 +61256,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_3x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61264,6 +61263,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61278,7 +61278,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61286,6 +61285,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61300,7 +61300,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_3x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61308,6 +61307,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61322,7 +61322,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61330,6 +61329,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_PAD_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61344,7 +61344,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_padded_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61352,6 +61351,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_PAD_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61366,7 +61366,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_padded_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61374,6 +61373,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_PAD_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61388,7 +61388,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_padded_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61396,6 +61395,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61408,12 +61408,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61426,12 +61426,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61444,12 +61444,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61462,12 +61462,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_3X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -61479,11 +61479,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_3x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_3X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -61495,11 +61495,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_3x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61512,12 +61512,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_determinant_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_3X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -61531,13 +61531,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_3X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -61551,13 +61551,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61572,7 +61572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_dot_product_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61580,6 +61579,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_3X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -61591,11 +61591,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_3x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_3X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -61607,11 +61607,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_3x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61624,12 +61624,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_3X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -61643,13 +61643,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_3X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -61663,13 +61663,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61684,7 +61684,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61692,6 +61691,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61704,12 +61704,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -61722,12 +61722,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61742,7 +61742,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61750,6 +61749,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61764,7 +61764,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cross_product_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61772,6 +61771,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61786,7 +61786,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61794,6 +61793,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61808,7 +61808,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61816,6 +61815,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61830,7 +61830,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61838,6 +61837,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61852,7 +61852,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61860,6 +61859,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_3X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -61875,7 +61875,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_3x_F32(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61884,6 +61883,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_3X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -61899,7 +61899,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61908,6 +61907,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61922,7 +61922,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61930,6 +61929,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61944,7 +61944,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61952,6 +61951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61966,7 +61966,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_row_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61974,6 +61973,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -61988,7 +61988,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -61996,6 +61995,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62008,12 +62008,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62026,12 +62026,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62046,7 +62046,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62054,6 +62053,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62068,7 +62068,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62076,6 +62075,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62090,7 +62090,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62098,6 +62097,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62112,7 +62112,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62120,6 +62119,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62134,7 +62134,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62142,6 +62141,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62156,7 +62156,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62164,6 +62163,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62178,7 +62178,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62186,6 +62185,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62200,7 +62200,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62208,6 +62207,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_3X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62222,7 +62222,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62230,6 +62229,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_3X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62244,7 +62244,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62252,6 +62251,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_3X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62264,12 +62264,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_3X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62282,12 +62282,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_3X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -62298,10 +62298,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_3x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_3X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -62312,10 +62312,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_3x_multiple_times_F32(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_3X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -62326,10 +62326,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_3x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_3X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -62340,10 +62340,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_3x_multiple_times_F32(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_3X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -62360,7 +62360,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_3x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62370,6 +62369,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_3X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -62386,7 +62386,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62396,6 +62395,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62410,7 +62410,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_2x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62418,6 +62417,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62432,7 +62432,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62440,6 +62439,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62454,7 +62454,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_2x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62462,6 +62461,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62476,7 +62476,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62484,6 +62483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62498,7 +62498,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_2x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62506,6 +62505,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62520,7 +62520,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62528,6 +62527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_2X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62540,12 +62540,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62558,12 +62558,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_2X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62576,12 +62576,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62594,12 +62594,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_2X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -62611,11 +62611,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_2X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -62627,11 +62627,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62644,12 +62644,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_2X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -62663,13 +62663,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_2X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -62683,13 +62683,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62704,7 +62704,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_dot_product_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62712,6 +62711,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_2X_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -62723,11 +62723,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_2X_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -62739,11 +62739,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62756,12 +62756,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_2X_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -62775,13 +62775,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_2X_F32_F32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -62795,13 +62795,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62816,7 +62816,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62824,6 +62823,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_2X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62836,12 +62836,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -62854,12 +62854,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62874,7 +62874,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62882,6 +62881,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62896,7 +62896,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cross_product_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62904,6 +62903,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62918,7 +62918,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62926,6 +62925,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62940,7 +62940,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62948,6 +62947,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62962,7 +62962,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62970,6 +62969,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -62984,7 +62984,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -62992,6 +62991,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_2X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -63007,7 +63007,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_2x_F32(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63016,6 +63015,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_2X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -63031,7 +63031,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63040,6 +63039,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63054,7 +63054,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_column_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63062,6 +63061,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63076,7 +63076,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63084,6 +63083,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63098,7 +63098,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_row_major_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63106,6 +63105,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63120,7 +63120,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63128,6 +63127,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_2X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -63140,12 +63140,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -63158,12 +63158,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63178,7 +63178,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63186,6 +63185,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63200,7 +63200,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63208,6 +63207,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63222,7 +63222,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63230,6 +63229,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63244,7 +63244,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63252,6 +63251,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63266,7 +63266,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63274,6 +63273,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63288,7 +63288,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63296,6 +63295,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63310,7 +63310,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63318,6 +63317,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63332,7 +63332,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63340,6 +63339,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_2X_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63354,7 +63354,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63362,6 +63361,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_2X_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -63376,7 +63376,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63384,6 +63383,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_2X_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -63396,12 +63396,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_2X_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -63414,12 +63414,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_2X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -63430,10 +63430,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_2x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_2X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -63444,10 +63444,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_2X_F32:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -63458,10 +63458,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_2x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_2X_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -63472,10 +63472,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_2x_multiple_times_F32(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_2X_F32_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -63492,7 +63492,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_2x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63502,6 +63501,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_2X_F32_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -63518,7 +63518,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63528,6 +63527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_F32_F32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -63545,7 +63545,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63556,6 +63555,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_F32_F32_U32_U32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -63573,7 +63573,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63584,6 +63583,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_F32_F32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63600,7 +63600,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63610,6 +63609,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_F32_F32_U32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63626,7 +63626,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63636,6 +63635,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_F32_F32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63652,7 +63652,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63662,6 +63661,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_F32_F32_U32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63678,7 +63678,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63688,6 +63687,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_F32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63702,7 +63702,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_F32(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63710,6 +63709,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_F32_U32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -63724,7 +63724,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_multiple_times_F32(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63732,6 +63731,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63745,13 +63745,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63765,13 +63765,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F32_U32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63785,13 +63785,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_F32(op1_ptr, op1_count, op2, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F32_U32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63805,13 +63805,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_F32(op1_ptr, op1_count, op2, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63825,13 +63825,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_F32_F32_U32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -63846,7 +63846,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63854,6 +63853,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DOT_F32_F32_U32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ELE * __restrict) ip)
@@ -63868,7 +63868,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63876,6 +63875,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DOT_F32_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -63891,7 +63891,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63900,6 +63899,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_F32_U32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -63912,12 +63912,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_F32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_LEN_F32_U32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_ELE * __restrict) ip)
@@ -63930,12 +63930,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_F32(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_LEN_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -63949,13 +63949,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_F32_F32_U32_F32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -63970,7 +63970,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -63978,6 +63977,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DIS_F32_F32_U32_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ELE * __restrict) ip)
@@ -63992,7 +63992,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64000,6 +63999,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DIS_F32_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -64015,7 +64015,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64024,6 +64023,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -64037,13 +64037,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -64057,13 +64057,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_F32_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -64079,7 +64079,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64088,6 +64087,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_F32_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -64103,7 +64103,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64112,6 +64111,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_F32_F32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -64127,7 +64127,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64136,6 +64135,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_F32_F32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -64151,7 +64151,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64160,6 +64159,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_F32_F32_U32_U32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -64176,7 +64176,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64186,6 +64185,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_F32_F32_U32_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -64202,7 +64202,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64212,6 +64211,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CABS_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64224,12 +64224,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_abs_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CABS_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64242,12 +64242,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_abs_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CARG_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64260,12 +64260,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_argument_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CARG_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64278,12 +64278,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_argument_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CMUL_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64298,7 +64298,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_multiply_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64306,6 +64305,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CMUL_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64320,7 +64320,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_multiply_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64328,6 +64327,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CDIV_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64342,7 +64342,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_divide_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64350,6 +64349,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CDIV_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64364,7 +64364,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_divide_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64372,6 +64371,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEXP_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64384,12 +64384,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_exp_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEXP_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64402,12 +64402,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_exp_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLOG_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64420,12 +64420,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_log_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLOG_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64438,12 +64438,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_log_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSQRT_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64456,12 +64456,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_square_root_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSQRT_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64474,12 +64474,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_square_root_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CPOW_F32_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64494,7 +64494,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_pow_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64502,6 +64501,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CPOW_F32_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -64516,7 +64516,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_pow_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -64524,6 +64523,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSIN_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64536,12 +64536,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_sin_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSIN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64554,12 +64554,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_sin_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOS_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64572,12 +64572,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_cos_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOS_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64590,12 +64590,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_cos_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTAN_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64608,12 +64608,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_tan_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTAN_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64626,12 +64626,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_tan_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSINH_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64644,12 +64644,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_sinh_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSINH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64662,12 +64662,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_sinh_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOSH_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64680,12 +64680,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_cosh_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOSH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64698,12 +64698,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_cosh_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTANH_F32_F32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64716,12 +64716,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_tanh_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTANH_F32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -64734,12 +64734,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_tanh_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_EQ_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -64765,10 +64765,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -64794,10 +64794,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -64823,10 +64823,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -64852,10 +64852,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -64881,10 +64881,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -64910,10 +64910,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -64939,10 +64939,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -64968,10 +64968,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -64986,10 +64986,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -65004,10 +65004,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -65022,10 +65022,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -65040,10 +65040,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -65058,10 +65058,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -65076,10 +65076,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -65094,10 +65094,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -65112,10 +65112,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -65130,10 +65130,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -65148,10 +65148,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -65166,10 +65166,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -65184,10 +65184,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -65202,10 +65202,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -65220,10 +65220,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_F64_F64_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -65238,10 +65238,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_F64_F64_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -65256,10 +65256,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_F64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -65269,9 +65269,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_F64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -65281,9 +65281,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_F64(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -65294,10 +65294,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_F64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -65307,9 +65307,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_F64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -65319,9 +65319,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_F64(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -65332,10 +65332,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_F64_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65353,11 +65353,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_F64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -65375,11 +65375,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -65390,10 +65390,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -65404,10 +65404,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -65420,12 +65420,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65437,11 +65437,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65453,11 +65453,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65472,7 +65472,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65480,6 +65479,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65491,11 +65491,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65507,11 +65507,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65526,7 +65526,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65534,6 +65533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_F64_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -65546,12 +65546,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_F64_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -65564,12 +65564,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -65586,7 +65586,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65596,6 +65595,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65607,11 +65607,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65623,11 +65623,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65642,7 +65642,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65650,6 +65649,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65661,11 +65661,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65677,11 +65677,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65696,7 +65696,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65704,6 +65703,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65715,11 +65715,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65731,11 +65731,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65750,7 +65750,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65758,6 +65757,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_FLR_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65769,11 +65769,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floored_division_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_FLR_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -65785,11 +65785,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floored_division_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_FLR_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -65804,7 +65804,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_floored_division_modulo_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -65812,6 +65811,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -65822,10 +65822,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -65836,10 +65836,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -65852,12 +65852,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_F64_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65869,11 +65869,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_F64_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -65885,11 +65885,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_F64_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -65903,13 +65903,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_F64_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65921,11 +65921,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_F64_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -65937,11 +65937,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_F64_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -65955,13 +65955,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_F64_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -65973,11 +65973,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_F64_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -65989,11 +65989,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_F64_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -66007,13 +66007,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_F64_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -66025,11 +66025,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_F64_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -66041,11 +66041,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_F64_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -66059,13 +66059,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_F64_F64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66080,7 +66080,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66088,6 +66087,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_F64_F64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66102,7 +66102,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66110,6 +66109,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_F64_F64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66124,7 +66124,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66132,6 +66131,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_F64_F64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66146,7 +66146,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66154,6 +66153,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ABS_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66164,10 +66164,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66178,10 +66178,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66194,12 +66194,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -66211,11 +66211,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -66227,11 +66227,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66246,7 +66246,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66254,6 +66253,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -66265,11 +66265,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -66281,11 +66281,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66300,7 +66300,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66308,6 +66307,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SIN_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66318,10 +66318,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sin_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66332,10 +66332,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sin_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66348,12 +66348,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sin_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASIN_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66364,10 +66364,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asin_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASIN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66378,10 +66378,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asin_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASIN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66394,12 +66394,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_asin_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_COS_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66410,10 +66410,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cos_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COS_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66424,10 +66424,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cos_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COS_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66440,12 +66440,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cos_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ACOS_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66456,10 +66456,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acos_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOS_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66470,10 +66470,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acos_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOS_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66486,12 +66486,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_acos_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TAN_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66502,10 +66502,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tan_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TAN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66516,10 +66516,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tan_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TAN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66532,12 +66532,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_tan_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATAN_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66548,10 +66548,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATAN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66562,10 +66562,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATAN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66578,12 +66578,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atan_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATAN2_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -66595,11 +66595,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan2_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ATAN2_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -66611,11 +66611,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atan2_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ATAN2_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -66630,7 +66630,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atan2_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -66638,6 +66637,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SINH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66648,10 +66648,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SINH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66662,10 +66662,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SINH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66678,12 +66678,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sinh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASINH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66694,10 +66694,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASINH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66708,10 +66708,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_asinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ASINH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66724,12 +66724,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_asinh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_COSH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66740,10 +66740,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COSH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66754,10 +66754,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_COSH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66770,12 +66770,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cosh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ACOSH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66786,10 +66786,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOSH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66800,10 +66800,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_acosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ACOSH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66816,12 +66816,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_acosh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TANH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66832,10 +66832,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TANH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66846,10 +66846,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_tanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_TANH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66862,12 +66862,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_tanh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ATANH_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66878,10 +66878,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATANH_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66892,10 +66892,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_atanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ATANH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66908,12 +66908,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_atanh_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEIL_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66924,10 +66924,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_ceil_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_CEIL_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66938,10 +66938,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_ceil_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_CEIL_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -66954,12 +66954,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_ceil_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FLOOR_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -66970,10 +66970,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floor_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FLOOR_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -66984,10 +66984,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_floor_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FLOOR_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67000,12 +67000,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_floor_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RINT_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67016,10 +67016,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rint_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RINT_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67030,10 +67030,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rint_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RINT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67046,12 +67046,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rint_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ROUND_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67062,10 +67062,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ROUND_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67076,10 +67076,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ROUND_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67092,12 +67092,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_round_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67108,10 +67108,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67122,10 +67122,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67138,12 +67138,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG1P_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67154,10 +67154,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log1p_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG1P_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67168,10 +67168,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log1p_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG1P_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67184,12 +67184,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log1p_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG2_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67200,10 +67200,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log2_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG2_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67214,10 +67214,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log2_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG2_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67230,12 +67230,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log2_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LOG10_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67246,10 +67246,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log10_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG10_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67260,10 +67260,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_log10_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_LOG10_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67276,12 +67276,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_log10_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXP_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67292,10 +67292,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67306,10 +67306,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67322,12 +67322,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXPM1_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67338,10 +67338,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_m1_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXPM1_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67352,10 +67352,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp_m1_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXPM1_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67368,12 +67368,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp_m1_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EXP2_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67384,10 +67384,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp2_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP2_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67398,10 +67398,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_exp2_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_EXP2_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67414,12 +67414,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_exp2_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_POW_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -67431,11 +67431,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pow_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_POW_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -67447,11 +67447,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pow_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_POW_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -67466,7 +67466,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_pow_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -67474,6 +67473,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SQRT_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67484,10 +67484,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SQRT_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67498,10 +67498,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SQRT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67514,12 +67514,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sqrt_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HYPOT_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -67531,11 +67531,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hypot_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_HYPOT_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -67547,11 +67547,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hypot_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_HYPOT_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -67566,7 +67566,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hypot_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -67574,6 +67573,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LCG_F64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -67583,9 +67583,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_F64(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_LCG_F64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -67595,9 +67595,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_F64(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_LCG_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -67608,10 +67608,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_lcg_multiple_times_F64(cxt, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FIN_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67622,10 +67622,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_finite_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FIN_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67636,10 +67636,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_finite_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FIN_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67652,12 +67652,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_finite_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INF_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67668,10 +67668,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_infinite_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_INF_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67682,10 +67682,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_infinite_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_INF_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67698,12 +67698,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_infinite_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NAN_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67714,10 +67714,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_na_n_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NAN_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67728,10 +67728,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_is_na_n_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NAN_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67744,12 +67744,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_is_na_n_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSQRT_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67760,10 +67760,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rsqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RSQRT_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67774,10 +67774,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rsqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RSQRT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67790,12 +67790,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rsqrt_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLAMP_F64_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -67808,12 +67808,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clamp_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_CLAMP_F64_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -67826,12 +67826,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clamp_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_CLAMP_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -67848,7 +67848,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_clamp_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -67858,6 +67857,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FRACT_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67868,10 +67868,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fract_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FRACT_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67882,10 +67882,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_fract_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_FRACT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -67898,12 +67898,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_fract_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIX_F64_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -67916,12 +67916,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_mix_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MIX_F64_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -67934,12 +67934,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_mix_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MIX_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -67956,7 +67956,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_mix_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -67966,6 +67965,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SIGN_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -67976,10 +67976,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sign_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIGN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -67990,10 +67990,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sign_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_SIGN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -68006,12 +68006,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sign_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_STEP_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -68023,11 +68023,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_step_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_STEP_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -68039,11 +68039,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_step_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_STEP_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -68058,7 +68058,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_step_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68066,6 +68065,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SSTEP_F64_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -68078,12 +68078,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_smooth_step_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SSTEP_F64_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -68096,12 +68096,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_smooth_step_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SSTEP_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -68118,7 +68118,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_smooth_step_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68128,6 +68127,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAD2DEG_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -68138,10 +68138,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_radian_to_degree_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RAD2DEG_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -68152,10 +68152,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_radian_to_degree_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_RAD2DEG_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -68168,12 +68168,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_radian_to_degree_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEG2RAD_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -68184,10 +68184,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_degree_to_radian_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_DEG2RAD_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -68198,10 +68198,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_degree_to_radian_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_DEG2RAD_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -68214,12 +68214,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_degree_to_radian_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ROUND_F64_I32_I32_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -68232,12 +68232,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_ROUND_F64_I32_I32_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -68250,12 +68250,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_ROUND_F64_I32_I32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -68272,7 +68272,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_round_to_precision_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68282,6 +68281,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_F64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -68293,11 +68293,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_F64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_F64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -68309,11 +68309,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_F64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -68325,11 +68325,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -68341,11 +68341,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -68357,11 +68357,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -68373,11 +68373,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -68389,11 +68389,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -68405,11 +68405,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -68421,11 +68421,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -68437,11 +68437,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_F64_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -68455,13 +68455,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_F64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_F64_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -68475,13 +68475,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_F64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_F64_F64_F64_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -68494,12 +68494,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_F64_F64_F64_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -68512,12 +68512,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_F64_F64_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -68530,12 +68530,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_F64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_F64_F64_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -68548,12 +68548,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_F64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_F64_F64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -68567,13 +68567,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -68586,12 +68586,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_F64(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_F64_F64_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -68604,12 +68604,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_F64(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_F64_F64_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -68623,13 +68623,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_F64(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_F64_F64_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68644,7 +68644,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68652,6 +68651,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_F64_F64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68666,7 +68666,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68674,6 +68673,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_F64_F64_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68688,7 +68688,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68696,6 +68695,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_F64_F64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68710,7 +68710,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68718,6 +68717,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -68731,13 +68731,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -68751,13 +68751,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_F64_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -68770,12 +68770,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_F64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_F64_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -68794,7 +68794,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -68804,6 +68803,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_F64_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -68819,7 +68819,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68828,6 +68827,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_F64_F64_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68842,7 +68842,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68850,6 +68849,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_F64_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -68865,7 +68865,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68874,6 +68873,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_F64_F64_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -68888,7 +68888,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68896,6 +68895,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_F64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -68907,11 +68907,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_F64(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -68928,7 +68928,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_F64(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -68938,6 +68937,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_F64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -68954,7 +68954,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_F64(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -68964,6 +68963,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AREPLACE_F64_S32_S32_U32_U32_U32_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -68982,7 +68982,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_F64(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -68994,6 +68993,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_F64_S32_S32_U32_U32_U32_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69012,7 +69012,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_F64(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69024,6 +69023,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69038,7 +69038,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_F64(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69046,6 +69045,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69063,7 +69063,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69074,6 +69073,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69094,7 +69094,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69108,6 +69107,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69131,7 +69131,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69148,6 +69147,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69174,7 +69174,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69194,6 +69193,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69223,7 +69223,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69246,6 +69245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69278,7 +69278,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69304,6 +69303,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -69339,7 +69339,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_F64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -69368,6 +69367,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_F64_S32_F64_F64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -69383,7 +69383,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_F64(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69392,6 +69391,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69408,7 +69408,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_4x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69418,6 +69417,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69434,7 +69434,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_4x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69444,6 +69443,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69462,7 +69462,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69474,6 +69473,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69490,7 +69490,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_3x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69500,6 +69499,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69516,7 +69516,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_3x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69526,6 +69525,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69544,7 +69544,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69556,6 +69555,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69572,7 +69572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_2x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69582,6 +69581,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69598,7 +69598,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_2x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69608,6 +69607,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_2X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69626,7 +69626,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69638,6 +69637,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69654,7 +69654,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69664,6 +69663,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69680,7 +69680,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_nearest_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69690,6 +69689,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_NN_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69708,7 +69708,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_nearest_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69720,6 +69719,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69736,7 +69736,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_4x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69746,6 +69745,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69762,7 +69762,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_4x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69772,6 +69771,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69790,7 +69790,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69802,6 +69801,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69818,7 +69818,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_3x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69828,6 +69827,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69844,7 +69844,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_3x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69854,6 +69853,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69872,7 +69872,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69884,6 +69883,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69900,7 +69900,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_2x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69910,6 +69909,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -69926,7 +69926,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_2x_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69936,6 +69935,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_2X_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -69954,7 +69954,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69966,6 +69965,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F64_U32_U32_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -69982,7 +69982,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -69992,6 +69991,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F64_U32_U32_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR * __restrict) ip)
@@ -70008,7 +70008,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sample_bilinear_F64(op1_ptr, op2, op3, op4, op5, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70018,6 +70017,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SAMPLE_BL_F64_U32_U32_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
@@ -70036,7 +70036,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_sample_bilinear_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70048,6 +70047,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70062,7 +70062,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_alpha_blend_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70070,6 +70069,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70084,7 +70084,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_alpha_blend_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70092,6 +70091,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70106,7 +70106,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_alpha_blend_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70114,6 +70113,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BLEND_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70128,7 +70128,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_alpha_blend_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70136,6 +70135,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PREMULT_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70148,12 +70148,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_apply_premultiplication_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PREMULT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70166,12 +70166,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_apply_premultiplication_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPREMULT_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70184,12 +70184,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_remove_premultiplication_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPREMULT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70202,12 +70202,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_remove_premultiplication_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70220,12 +70220,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsv_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70238,12 +70238,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsv_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70256,12 +70256,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsv_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSV_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70274,12 +70274,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsv_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70292,12 +70292,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsv2rgb_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70310,12 +70310,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsv2rgb_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70328,12 +70328,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsv2rgb_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSV2RGB_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70346,12 +70346,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsv2rgb_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70364,12 +70364,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsl_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70382,12 +70382,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsl_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70400,12 +70400,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_rgb2hsl_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RGB2HSL_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70418,12 +70418,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_rgb2hsl_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70436,12 +70436,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsl2rgb_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70454,12 +70454,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsl2rgb_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70472,12 +70472,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_hsl2rgb_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_HSL2RGB_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70490,12 +70490,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_hsl2rgb_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70510,7 +70510,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_4x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70518,6 +70517,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70532,7 +70532,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70540,6 +70539,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70554,7 +70554,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_4x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70562,6 +70561,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70576,7 +70576,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70584,6 +70583,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70598,7 +70598,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_4x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70606,6 +70605,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70620,7 +70620,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70628,6 +70627,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70640,12 +70640,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70658,12 +70658,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70676,12 +70676,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70694,12 +70694,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_4X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -70711,11 +70711,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_4x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_4X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -70727,11 +70727,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_4x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70744,12 +70744,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_determinant_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_4X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -70763,13 +70763,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_4X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -70783,13 +70783,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70804,7 +70804,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70812,6 +70811,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_4X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -70823,11 +70823,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_4x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_4X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -70839,11 +70839,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_4x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70856,12 +70856,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_4X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -70875,13 +70875,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_4X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -70895,13 +70895,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -70916,7 +70916,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70924,6 +70923,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70936,12 +70936,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -70954,12 +70954,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_4X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -70976,7 +70976,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_4x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -70986,6 +70985,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_4X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -71002,7 +71002,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cross_product_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71012,6 +71011,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71026,7 +71026,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71034,6 +71033,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71048,7 +71048,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71056,6 +71055,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71070,7 +71070,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71078,6 +71077,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71092,7 +71092,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71100,6 +71099,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_4X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -71115,7 +71115,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_4x_F64(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71124,6 +71123,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_4X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -71139,7 +71139,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71148,6 +71147,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71162,7 +71162,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71170,6 +71169,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71184,7 +71184,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_4x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71192,6 +71191,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71206,7 +71206,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_4x_row_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71214,6 +71213,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71228,7 +71228,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_4x_multiple_times_row_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71236,6 +71235,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71248,12 +71248,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71266,12 +71266,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71286,7 +71286,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71294,6 +71293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71308,7 +71308,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71316,6 +71315,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71330,7 +71330,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71338,6 +71337,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71352,7 +71352,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71360,6 +71359,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71374,7 +71374,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71382,6 +71381,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71396,7 +71396,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71404,6 +71403,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71418,7 +71418,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71426,6 +71425,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71440,7 +71440,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71448,6 +71447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_4X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71462,7 +71462,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71470,6 +71469,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_4X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71484,7 +71484,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71492,6 +71491,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_4X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71504,12 +71504,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_4X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71522,12 +71522,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_4X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -71538,10 +71538,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_4x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_4X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -71552,10 +71552,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_4x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_4X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -71566,10 +71566,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_4x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_4X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -71580,10 +71580,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_4x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_4X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -71600,7 +71600,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_4x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71610,6 +71609,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_4X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -71626,7 +71626,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71636,6 +71635,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71650,7 +71650,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_3x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71658,6 +71657,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71672,7 +71672,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71680,6 +71679,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71694,7 +71694,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_3x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71702,6 +71701,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71716,7 +71716,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71724,6 +71723,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71738,7 +71738,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_3x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71746,6 +71745,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71760,7 +71760,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71768,6 +71767,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71780,12 +71780,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71798,12 +71798,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71816,12 +71816,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71834,12 +71834,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_3X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -71851,11 +71851,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_3x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_3X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -71867,11 +71867,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_3x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71884,12 +71884,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_determinant_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_3X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -71903,13 +71903,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_3X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -71923,13 +71923,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -71944,7 +71944,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -71952,6 +71951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_3X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -71963,11 +71963,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_3x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_3X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -71979,11 +71979,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_3x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -71996,12 +71996,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_3X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -72015,13 +72015,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_3X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -72035,13 +72035,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72056,7 +72056,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72064,6 +72063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72076,12 +72076,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72094,12 +72094,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72114,7 +72114,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72122,6 +72121,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72136,7 +72136,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_cross_product_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72144,6 +72143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72158,7 +72158,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72166,6 +72165,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72180,7 +72180,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72188,6 +72187,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72202,7 +72202,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72210,6 +72209,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72224,7 +72224,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72232,6 +72231,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_3X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -72247,7 +72247,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_3x_F64(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72256,6 +72255,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_3X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -72271,7 +72271,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72280,6 +72279,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72294,7 +72294,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72302,6 +72301,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72316,7 +72316,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_3x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72324,6 +72323,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72338,7 +72338,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_3x_row_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72346,6 +72345,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72360,7 +72360,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_3x_multiple_times_row_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72368,6 +72367,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72380,12 +72380,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72398,12 +72398,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72418,7 +72418,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72426,6 +72425,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72440,7 +72440,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72448,6 +72447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72462,7 +72462,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72470,6 +72469,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72484,7 +72484,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72492,6 +72491,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72506,7 +72506,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72514,6 +72513,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72528,7 +72528,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72536,6 +72535,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72550,7 +72550,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72558,6 +72557,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72572,7 +72572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72580,6 +72579,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_3X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72594,7 +72594,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72602,6 +72601,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_3X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72616,7 +72616,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72624,6 +72623,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_3X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72636,12 +72636,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_3X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72654,12 +72654,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_3X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -72670,10 +72670,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_3x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_3X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -72684,10 +72684,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_3x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_3X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -72698,10 +72698,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_3x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_3X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -72712,10 +72712,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_3x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_3X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -72732,7 +72732,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_3x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72742,6 +72741,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_3X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -72758,7 +72758,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72768,6 +72767,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72782,7 +72782,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_2x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72790,6 +72789,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72804,7 +72804,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72812,6 +72811,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72826,7 +72826,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_2x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72834,6 +72833,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72848,7 +72848,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72856,6 +72855,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72870,7 +72870,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_2x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72878,6 +72877,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -72892,7 +72892,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -72900,6 +72899,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_2X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72912,12 +72912,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72930,12 +72930,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transpose_matrix_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_2X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72948,12 +72948,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -72966,12 +72966,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_invert_matrix_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_2X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -72983,11 +72983,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_2X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -72999,11 +72999,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MDET_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73016,12 +73016,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_2X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -73035,13 +73035,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_2X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -73055,13 +73055,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DOT_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73076,7 +73076,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73084,6 +73083,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_2X_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -73095,11 +73095,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_2X_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -73111,11 +73111,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_LEN_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73128,12 +73128,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_length_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_2X_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -73147,13 +73147,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_2X_F64_F64_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_ELE * __restrict) ip)
@@ -73167,13 +73167,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_DIS_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73188,7 +73188,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_distance_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73196,6 +73195,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_2X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73208,12 +73208,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73226,12 +73226,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_normalize_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73246,7 +73246,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73254,6 +73253,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CROSS_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73268,7 +73268,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cross_product_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73276,6 +73275,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73290,7 +73290,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73298,6 +73297,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73312,7 +73312,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_face_forward_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73320,6 +73319,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73334,7 +73334,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73342,6 +73341,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73356,7 +73356,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_reflect_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73364,6 +73363,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_2X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -73379,7 +73379,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_2x_F64(op1_ptr, op2_ptr, op3, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73388,6 +73387,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_2X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -73403,7 +73403,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_refract_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73412,6 +73411,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73426,7 +73426,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_column_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73434,6 +73433,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_CM_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73448,7 +73448,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_2x_multiple_times_column_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73456,6 +73455,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73470,7 +73470,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transform_vector_2x_row_major_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73478,6 +73477,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_TRAN_RM_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73492,7 +73492,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_transform_vector_2x_multiple_times_row_major_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73500,6 +73499,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_2X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73512,12 +73512,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73530,12 +73530,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73550,7 +73550,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73558,6 +73557,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73572,7 +73572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73580,6 +73579,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73594,7 +73594,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73602,6 +73601,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73616,7 +73616,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73624,6 +73623,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73638,7 +73638,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73646,6 +73645,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73660,7 +73660,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73668,6 +73667,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73682,7 +73682,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_divide_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73690,6 +73689,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73704,7 +73704,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_divide_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73712,6 +73711,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_2X_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73726,7 +73726,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_modulo_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73734,6 +73733,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_2X_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -73748,7 +73748,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_modulo_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73756,6 +73755,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_2X_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73768,12 +73768,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_2X_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -73786,12 +73786,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_2X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -73802,10 +73802,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_2x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_INC_2X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -73816,10 +73816,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_2x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_2X_F64:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -73830,10 +73830,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_2x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_2X_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -73844,10 +73844,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_2x_multiple_times_F64(res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_2X_F64_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -73864,7 +73864,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_2x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73874,6 +73873,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_2X_F64_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -73890,7 +73890,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_accumulate_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73900,6 +73899,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_F64_F64_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -73917,7 +73917,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73928,6 +73927,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MM_CM_F64_F64_U32_U32_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -73945,7 +73945,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_matrix_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73956,6 +73955,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_F64_F64_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -73972,7 +73972,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -73982,6 +73981,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_MV_CM_F64_F64_U32_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -73998,7 +73998,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_matrix_by_vector_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74008,6 +74007,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_F64_F64_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74024,7 +74024,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74034,6 +74033,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_VM_CM_F64_F64_U32_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74050,7 +74050,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_vector_by_matrix_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74060,6 +74059,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_F64_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74074,7 +74074,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_F64(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74082,6 +74081,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MTRAN_F64_U32_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74096,7 +74096,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_transpose_matrix_multiple_times_F64(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74104,6 +74103,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74117,13 +74117,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MINV_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74137,13 +74137,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_invert_matrix_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F64_U32_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74157,13 +74157,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_F64(op1_ptr, op1_count, op2, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F64_U32_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74177,13 +74177,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_F64(op1_ptr, op1_count, op2, res_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MDET_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74197,13 +74197,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_determinant_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DOT_F64_F64_U32_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -74218,7 +74218,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74226,6 +74225,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DOT_F64_F64_U32_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ELE * __restrict) ip)
@@ -74240,7 +74240,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74248,6 +74247,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DOT_F64_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74263,7 +74263,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_dot_product_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74272,6 +74271,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LEN_F64_U32_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -74284,12 +74284,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_F64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_LEN_F64_U32_F64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_ELE * __restrict) ip)
@@ -74302,12 +74302,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_F64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_LEN_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74321,13 +74321,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_length_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIS_F64_F64_U32_F64_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -74342,7 +74342,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74350,6 +74349,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DIS_F64_F64_U32_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ELE * __restrict) ip)
@@ -74364,7 +74364,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74372,6 +74371,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_DIS_F64_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74387,7 +74387,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_distance_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74396,6 +74395,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74409,13 +74409,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NORM_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -74429,13 +74429,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_normalize_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_F64_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74451,7 +74451,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74460,6 +74459,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_FORE_F64_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74475,7 +74475,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_face_forward_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74484,6 +74483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_F64_F64_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74499,7 +74499,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74508,6 +74507,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFL_F64_F64_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -74523,7 +74523,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reflect_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74532,6 +74531,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_F64_F64_U32_U32_F64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74548,7 +74548,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74558,6 +74557,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_REFR_F64_F64_U32_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
@@ -74574,7 +74574,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_refract_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74584,6 +74583,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CABS_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74596,12 +74596,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_abs_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CABS_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74614,12 +74614,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_abs_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CARG_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74632,12 +74632,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_argument_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CARG_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74650,12 +74650,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_argument_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CMUL_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74670,7 +74670,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_multiply_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74678,6 +74677,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CMUL_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74692,7 +74692,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_multiply_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74700,6 +74699,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CDIV_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74714,7 +74714,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_divide_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74722,6 +74721,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CDIV_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74736,7 +74736,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_divide_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74744,6 +74743,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEXP_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74756,12 +74756,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_exp_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CEXP_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74774,12 +74774,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_exp_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLOG_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74792,12 +74792,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_log_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLOG_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74810,12 +74810,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_log_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSQRT_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74828,12 +74828,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_square_root_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSQRT_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74846,12 +74846,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_square_root_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CPOW_F64_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74866,7 +74866,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_pow_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74874,6 +74873,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CPOW_F64_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -74888,7 +74888,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_pow_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -74896,6 +74895,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSIN_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74908,12 +74908,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_sin_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSIN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74926,12 +74926,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_sin_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOS_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74944,12 +74944,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_cos_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOS_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74962,12 +74962,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_cos_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTAN_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74980,12 +74980,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_tan_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTAN_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -74998,12 +74998,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_tan_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSINH_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75016,12 +75016,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_sinh_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CSINH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75034,12 +75034,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_sinh_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOSH_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75052,12 +75052,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_cosh_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCOSH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75070,12 +75070,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_cosh_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTANH_F64_F64:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75088,12 +75088,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_complex_tanh_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CTANH_F64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75106,12 +75106,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_complex_tanh_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_EQ_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -75137,10 +75137,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -75166,10 +75166,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -75195,10 +75195,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -75224,10 +75224,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S08_S08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -75253,10 +75253,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S08_S08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -75282,10 +75282,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S08_S08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -75311,10 +75311,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S08_S08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -75340,10 +75340,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -75358,10 +75358,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -75376,10 +75376,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -75394,10 +75394,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -75412,10 +75412,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -75430,10 +75430,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -75448,10 +75448,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -75466,10 +75466,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -75484,10 +75484,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -75502,10 +75502,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -75520,10 +75520,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -75538,10 +75538,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -75556,10 +75556,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -75574,10 +75574,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -75592,10 +75592,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I08_I08_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -75610,10 +75610,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I08_I08_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -75628,10 +75628,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_I08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -75641,9 +75641,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I08_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -75653,9 +75653,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I08(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I08_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -75666,10 +75666,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_I08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -75679,9 +75679,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I08_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -75691,9 +75691,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I08(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I08_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -75704,10 +75704,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_I08_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -75725,11 +75725,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_I08_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -75747,11 +75747,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -75762,10 +75762,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -75776,10 +75776,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -75792,12 +75792,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_I08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_I08_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -75809,11 +75809,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I08_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -75825,11 +75825,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I08_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -75844,7 +75844,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -75852,6 +75851,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -75863,11 +75863,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -75879,11 +75879,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -75898,7 +75898,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -75906,6 +75905,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_I08_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -75917,11 +75917,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I08_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -75933,11 +75933,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I08_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -75952,7 +75952,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -75960,6 +75959,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -75974,12 +75974,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -75994,12 +75994,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -76017,7 +76017,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -76026,6 +76025,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -76040,12 +76040,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -76060,12 +76060,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -76083,7 +76083,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -76092,6 +76091,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -76102,10 +76102,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -76116,10 +76116,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -76132,12 +76132,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_AND_I08_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76149,11 +76149,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I08_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76165,11 +76165,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I08_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76184,7 +76184,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_and_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76192,6 +76191,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_OR_I08_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76203,11 +76203,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I08_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76219,11 +76219,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I08_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76238,7 +76238,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_or_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76246,6 +76245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_XOR_I08_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76257,11 +76257,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I08_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76273,11 +76273,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I08_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76292,7 +76292,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_xor_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76300,6 +76299,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_NOT_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -76310,10 +76310,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -76324,10 +76324,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I08_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -76340,12 +76340,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_not_multiple_times_I08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76357,11 +76357,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76373,11 +76373,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76392,7 +76392,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76400,6 +76399,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76411,11 +76411,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76427,11 +76427,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76446,7 +76446,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76454,6 +76453,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_I08_I08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76465,11 +76465,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I08_I08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -76481,11 +76481,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I08_I08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -76499,13 +76499,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_I08_I08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76517,11 +76517,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I08_I08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -76533,11 +76533,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I08_I08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -76551,13 +76551,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_S08_S08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76569,11 +76569,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S08_S08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -76585,11 +76585,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S08_S08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -76603,13 +76603,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_S08_S08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76621,11 +76621,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S08_S08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -76637,11 +76637,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S08_S08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -76655,13 +76655,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_I08_I08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76676,7 +76676,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76684,6 +76683,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_I08_I08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76698,7 +76698,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76706,6 +76705,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_S08_S08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76720,7 +76720,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76728,6 +76727,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_S08_S08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76742,7 +76742,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76750,6 +76749,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ABS_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -76760,10 +76760,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -76774,10 +76774,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -76790,12 +76790,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76807,11 +76807,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76823,11 +76823,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76842,7 +76842,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76850,6 +76849,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76861,11 +76861,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76877,11 +76877,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76896,7 +76896,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76904,6 +76903,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76915,11 +76915,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76931,11 +76931,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -76950,7 +76950,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_S08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -76958,6 +76957,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -76969,11 +76969,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -76985,11 +76985,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S08_S08_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -77004,7 +77004,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_S08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77012,6 +77011,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_S08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -77023,11 +77023,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_S08(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_S08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -77039,11 +77039,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_S08(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_S08_S08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -77055,11 +77055,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_S08_S08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -77071,11 +77071,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S08_S08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -77087,11 +77087,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S08_S08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -77103,11 +77103,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S08_S08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -77119,11 +77119,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S08_S08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -77135,11 +77135,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S08_S08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -77151,11 +77151,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S08_S08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -77167,11 +77167,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_S08_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -77185,13 +77185,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S08(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_S08_S08_S08_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -77205,13 +77205,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S08(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_S08_S08_S08_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -77224,12 +77224,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S08(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_S08_S08_S08_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -77242,12 +77242,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S08(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_I08_I08_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -77260,12 +77260,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I08(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I08_I08_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -77278,12 +77278,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I08(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I08_I08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -77297,13 +77297,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -77316,12 +77316,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I08(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I08_I08_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -77334,12 +77334,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I08(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I08_I08_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -77353,13 +77353,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_I08(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_I08_I08_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77374,7 +77374,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77382,6 +77381,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_I08_I08_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77396,7 +77396,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77404,6 +77403,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I08_I08_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77418,7 +77418,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77426,6 +77425,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I08_I08_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77440,7 +77440,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77448,6 +77447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_I08_U32_I08:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -77461,13 +77461,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_I08(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_I08_U32_I08:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -77481,13 +77481,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_I08(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_I08_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -77500,12 +77500,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_I08(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_I08_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -77524,7 +77524,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -77534,6 +77533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_I08_I08_U32_I08:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -77549,7 +77549,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77558,6 +77557,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_I08_I08_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77572,7 +77572,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77580,6 +77579,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_I08_I08_U32_I08:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -77595,7 +77595,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77604,6 +77603,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_I08_I08_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -77618,7 +77618,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77626,6 +77625,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_I08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -77637,11 +77637,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_I08(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I08_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -77658,7 +77658,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I08(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77668,6 +77667,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I08_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -77684,7 +77684,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I08(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77694,6 +77693,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AREPLACE_I08_S32_S32_U32_U32_U32_I08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77712,7 +77712,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I08(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77724,6 +77723,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_I08_S32_S32_U32_U32_U32_I08_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77742,7 +77742,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I08(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -77754,6 +77753,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77768,7 +77768,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_I08(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77776,6 +77775,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77793,7 +77793,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77804,6 +77803,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77824,7 +77824,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77838,6 +77837,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77861,7 +77861,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77878,6 +77877,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77904,7 +77904,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77924,6 +77923,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -77953,7 +77953,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -77976,6 +77975,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -78008,7 +78008,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -78034,6 +78033,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -78069,7 +78069,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_I08(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -78098,6 +78097,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_I08_S32_I08_I08:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -78113,7 +78113,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_I08(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78122,6 +78121,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_LT_U08_U08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -78147,10 +78147,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_U08_U08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -78176,10 +78176,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U08_U08_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -78205,10 +78205,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U08_U08_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -78234,10 +78234,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_MUL_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78249,11 +78249,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78265,11 +78265,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78284,7 +78284,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78292,6 +78291,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -78306,12 +78306,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -78326,12 +78326,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -78349,7 +78349,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -78358,6 +78357,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -78372,12 +78372,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -78392,12 +78392,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -78415,7 +78415,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -78424,6 +78423,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78435,11 +78435,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78451,11 +78451,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78470,7 +78470,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78478,6 +78477,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78489,11 +78489,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78505,11 +78505,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78524,7 +78524,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78532,6 +78531,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_U08_U08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78543,11 +78543,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U08_U08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -78559,11 +78559,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U08_U08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -78577,13 +78577,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_U08_U08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78595,11 +78595,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U08_U08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -78611,11 +78611,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U08_U08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -78629,13 +78629,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_SET_U08_U08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78650,7 +78650,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78658,6 +78657,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_U08_U08_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78672,7 +78672,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78680,6 +78679,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78691,11 +78691,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78707,11 +78707,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78726,7 +78726,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78734,6 +78733,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78745,11 +78745,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78761,11 +78761,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78780,7 +78780,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78788,6 +78787,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78799,11 +78799,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78815,11 +78815,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78834,7 +78834,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_U08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78842,6 +78841,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_U08_U08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -78853,11 +78853,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U08_U08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -78869,11 +78869,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U08(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U08_U08_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -78888,7 +78888,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_U08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -78896,6 +78895,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_U08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -78907,11 +78907,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_U08(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_U08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -78923,11 +78923,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_U08(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_U08_U08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -78939,11 +78939,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_U08_U08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -78955,11 +78955,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U08_U08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -78971,11 +78971,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U08_U08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -78987,11 +78987,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U08_U08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -79003,11 +79003,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U08_U08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -79019,11 +79019,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U08_U08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -79035,11 +79035,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U08_U08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -79051,11 +79051,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_U08_U08_S08_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -79069,13 +79069,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U08(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_U08_U08_S08_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -79089,13 +79089,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U08(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_U08_U08_S08_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -79108,12 +79108,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U08(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_U08_U08_S08_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -79126,12 +79126,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U08(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_IF_EQ_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -79157,10 +79157,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -79186,10 +79186,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -79215,10 +79215,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -79244,10 +79244,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S16_S16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -79273,10 +79273,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S16_S16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -79302,10 +79302,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S16_S16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -79331,10 +79331,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S16_S16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -79360,10 +79360,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -79378,10 +79378,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -79396,10 +79396,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -79414,10 +79414,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -79432,10 +79432,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -79450,10 +79450,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -79468,10 +79468,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -79486,10 +79486,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -79504,10 +79504,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -79522,10 +79522,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -79540,10 +79540,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -79558,10 +79558,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -79576,10 +79576,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -79594,10 +79594,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -79612,10 +79612,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I16_I16_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -79630,10 +79630,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I16_I16_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -79648,10 +79648,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_I16_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -79661,9 +79661,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I16_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -79673,9 +79673,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I16(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I16_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -79686,10 +79686,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_I16_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -79699,9 +79699,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I16_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -79711,9 +79711,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I16(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I16_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -79724,10 +79724,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_I16_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -79745,11 +79745,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_I16_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -79767,11 +79767,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -79782,10 +79782,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -79796,10 +79796,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -79812,12 +79812,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_I16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_I16_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -79829,11 +79829,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I16_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -79845,11 +79845,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I16_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -79864,7 +79864,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -79872,6 +79871,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -79883,11 +79883,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -79899,11 +79899,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -79918,7 +79918,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -79926,6 +79925,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_I16_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -79937,11 +79937,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I16_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -79953,11 +79953,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I16_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -79972,7 +79972,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -79980,6 +79979,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -79994,12 +79994,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -80014,12 +80014,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -80037,7 +80037,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -80046,6 +80045,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -80060,12 +80060,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -80080,12 +80080,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -80103,7 +80103,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -80112,6 +80111,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -80122,10 +80122,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -80136,10 +80136,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -80152,12 +80152,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_AND_I16_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80169,11 +80169,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I16_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80185,11 +80185,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I16_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80204,7 +80204,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_and_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80212,6 +80211,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_OR_I16_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80223,11 +80223,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I16_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80239,11 +80239,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I16_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80258,7 +80258,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_or_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80266,6 +80265,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_XOR_I16_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80277,11 +80277,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I16_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80293,11 +80293,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I16_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80312,7 +80312,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_xor_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80320,6 +80319,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_NOT_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -80330,10 +80330,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -80344,10 +80344,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I16_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -80360,12 +80360,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_not_multiple_times_I16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80377,11 +80377,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80393,11 +80393,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80412,7 +80412,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80420,6 +80419,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80431,11 +80431,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80447,11 +80447,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80466,7 +80466,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80474,6 +80473,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_I16_I16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80485,11 +80485,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I16_I16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -80501,11 +80501,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I16_I16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -80519,13 +80519,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_I16_I16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80537,11 +80537,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I16_I16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -80553,11 +80553,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I16_I16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -80571,13 +80571,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_S16_S16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80589,11 +80589,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S16_S16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -80605,11 +80605,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S16_S16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -80623,13 +80623,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_S16_S16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80641,11 +80641,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S16_S16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -80657,11 +80657,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S16_S16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -80675,13 +80675,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_I16_I16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80696,7 +80696,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80704,6 +80703,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_I16_I16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80718,7 +80718,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80726,6 +80725,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_S16_S16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80740,7 +80740,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80748,6 +80747,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_S16_S16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80762,7 +80762,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80770,6 +80769,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ABS_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -80780,10 +80780,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -80794,10 +80794,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -80810,12 +80810,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80827,11 +80827,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80843,11 +80843,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80862,7 +80862,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80870,6 +80869,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80881,11 +80881,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80897,11 +80897,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80916,7 +80916,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80924,6 +80923,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80935,11 +80935,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -80951,11 +80951,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -80970,7 +80970,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_S16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -80978,6 +80977,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -80989,11 +80989,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -81005,11 +81005,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S16_S16_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -81024,7 +81024,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_S16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81032,6 +81031,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_S16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -81043,11 +81043,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_S16(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_S16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -81059,11 +81059,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_S16(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_S16_S16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -81075,11 +81075,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_S16_S16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -81091,11 +81091,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S16_S16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -81107,11 +81107,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S16_S16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -81123,11 +81123,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S16_S16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -81139,11 +81139,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S16_S16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -81155,11 +81155,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S16_S16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -81171,11 +81171,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S16_S16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -81187,11 +81187,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_S16_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -81205,13 +81205,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S16(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_S16_S16_S16_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -81225,13 +81225,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S16(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_S16_S16_S16_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -81244,12 +81244,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S16(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_S16_S16_S16_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -81262,12 +81262,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S16(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_I16_I16_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -81280,12 +81280,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I16(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I16_I16_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -81298,12 +81298,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I16(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I16_I16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -81317,13 +81317,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -81336,12 +81336,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I16(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I16_I16_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -81354,12 +81354,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I16(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I16_I16_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -81373,13 +81373,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_I16(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_I16_I16_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81394,7 +81394,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81402,6 +81401,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_I16_I16_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81416,7 +81416,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81424,6 +81423,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I16_I16_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81438,7 +81438,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81446,6 +81445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I16_I16_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81460,7 +81460,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81468,6 +81467,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_I16_U32_I16:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -81481,13 +81481,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_I16(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_I16_U32_I16:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -81501,13 +81501,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_I16(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_I16_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -81520,12 +81520,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_I16(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_I16_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -81544,7 +81544,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -81554,6 +81553,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_I16_I16_U32_I16:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -81569,7 +81569,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81578,6 +81577,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_I16_I16_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81592,7 +81592,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81600,6 +81599,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_I16_I16_U32_I16:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -81615,7 +81615,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81624,6 +81623,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_I16_I16_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -81638,7 +81638,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81646,6 +81645,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_I16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -81657,11 +81657,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_I16(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I16_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -81678,7 +81678,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I16(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81688,6 +81687,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I16_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -81704,7 +81704,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I16(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81714,6 +81713,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AREPLACE_I16_S32_S32_U32_U32_U32_I16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81732,7 +81732,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I16(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81744,6 +81743,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_I16_S32_S32_U32_U32_U32_I16_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81762,7 +81762,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I16(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -81774,6 +81773,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81788,7 +81788,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_I16(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81796,6 +81795,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81813,7 +81813,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81824,6 +81823,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81844,7 +81844,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81858,6 +81857,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81881,7 +81881,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81898,6 +81897,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81924,7 +81924,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81944,6 +81943,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -81973,7 +81973,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -81996,6 +81995,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -82028,7 +82028,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -82054,6 +82053,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -82089,7 +82089,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_I16(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -82118,6 +82117,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_I16_S32_I16_I16:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -82133,7 +82133,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_I16(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82142,6 +82141,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_LT_U16_U16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -82167,10 +82167,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_U16_U16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -82196,10 +82196,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U16_U16_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -82225,10 +82225,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U16_U16_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -82254,10 +82254,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_MUL_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82269,11 +82269,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82285,11 +82285,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82304,7 +82304,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82312,6 +82311,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -82326,12 +82326,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -82346,12 +82346,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -82369,7 +82369,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -82378,6 +82377,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -82392,12 +82392,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -82412,12 +82412,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -82435,7 +82435,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -82444,6 +82443,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82455,11 +82455,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82471,11 +82471,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82490,7 +82490,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82498,6 +82497,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82509,11 +82509,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82525,11 +82525,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82544,7 +82544,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82552,6 +82551,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_U16_U16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82563,11 +82563,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U16_U16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -82579,11 +82579,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U16_U16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -82597,13 +82597,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_U16_U16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82615,11 +82615,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U16_U16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -82631,11 +82631,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U16_U16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -82649,13 +82649,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_SET_U16_U16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82670,7 +82670,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82678,6 +82677,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_U16_U16_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82692,7 +82692,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82700,6 +82699,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82711,11 +82711,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82727,11 +82727,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82746,7 +82746,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82754,6 +82753,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82765,11 +82765,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82781,11 +82781,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82800,7 +82800,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82808,6 +82807,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82819,11 +82819,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82835,11 +82835,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82854,7 +82854,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_U16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82862,6 +82861,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_U16_U16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -82873,11 +82873,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U16_U16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -82889,11 +82889,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U16(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U16_U16_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -82908,7 +82908,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_U16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -82916,6 +82915,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_U16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -82927,11 +82927,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_U16(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_U16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -82943,11 +82943,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_U16(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_U16_U16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -82959,11 +82959,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_U16_U16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -82975,11 +82975,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U16_U16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -82991,11 +82991,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U16_U16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -83007,11 +83007,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U16_U16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -83023,11 +83023,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U16_U16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -83039,11 +83039,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U16_U16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -83055,11 +83055,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U16_U16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -83071,11 +83071,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_U16_U16_S16_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -83089,13 +83089,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U16(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_U16_U16_S16_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -83109,13 +83109,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U16(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_U16_U16_S16_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -83128,12 +83128,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U16(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_U16_U16_S16_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -83146,12 +83146,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U16(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_IF_EQ_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -83177,10 +83177,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_EQ_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -83206,10 +83206,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -83235,10 +83235,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_NE_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -83264,10 +83264,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S64_S64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -83293,10 +83293,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_S64_S64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -83322,10 +83322,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S64_S64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -83351,10 +83351,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_S64_S64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -83380,10 +83380,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_9_SCA_SCA * __restrict) ip)
@@ -83398,10 +83398,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH8_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_9_ELE_ELE * __restrict) ip)
@@ -83416,10 +83416,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_17_SCA_SCA * __restrict) ip)
@@ -83434,10 +83434,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH16_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_17_ELE_ELE * __restrict) ip)
@@ -83452,10 +83452,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_33_SCA_SCA * __restrict) ip)
@@ -83470,10 +83470,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH32_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_33_ELE_ELE * __restrict) ip)
@@ -83488,10 +83488,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_65_SCA_SCA * __restrict) ip)
@@ -83506,10 +83506,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH64_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_65_ELE_ELE * __restrict) ip)
@@ -83524,10 +83524,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_129_SCA_SCA * __restrict) ip)
@@ -83542,10 +83542,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH128_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_129_ELE_ELE * __restrict) ip)
@@ -83560,10 +83560,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_257_SCA_SCA * __restrict) ip)
@@ -83578,10 +83578,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH256_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_257_ELE_ELE * __restrict) ip)
@@ -83596,10 +83596,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_513_SCA_SCA * __restrict) ip)
@@ -83614,10 +83614,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH512_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_513_ELE_ELE * __restrict) ip)
@@ -83632,10 +83632,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I64_I64_SCA:
 #define INSTR		((qb_instruction_branch_table_1025_SCA_SCA * __restrict) ip)
@@ -83650,10 +83650,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SWITCH1024_I64_I64_ELE:
 #define INSTR		((qb_instruction_branch_table_1025_ELE_ELE * __restrict) ip)
@@ -83668,10 +83668,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			handler = INSTR->branch_table[offset].next_handler;
 			ip = INSTR->branch_table[offset].instruction_pointer;
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_INC_I64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -83681,9 +83681,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -83693,9 +83693,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_increment_I64(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_INC_I64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -83706,10 +83706,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_increment_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DEC_I64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -83719,9 +83719,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -83731,9 +83731,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_decrement_I64(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_DEC_I64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -83744,10 +83744,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_decrement_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CBOOL_I64_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -83765,11 +83765,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_CBOOL_I64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_SCA_SCA * __restrict) ip)
@@ -83787,11 +83787,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOV_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -83802,10 +83802,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -83816,10 +83816,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -83832,12 +83832,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_copy_multiple_times_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADD_I64_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -83849,11 +83849,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I64_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -83865,11 +83865,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_add_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_ADD_I64_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -83884,7 +83884,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_add_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -83892,6 +83891,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MUL_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -83903,11 +83903,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -83919,11 +83919,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -83938,7 +83938,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -83946,6 +83945,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_S64_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -83958,12 +83958,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_S64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_S64_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -83976,12 +83976,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_S64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_S64_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -83998,7 +83998,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84008,6 +84007,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SUB_I64_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84019,11 +84019,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I64_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84035,11 +84035,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subtract_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SUB_I64_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84054,7 +84054,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_subtract_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84062,6 +84061,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -84076,12 +84076,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -84096,12 +84096,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -84119,7 +84119,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -84128,6 +84127,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -84142,12 +84142,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -84162,12 +84162,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -84185,7 +84185,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -84194,6 +84193,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NEG_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -84204,10 +84204,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -84218,10 +84218,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_negate_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_NEG_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -84234,12 +84234,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_negate_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_AND_I64_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84251,11 +84251,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I64_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84267,11 +84267,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_and_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_AND_I64_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84286,7 +84286,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_and_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84294,6 +84293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_OR_I64_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84305,11 +84305,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I64_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84321,11 +84321,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_or_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_OR_I64_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84340,7 +84340,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_or_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84348,6 +84347,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_XOR_I64_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84359,11 +84359,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I64_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84375,11 +84375,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_xor_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_BW_XOR_I64_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84394,7 +84394,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_xor_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84402,6 +84401,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BW_NOT_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -84412,10 +84412,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -84426,10 +84426,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_bitwise_not_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BW_NOT_I64_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -84442,12 +84442,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_bitwise_not_multiple_times_I64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84459,11 +84459,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84475,11 +84475,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84494,7 +84494,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84502,6 +84501,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84513,11 +84513,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84529,11 +84529,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84548,7 +84548,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84556,6 +84555,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_EQ_I64_I64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84567,11 +84567,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I64_I64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -84583,11 +84583,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_EQ_I64_I64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -84601,13 +84601,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_equal_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_NE_I64_I64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84619,11 +84619,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I64_I64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -84635,11 +84635,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_NE_I64_I64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -84653,13 +84653,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_not_equal_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_S64_S64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84671,11 +84671,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S64_S64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -84687,11 +84687,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_S64_S64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -84705,13 +84705,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_S64_S64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84723,11 +84723,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S64_S64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -84739,11 +84739,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_S64_S64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -84757,13 +84757,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_EQ_SET_I64_I64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84778,7 +84778,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_equal_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84786,6 +84785,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_NE_SET_I64_I64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84800,7 +84800,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_not_equal_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84808,6 +84807,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_SET_S64_S64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84822,7 +84822,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84830,6 +84829,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_S64_S64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84844,7 +84844,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84852,6 +84851,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ABS_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -84862,10 +84862,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -84876,10 +84876,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_abs_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_ABS_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -84892,12 +84892,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_abs_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84909,11 +84909,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84925,11 +84925,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84944,7 +84944,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -84952,6 +84951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -84963,11 +84963,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -84979,11 +84979,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -84998,7 +84998,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85006,6 +85005,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -85017,11 +85017,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -85033,11 +85033,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_S64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -85052,7 +85052,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_S64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85060,6 +85059,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -85071,11 +85071,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -85087,11 +85087,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_S64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_S64_S64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -85106,7 +85106,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_S64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85114,6 +85113,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_S64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -85125,11 +85125,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_S64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_S64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -85141,11 +85141,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_S64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_S64_S64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -85157,11 +85157,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_S64_S64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -85173,11 +85173,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S64_S64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -85189,11 +85189,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_S64_S64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -85205,11 +85205,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S64_S64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -85221,11 +85221,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_S64_S64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -85237,11 +85237,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S64_S64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -85253,11 +85253,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_S64_S64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -85269,11 +85269,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_S64_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -85287,13 +85287,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_S64_S64_S64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -85307,13 +85307,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_S64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_S64_S64_S64_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -85326,12 +85326,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_S64_S64_S64_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -85344,12 +85344,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_S64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_AFIND_I64_I64_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -85362,12 +85362,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I64_I64_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE_SCA * __restrict) ip)
@@ -85380,12 +85380,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_I64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_AFIND_I64_I64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -85399,13 +85399,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_search_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_AFILL_U32_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_ARR * __restrict) ip)
@@ -85418,12 +85418,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I64(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I64_I64_ELE:
 #define INSTR		((qb_instruction_SCA_ELE_ARR * __restrict) ip)
@@ -85436,12 +85436,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_I64(op1, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AFILL_U32_I64_I64_MIO:
 #define INSTR		((qb_instruction_SCA_ARR_ARR * __restrict) ip)
@@ -85455,13 +85455,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_fill_multiple_times_I64(op1, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APOS_I64_I64_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85476,7 +85476,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85484,6 +85483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_APOS_I64_I64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85498,7 +85498,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85506,6 +85505,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I64_I64_I32_I32_SCA:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85520,7 +85520,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85528,6 +85527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_ARPOS_I64_I64_I32_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85542,7 +85542,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_subarray_position_from_end_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85550,6 +85549,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AREV_I64_U32_I64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -85563,13 +85563,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_reverse_I64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AUNIQ_I64_U32_I64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
@@ -85583,13 +85583,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_I64(op1_ptr, op1_count, op2, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AUNIQ_I64_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA_SCA * __restrict) ip)
@@ -85602,12 +85602,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_unique_count_I64(op1_ptr, op1_count, op2, &res);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2
 #undef res
+		break;
 		
 		case QB_ACOL_I64_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id * __restrict) ip)
@@ -85626,7 +85626,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -85636,6 +85635,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ADIFF_I64_I64_U32_I64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -85651,7 +85651,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85660,6 +85659,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_ADIFF_I64_I64_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85674,7 +85674,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_difference_count_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85682,6 +85681,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_AISECT_I64_I64_U32_I64:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
@@ -85697,7 +85697,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85706,6 +85705,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_AISECT_I64_I64_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR_SCA_SCA * __restrict) ip)
@@ -85720,7 +85720,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_intersect_count_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85728,6 +85727,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef op3
 #undef res
+		break;
 		
 		case QB_SHUFFLE_U32_I64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -85739,11 +85739,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shuffle_I64(cxt, op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -85760,7 +85760,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I64(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85770,6 +85769,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ASLICE_S32_S32_U32_U32_I64_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR * __restrict) ip)
@@ -85786,7 +85786,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_slice_I64(op1, op2, op3, op4, op5_ptr, op5_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85796,6 +85795,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op5_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AREPLACE_I64_S32_S32_U32_U32_U32_I64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85814,7 +85814,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I64(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85826,6 +85825,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_AREPLACE_I64_S32_S32_U32_U32_U32_I64_ELE:
 #define INSTR		((qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85844,7 +85844,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_replace_I64(cxt, op1_ptr, op1_count, op2, op3, &op4, op5, op6, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -85856,6 +85855,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_ARESIZE1_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85870,7 +85870,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_1_I64(cxt, op1, &op2, &op3, op4, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85878,6 +85877,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op4
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE2_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85895,7 +85895,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_2_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85906,6 +85905,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op7
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85926,7 +85926,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_3_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85940,6 +85939,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op10
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -85963,7 +85963,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_4_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -85980,6 +85979,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op13
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -86006,7 +86006,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_5_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -86026,6 +86025,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op16
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -86055,7 +86055,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_6_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -86078,6 +86077,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op19
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -86110,7 +86110,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_7_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -86136,6 +86135,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op22
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_ARESIZE8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -86171,7 +86171,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_resize_8_I64(cxt, op1, &op2, &op3, op4, &op5, &op6, op7, &op8, &op9, op10, &op11, &op12, op13, &op14, &op15, op16, &op17, &op18, op19, &op20, &op21, op22, &op23, &op24, op25, res_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -86200,6 +86199,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op25
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_APAD_I64_S32_I64_I64:
 #define INSTR		((qb_instruction_ARR_SCA_ARR_ARR * __restrict) ip)
@@ -86215,7 +86215,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_pad_I64(op1_ptr, op1_count, op2, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_SCA_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86224,6 +86223,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_IF_LT_U64_U64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -86249,10 +86249,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LT_U64_U64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -86278,10 +86278,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U64_U64_SCA:
 #define INSTR		((qb_instruction_branch_SCA_SCA * __restrict) ip)
@@ -86307,10 +86307,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_IF_LE_U64_U64_ELE:
 #define INSTR		((qb_instruction_branch_ELE_ELE * __restrict) ip)
@@ -86336,10 +86336,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 #endif
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
+		break;
 		
 		case QB_MUL_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86351,11 +86351,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86367,11 +86367,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MUL_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86386,7 +86386,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_multiply_multiple_times_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86394,6 +86393,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAC_U64_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -86406,12 +86406,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_U64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_U64_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
@@ -86424,12 +86424,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_U64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MAC_U64_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
@@ -86446,7 +86446,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_multiply_accumulate_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86456,6 +86455,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op3_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_DIV_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -86470,12 +86470,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -86490,12 +86490,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_DIV_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -86513,7 +86513,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -86522,6 +86521,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOD_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -86536,12 +86536,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_line_id * __restrict) ip)
@@ -86556,12 +86556,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MOD_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR_line_id * __restrict) ip)
@@ -86579,7 +86579,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1_ptr
@@ -86588,6 +86587,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHL_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86599,11 +86599,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86615,11 +86615,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_left_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHL_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86634,7 +86634,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_left_multiple_times_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86642,6 +86641,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SHR_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86653,11 +86653,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86669,11 +86669,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_shift_right_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_SHR_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86688,7 +86688,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_shift_right_multiple_times_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86696,6 +86695,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LT_U64_U64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86707,11 +86707,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U64_U64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -86723,11 +86723,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LT_U64_U64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -86741,13 +86741,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LE_U64_U64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86759,11 +86759,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U64_U64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_SCA * __restrict) ip)
@@ -86775,11 +86775,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_LE_U64_U64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_SCA * __restrict) ip)
@@ -86793,13 +86793,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_less_than_equal_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
 #undef res
+		break;
 		
 		case QB_LT_SET_U64_U64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86814,7 +86814,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86822,6 +86821,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_LE_SET_U64_U64_I32:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86836,7 +86836,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_set_less_than_equal_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86844,6 +86843,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MIN_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86855,11 +86855,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86871,11 +86871,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MIN_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86890,7 +86890,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_min_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86898,6 +86897,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MAX_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86909,11 +86909,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86925,11 +86925,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MAX_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86944,7 +86944,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_max_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -86952,6 +86951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RAND_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -86963,11 +86963,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -86979,11 +86979,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_U64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_RAND_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -86998,7 +86998,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_multiple_times_U64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -87006,6 +87005,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MT_RAND_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
@@ -87017,11 +87017,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U64_U64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
@@ -87033,11 +87033,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_U64(cxt, op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res
+		break;
 		
 		case QB_MT_RAND_U64_U64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
@@ -87052,7 +87052,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_random_mt_multiple_times_U64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -87060,6 +87059,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SORT_U32_U64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -87071,11 +87071,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_sort_U64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RSORT_U32_U64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -87087,11 +87087,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_reverse_sort_U64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_AMIN_U64_U64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87103,11 +87103,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMIN_U64_U64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -87119,11 +87119,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_min_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U64_U64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87135,11 +87135,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_AMAX_U64_U64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -87151,11 +87151,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_max_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U64_U64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87167,11 +87167,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_APROD_U64_U64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -87183,11 +87183,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_product_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U64_U64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87199,11 +87199,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_ASUM_U64_U64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -87215,11 +87215,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_array_sum_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_RANGE_U64_U64_S64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -87233,13 +87233,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_RANGE_U64_U64_S64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_ARR * __restrict) ip)
@@ -87253,13 +87253,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_U64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_RANGE_U64_U64_S64_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
@@ -87272,12 +87272,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_SZ_RANGE_U64_U64_S64_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE_ELE_SCA * __restrict) ip)
@@ -87290,12 +87290,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_range_count_U64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res
+		break;
 		
 		case QB_MOV_U32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87306,10 +87306,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87320,10 +87320,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87336,12 +87336,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U32_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U32_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87352,10 +87352,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87366,10 +87366,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87382,12 +87382,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U32_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U32_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87398,10 +87398,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87412,10 +87412,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U32_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U32_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87428,12 +87428,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U32_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UTF8_DEC_U08_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87446,12 +87446,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8decode_U32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_UTF8_ENC_U32_U32:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87463,11 +87463,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8encode_count_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UTF8_ENC_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87480,12 +87480,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8encode_U32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_U32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -87495,9 +87495,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -87507,9 +87507,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -87520,10 +87520,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_U32_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87536,12 +87536,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_U32_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -87555,13 +87555,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U32_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -87575,13 +87575,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U32_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -87596,7 +87596,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_U32(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -87604,6 +87603,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_U32_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -87620,7 +87620,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_U32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -87630,6 +87629,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CONV_STR_U08_U32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -87641,11 +87641,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_U32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -87657,11 +87657,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_S32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87672,10 +87672,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87686,10 +87686,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87702,12 +87702,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S32_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S32_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87718,10 +87718,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87732,10 +87732,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87748,12 +87748,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S32_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_I32_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87764,10 +87764,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I32_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87778,10 +87778,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I32_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87794,12 +87794,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I32_I08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_I32_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87810,10 +87810,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I32_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87824,10 +87824,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I32_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I32_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87840,12 +87840,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I32_I16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S32_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87856,10 +87856,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87870,10 +87870,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S32_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S32_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -87886,12 +87886,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S32_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -87902,10 +87902,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_I32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -87916,10 +87916,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -87933,13 +87933,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -87953,13 +87953,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -87973,13 +87973,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -87993,13 +87993,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88013,13 +88013,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88033,13 +88033,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88053,13 +88053,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88073,13 +88073,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88093,13 +88093,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88113,13 +88113,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88133,13 +88133,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88153,13 +88153,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88173,13 +88173,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_I32_I32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -88193,13 +88193,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_I32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_I32:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -88209,9 +88209,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_I32:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -88224,12 +88224,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_I32(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -88243,13 +88243,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_I32(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -88264,7 +88264,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_I32(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -88272,6 +88271,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -88287,7 +88287,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_I32(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -88296,6 +88295,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_I32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -88307,11 +88307,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_I32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_I32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -88325,13 +88325,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_I32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_S32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -88341,9 +88341,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -88353,9 +88353,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -88366,10 +88366,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_S32_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88382,12 +88382,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_S32_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -88401,13 +88401,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S32_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -88421,13 +88421,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S32_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -88442,7 +88442,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_S32(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -88450,6 +88449,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_S32_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -88466,7 +88466,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_S32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -88476,6 +88475,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_PACK_LE_I32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -88487,11 +88487,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_LE_I32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -88503,11 +88503,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -88519,11 +88519,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -88535,11 +88535,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPACK_LE_U08_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -88551,11 +88551,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_LE_U08_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -88567,11 +88567,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -88583,11 +88583,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -88599,11 +88599,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -88615,11 +88615,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -88631,11 +88631,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_F32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88646,10 +88646,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88660,10 +88660,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88676,12 +88676,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_U32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88692,10 +88692,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88706,10 +88706,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88722,12 +88722,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_S32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88738,10 +88738,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88752,10 +88752,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88768,12 +88768,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88784,10 +88784,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88798,10 +88798,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88814,12 +88814,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_S08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88830,10 +88830,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88844,10 +88844,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88860,12 +88860,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_U08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88876,10 +88876,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88890,10 +88890,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88906,12 +88906,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_S16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88922,10 +88922,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88936,10 +88936,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88952,12 +88952,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_U16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -88968,10 +88968,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -88982,10 +88982,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -88998,12 +88998,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_S64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F32_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89014,10 +89014,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89028,10 +89028,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F32_U64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F32_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89044,12 +89044,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F32_U64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_F32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89060,10 +89060,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_F32_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89074,10 +89074,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89091,13 +89091,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89111,13 +89111,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89131,13 +89131,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89151,13 +89151,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89171,13 +89171,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89191,13 +89191,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89211,13 +89211,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89231,13 +89231,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89251,13 +89251,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89271,13 +89271,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89291,13 +89291,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89311,13 +89311,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89331,13 +89331,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_F32_F32:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -89351,13 +89351,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_F32(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_F32:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -89367,9 +89367,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_F32:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -89382,12 +89382,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_F32(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -89401,13 +89401,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_F32(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -89422,7 +89422,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_F32(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -89430,6 +89429,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -89445,7 +89445,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_F32(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -89454,6 +89453,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_F32:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -89465,11 +89465,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_F32(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_F32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -89483,13 +89483,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_F32(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_F32_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -89499,9 +89499,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_F32_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -89511,9 +89511,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_F32_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -89524,10 +89524,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_F32_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89540,12 +89540,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_F32_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -89559,13 +89559,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_F32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_F32_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -89579,13 +89579,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_F32(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_F32_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -89600,7 +89600,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_F32(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -89608,6 +89607,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_F32_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -89624,7 +89624,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_F32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -89634,6 +89633,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_PACK_LE_F32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -89645,11 +89645,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_F32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_LE_F32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -89661,11 +89661,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_F32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_F32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -89677,11 +89677,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_F32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_F32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -89693,11 +89693,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_F32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPACK_LE_U08_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -89709,11 +89709,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_LE_U08_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -89725,11 +89725,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -89741,11 +89741,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -89757,11 +89757,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_F32_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -89773,11 +89773,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_F32_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -89789,11 +89789,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_F32(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_F64_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89804,10 +89804,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89818,10 +89818,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89834,12 +89834,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_U32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89850,10 +89850,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89864,10 +89864,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89880,12 +89880,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_S32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89896,10 +89896,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89910,10 +89910,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89926,12 +89926,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89942,10 +89942,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -89956,10 +89956,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -89972,12 +89972,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_S08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_U08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -89988,10 +89988,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90002,10 +90002,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90018,12 +90018,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_U08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90034,10 +90034,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90048,10 +90048,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90064,12 +90064,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_S16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_U16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90080,10 +90080,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90094,10 +90094,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90110,12 +90110,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_U16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90126,10 +90126,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90140,10 +90140,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_S64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90156,12 +90156,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_S64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_F64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90172,10 +90172,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90186,10 +90186,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_F64_U64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_F64_U64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90202,12 +90202,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_F64_U64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_F64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90218,10 +90218,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_F64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90232,10 +90232,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90249,13 +90249,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90269,13 +90269,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90289,13 +90289,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90309,13 +90309,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90329,13 +90329,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90349,13 +90349,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90369,13 +90369,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90389,13 +90389,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90409,13 +90409,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90429,13 +90429,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90449,13 +90449,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90469,13 +90469,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90489,13 +90489,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_F64_F64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -90509,13 +90509,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_F64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_F64:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -90525,9 +90525,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_F64:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -90540,12 +90540,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_F64(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -90559,13 +90559,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_F64(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -90580,7 +90580,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_F64(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -90588,6 +90587,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -90603,7 +90603,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_F64(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -90612,6 +90611,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_F64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -90623,11 +90623,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_F64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_F64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -90641,13 +90641,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_F64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_F64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -90657,9 +90657,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_F64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -90669,9 +90669,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_F64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -90682,10 +90682,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_F64_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90698,12 +90698,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_F64_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -90717,13 +90717,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_F64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_F64_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -90737,13 +90737,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_F64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_F64_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -90758,7 +90758,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_F64(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -90766,6 +90765,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_F64_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -90782,7 +90782,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_F64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -90792,6 +90791,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_PACK_LE_F64_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -90803,11 +90803,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_F64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_LE_F64_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -90819,11 +90819,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_F64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_F64_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -90835,11 +90835,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_F64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_F64_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -90851,11 +90851,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_F64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPACK_LE_U08_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -90867,11 +90867,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_LE_U08_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -90883,11 +90883,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -90899,11 +90899,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -90915,11 +90915,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_F64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -90931,11 +90931,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_F64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -90947,11 +90947,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_F64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_S08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -90962,10 +90962,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -90976,10 +90976,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -90992,12 +90992,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S08_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S08_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91008,10 +91008,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91022,10 +91022,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91038,12 +91038,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S08_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S08_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91054,10 +91054,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91068,10 +91068,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91084,12 +91084,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S08_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S08_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91100,10 +91100,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91114,10 +91114,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91130,12 +91130,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S08_I16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S08_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91146,10 +91146,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91160,10 +91160,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S08_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S08_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91176,12 +91176,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S08_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_I08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91192,10 +91192,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_I08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91206,10 +91206,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91223,13 +91223,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91243,13 +91243,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91263,13 +91263,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91283,13 +91283,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91303,13 +91303,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91323,13 +91323,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91343,13 +91343,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91363,13 +91363,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91383,13 +91383,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91403,13 +91403,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91423,13 +91423,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91443,13 +91443,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91463,13 +91463,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_I08_I08:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -91483,13 +91483,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_I08(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_I08:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -91499,9 +91499,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_I08:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -91514,12 +91514,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_I08(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -91533,13 +91533,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_I08(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -91554,7 +91554,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_I08(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -91562,6 +91561,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -91577,7 +91577,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_I08(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -91586,6 +91585,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_I08:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -91597,11 +91597,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_I08(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_I08:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -91615,13 +91615,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_I08(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_S08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -91631,9 +91631,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S08_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -91643,9 +91643,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S08_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -91656,10 +91656,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_S08_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91672,12 +91672,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_S08_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -91691,13 +91691,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S08(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S08_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -91711,13 +91711,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S08(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S08_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -91732,7 +91732,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_S08(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -91740,6 +91739,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_S08_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -91756,7 +91756,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_S08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -91766,6 +91765,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CONV_STR_U08_S08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -91777,11 +91777,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -91793,11 +91793,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_U08_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91808,10 +91808,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91822,10 +91822,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91838,12 +91838,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U08_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U08_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91854,10 +91854,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91868,10 +91868,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91884,12 +91884,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U08_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U08_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91900,10 +91900,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91914,10 +91914,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91930,12 +91930,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U08_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U08_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91946,10 +91946,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -91960,10 +91960,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -91976,12 +91976,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U08_I16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U08_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -91992,10 +91992,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92006,10 +92006,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U08_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U08_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92022,12 +92022,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U08_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_STR_U08:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -92038,10 +92038,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_string_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_APP_STR_U08_U32_U08:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -92056,7 +92056,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_string_U08(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -92064,6 +92063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_FLUSH:
 #define INSTR		((qb_instruction * __restrict) ip)
@@ -92072,8 +92072,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_flush(cxt, ip, 0);
 			ip += sizeof(qb_instruction);
 		}
-		break;
 #undef INSTR
+		break;
 		
 		case QB_PRN_U08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -92083,9 +92083,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U08_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -92095,9 +92095,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U08_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -92108,10 +92108,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_U08_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92124,12 +92124,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_U08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_U08_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -92143,13 +92143,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U08(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U08_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -92163,13 +92163,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U08(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U08_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -92184,7 +92184,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_U08(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -92192,6 +92191,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_U08_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -92208,7 +92208,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_U08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -92218,6 +92217,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CONV_STR_U08_U08_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -92229,11 +92229,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_U08_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -92245,11 +92245,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U08(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_S16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92260,10 +92260,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92274,10 +92274,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92290,12 +92290,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S16_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S16_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92306,10 +92306,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92320,10 +92320,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92336,12 +92336,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S16_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S16_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92352,10 +92352,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92366,10 +92366,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92382,12 +92382,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S16_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_I16_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92398,10 +92398,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I16_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I16_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92412,10 +92412,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I16_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I16_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92428,12 +92428,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I16_I08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S16_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92444,10 +92444,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92458,10 +92458,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S16_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S16_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92474,12 +92474,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S16_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_I16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -92490,10 +92490,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_I16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -92504,10 +92504,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92521,13 +92521,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92541,13 +92541,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92561,13 +92561,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92581,13 +92581,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92601,13 +92601,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92621,13 +92621,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92641,13 +92641,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92661,13 +92661,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92681,13 +92681,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92701,13 +92701,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92721,13 +92721,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92741,13 +92741,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92761,13 +92761,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_I16_I16:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -92781,13 +92781,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_I16(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_I16:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -92797,9 +92797,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_I16:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -92812,12 +92812,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_I16(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -92831,13 +92831,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_I16(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -92852,7 +92852,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_I16(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -92860,6 +92859,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -92875,7 +92875,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_I16(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -92884,6 +92883,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_I16:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -92895,11 +92895,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_I16(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_I16:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -92913,13 +92913,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_I16(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_S16_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -92929,9 +92929,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S16_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -92941,9 +92941,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S16_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -92954,10 +92954,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_S16_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -92970,12 +92970,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_S16_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -92989,13 +92989,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S16(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S16_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -93009,13 +93009,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S16(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S16_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -93030,7 +93030,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_S16(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -93038,6 +93037,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_S16_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -93054,7 +93054,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_S16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -93064,6 +93063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_PACK_LE_I16_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -93075,11 +93075,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_LE_I16_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -93091,11 +93091,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I16_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -93107,11 +93107,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I16_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -93123,11 +93123,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPACK_LE_U08_I16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93139,11 +93139,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_LE_U08_I16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -93155,11 +93155,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93171,11 +93171,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -93187,11 +93187,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93203,11 +93203,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -93219,11 +93219,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_U16_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93234,10 +93234,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93248,10 +93248,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93264,12 +93264,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U16_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U16_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93280,10 +93280,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93294,10 +93294,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93310,12 +93310,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U16_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U16_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93326,10 +93326,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93340,10 +93340,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93356,12 +93356,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U16_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U16_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93372,10 +93372,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_I64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93386,10 +93386,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U16_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U16_I64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93402,12 +93402,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U16_I64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_UTF8_DEC_U08_U32:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93419,11 +93419,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8decode_count_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UTF8_DEC_U08_U16:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93436,12 +93436,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8decode_U16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SZ_UTF8_ENC_U16_U32:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93453,11 +93453,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8encode_count_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UTF8_ENC_U16_U08:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93470,12 +93470,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_utf8encode_U16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_U16_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -93485,9 +93485,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U16_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -93497,9 +93497,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U16_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -93510,10 +93510,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_U16_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93526,12 +93526,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_U16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_U16_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -93545,13 +93545,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U16(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U16_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -93565,13 +93565,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U16(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U16_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -93586,7 +93586,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_U16(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -93594,6 +93593,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_U16_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -93610,7 +93610,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_U16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -93620,6 +93619,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CONV_STR_U08_U16_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -93631,11 +93631,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_U16_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -93647,11 +93647,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U16(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_I64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93662,10 +93662,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93676,10 +93676,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93692,12 +93692,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I64_I32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S64_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93708,10 +93708,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S64_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93722,10 +93722,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S64_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93738,12 +93738,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S64_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_S64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93754,10 +93754,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S64_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93768,10 +93768,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_S64_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_S64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93784,12 +93784,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_S64_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_I64_I08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93800,10 +93800,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I08_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93814,10 +93814,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I08_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93830,12 +93830,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I64_I08(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_I64_I16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93846,10 +93846,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I16_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93860,10 +93860,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_I64_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_I64_I16_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -93876,12 +93876,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_I64_I16(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_BOOL_I64_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -93892,10 +93892,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_BOOL_I64_I32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -93906,10 +93906,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_boolean_cast_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_GATH_2X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -93923,13 +93923,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_2x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_3X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -93943,13 +93943,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_3x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_4X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -93963,13 +93963,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_4x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_5X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -93983,13 +93983,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_5x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_6X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94003,13 +94003,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_6x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_7X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94023,13 +94023,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_7x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_GATH_8X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94043,13 +94043,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_gather_8x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_2X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94063,13 +94063,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_2x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_3X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94083,13 +94083,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_3x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_4X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94103,13 +94103,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_4x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_5X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94123,13 +94123,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_5x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_6X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94143,13 +94143,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_6x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_7X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94163,13 +94163,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_7x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_SCAT_8X_U32_I64_I64:
 #define INSTR		((qb_instruction_U32_ARR_ARR * __restrict) ip)
@@ -94183,13 +94183,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_scatter_8x_I64(op1, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_U32_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2_ptr
 #undef op2_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CLR_SCA_I64:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -94199,9 +94199,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_scalar_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_CLR_ARR_RSZ_U32_I64:
 #define INSTR		((qb_instruction_U32_ARR * __restrict) ip)
@@ -94214,12 +94214,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_I64(cxt, op1, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ARR_RSZ_DIM_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -94233,13 +94233,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_array_resize_update_dimension_I64(cxt, &op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_U32_ARR * __restrict) ip)
@@ -94254,7 +94254,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_I64(cxt, op1, op2, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -94262,6 +94261,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CLR_ELE_RSZ_DIM_U32_U32_U32_U32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_U32_ARR * __restrict) ip)
@@ -94277,7 +94277,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_clear_element_resize_update_dimension_I64(cxt, op1, op2, &op3, op4, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
@@ -94286,6 +94285,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CCLR_ARR_I32_I64:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -94297,11 +94297,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_array_I64(op1, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_CCLR_ELE_U32_U32_I32_I64:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_ARR * __restrict) ip)
@@ -94315,13 +94315,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_predicate_clear_element_I64(op1, op2, op3, res_ptr, res_count);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef op3
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_S64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -94331,9 +94331,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -94343,9 +94343,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_S64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -94356,10 +94356,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_S64_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -94372,12 +94372,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_S64_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -94391,13 +94391,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S64_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -94411,13 +94411,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_S64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_S64_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -94432,7 +94432,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_S64(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -94440,6 +94439,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_S64_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -94456,7 +94456,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_S64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -94466,6 +94465,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_PACK_LE_I64_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -94477,11 +94477,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_LE_I64_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -94493,11 +94493,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_little_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I64_U08_SCA:
 #define INSTR		((qb_instruction_SCA_ARR * __restrict) ip)
@@ -94509,11 +94509,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PACK_BE_I64_U08_ELE:
 #define INSTR		((qb_instruction_ELE_ARR * __restrict) ip)
@@ -94525,11 +94525,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_pack_big_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_UNPACK_LE_U08_I64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -94541,11 +94541,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_LE_U08_I64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -94557,11 +94557,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_little_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -94573,11 +94573,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_UNPACK_BE_U08_I64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -94589,11 +94589,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_unpack_big_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -94605,11 +94605,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_S64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -94621,11 +94621,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_S64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MOV_U64_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -94636,10 +94636,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U64_F32_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -94650,10 +94650,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U64_F32_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -94666,12 +94666,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U64_F32(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_MOV_U64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
@@ -94682,10 +94682,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U64_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U64_F64_ELE:
 #define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
@@ -94696,10 +94696,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_U64_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef res
+		break;
 		
 		case QB_MOV_U64_F64_MIO:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -94712,12 +94712,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_cast_multiple_times_U64_F64(op1_ptr, op1_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res_ptr
 #undef res_count
+		break;
 		
 		case QB_PRN_U64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -94727,9 +94727,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -94739,9 +94739,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_array_element_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 		case QB_PRN_U64_MIO:
 #define INSTR		((qb_instruction_ARR * __restrict) ip)
@@ -94752,10 +94752,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_variable_multiple_times_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+		break;
 		
 		case QB_PRN_DIM_U64_U32:
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
@@ -94768,12 +94768,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_redirect_print_multidimensional_variable_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+		break;
 		
 		case QB_APP_VAR_U64_U32_U08_SCA:
 #define INSTR		((qb_instruction_SCA_U32_ARR * __restrict) ip)
@@ -94787,13 +94787,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_SCA_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U64_U32_U08_ELE:
 #define INSTR		((qb_instruction_ELE_U32_ARR * __restrict) ip)
@@ -94807,13 +94807,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_U64(cxt, op1, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ELE_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1
 #undef op2
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_U64_U32_U08_MIO:
 #define INSTR		((qb_instruction_ARR_U32_ARR * __restrict) ip)
@@ -94828,7 +94828,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_variable_multiple_times_U64(cxt, op1_ptr, op1_count, op2, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -94836,6 +94835,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_APP_VAR_DIM_U64_U32_U32_U08:
 #define INSTR		((qb_instruction_ARR_ARR_U32_ARR * __restrict) ip)
@@ -94852,7 +94852,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_append_multidimensional_variable_U64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_U32_ARR);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
@@ -94862,6 +94861,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 #undef res_count_ptr
+		break;
 		
 		case QB_CONV_STR_U08_U64_SCA:
 #define INSTR		((qb_instruction_ARR_SCA * __restrict) ip)
@@ -94873,11 +94873,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_CONV_STR_U08_U64_ELE:
 #define INSTR		((qb_instruction_ARR_ELE * __restrict) ip)
@@ -94889,11 +94889,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_convert_from_string_U64(op1_ptr, op1_count, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 		}
-		break;
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
 #undef res
+		break;
 		
 		case QB_MUL_MM_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -94907,11 +94907,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_MUL_MV_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -94925,11 +94925,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_MUL_VM_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -94943,11 +94943,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_SM_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -94961,11 +94961,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_TRAN_GUARD_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -94980,12 +94980,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
+		break;
 		
 		case QB_CROSS_2X_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -94999,11 +94999,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_CROSS_3X_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -95017,11 +95017,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_CROSS_4X_GUARD_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
@@ -95036,12 +95036,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
 #undef op3
+		break;
 		
 		case QB_VV_GUARD_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
@@ -95055,11 +95055,11 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			}
 			ip += sizeof(qb_instruction_SCA_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
 #undef op2
+		break;
 		
 		case QB_TIME_F64_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -95069,9 +95069,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_get_time_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_TIME_F64_ELE:
 #define INSTR		((qb_instruction_ELE * __restrict) ip)
@@ -95081,9 +95081,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_do_get_time_F64(&res);
 			ip += sizeof(qb_instruction_ELE);
 		}
-		break;
 #undef INSTR
 #undef res
+		break;
 		
 		case QB_EXT_U32:
 #define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
@@ -95094,10 +95094,10 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_run_zend_extension_op(cxt, op1, line_id);
 			ip += sizeof(qb_instruction_SCA_line_id);
 		}
-		break;
 #undef INSTR
 #undef line_id
 #undef op1
+		break;
 		
 		case QB_DBG_SYNC_U32:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
@@ -95107,9 +95107,9 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 			qb_sync_shadow_variable(cxt, op1);
 			ip += sizeof(qb_instruction_SCA);
 		}
-		break;
 #undef INSTR
 #undef op1
+		break;
 		
 #ifdef _MSC_VER
 		default:

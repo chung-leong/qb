@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+
+#ifndef QB_OPCODES_H_
+#define QB_OPCODES_H_
+
 enum qb_opcode {
 	QB_NOP,
 	QB_JMP,
@@ -3023,3 +3027,4 @@ enum qb_opcode {
 	QB_DBG_SYNC_U32,
 	QB_OPCODE_COUNT
 };
+#endif

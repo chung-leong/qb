@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+
+#ifndef QB_INTERPRETER_FUNCTIONS_H_
+#define QB_INTERPRETER_FUNCTIONS_H_
+
 int qb_compare_ascending_F32(const void *p1, const void *p2);
 int qb_compare_ascending_F32_array(const void *p1, const void *p2, const void *p3);
 int qb_compare_ascending_F64(const void *p1, const void *p2);
@@ -4694,3 +4698,4 @@ static zend_always_inline void qb_do_unpack_little_endian_I64(uint8_t *op1_ptr, 
 	*((uint64_t *) &(*res_ptr)) = SWAP_LE_I64(*((uint64_t *) op1_ptr));
 }
 
+#endif

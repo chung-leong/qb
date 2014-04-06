@@ -66,31 +66,49 @@ $generator = new CodeGenerator;
 
 $handle = create_file("qb_opcodes.h");
 fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_OPCODES_H_\n");
+fwrite($handle, "#define QB_OPCODES_H_\n");
+fwrite($handle, "\n");
 $generator->writeOpCodes($handle);
+fwrite($handle, "#endif\n");
 
 $handle = create_file("qb_interpreter_structures.h");
 fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_INTERPRETER_STRUCTURES_H_\n");
+fwrite($handle, "#define QB_INTERPRETER_STRUCTURES_H_\n");
+fwrite($handle, "\n");
 $generator->writeTypeDeclarations($handle);
+fwrite($handle, "#endif\n");
 
 $handle = create_file("qb_interpreter_functions.h");
 fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_INTERPRETER_FUNCTIONS_H_\n");
+fwrite($handle, "#define QB_INTERPRETER_FUNCTIONS_H_\n");
+fwrite($handle, "\n");
 $generator->writeFunctionPrototypes($handle);
+fwrite($handle, "#endif\n");
 
 $handle = create_file("qb_interpreter_loop.c");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "\n");
 $generator->writeMainLoop($handle);
 $generator->writeNativeDebugStub($handle);
 
 $handle = create_file("qb_interpreter_functions.c");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "\n");
 $generator->writeFunctionDefinitions($handle);
 $generator->writeNativeSymbolTable($handle);
 
 $handle = create_file("qb_data_tables.c");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "\n");
 $generator->writeOpInfo($handle);
 $generator->writeOpNames($handle);
 $generator->writeNativeCodeTables($handle);

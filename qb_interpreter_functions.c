@@ -18,10 +18,10 @@
 
 /* $Id$ */
 
-
 #include "qb.h"
 #include "qb_interpreter_structures.h"
 #include "qb_interpreter_functions.h"
+
 int qb_compare_ascending_F32(const void *p1, const void *p2) {
 	if(*((float32_t *) p1) < *((float32_t *) p2)) {
 		return -1;

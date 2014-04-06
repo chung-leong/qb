@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+
+#ifndef QB_INTERPRETER_STRUCTURES_H_
+#define QB_INTERPRETER_STRUCTURES_H_
+
 typedef struct qb_branch_table_entry {
 	void *next_handler;
 	int8_t *instruction_pointer;
@@ -923,3 +927,4 @@ typedef struct qb_instruction_jump {
 } qb_instruction_jump;
 extern void *op_handlers[];
 
+#endif

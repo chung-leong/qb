@@ -18,10 +18,10 @@
 
 /* $Id$ */
 
-
 #include "qb.h"
 #include "qb_interpreter_structures.h"
 #include "qb_interpreter_functions.h"
+
 const qb_op_info global_op_info[] = {
 	// NOP
 {	0, sizeof(qb_instruction), ""	},
