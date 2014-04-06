@@ -170,8 +170,8 @@ static int32_t qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_in
 			target_qop = cxt->ops[++target_index];
 		}
 
-		*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
-		*p_ip += sizeof(void *);
+		*((qb_op_handler *) *p_ip) = qb_get_handler(cxt, target_qop);
+		*p_ip += sizeof(qb_op_handler);
 
 		*((int8_t **) *p_ip) = qb_get_instruction_pointer(cxt, target_qop); 
 		*p_ip += sizeof(int8_t *);
@@ -786,12 +786,12 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 #ifdef USE_OP_HANDLER
 		if(initializing) {
 			// update the first next handler
-			void **p_handler = (void **) ip;
+			qb_op_handler *p_handler = (qb_op_handler*) ip;
 			qb_opcode next_opcode = (qb_opcode) *p_handler;
 			*p_handler = op_handlers[next_opcode];
 		}
 #endif
-		ip += sizeof(void *);
+		ip += sizeof(qb_op_handler);
 
 		// go through the instructions and fix up pointers to preallocated segments
 		for(i = 0; i < qfunc->instruction_opcode_count; i++) {
@@ -805,12 +805,12 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 #ifdef USE_OP_HANDLER
 				if(initializing) {
 					// update next handler
-					void **p_handler = (void **) ip;
+					qb_op_handler *p_handler = (qb_op_handler *) ip;
 					qb_opcode next_opcode = (qb_opcode) *p_handler;
 					*p_handler = op_handlers[next_opcode];
 				}
 #endif
-				ip += sizeof(void *);
+				ip += sizeof(qb_op_handler);
 
 				if(op_flags & QB_OP_BRANCH) {
 					// update instruction pointer
@@ -821,12 +821,12 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 #ifdef USE_OP_HANDLER
 					if(initializing) {
 						// update second next handler
-						void **p_handler = (void **) ip;
+						qb_op_handler *p_handler = (qb_op_handler *) ip;
 						qb_opcode next_opcode = (qb_opcode) *p_handler;
 						*p_handler = op_handlers[next_opcode];
 					}
 #endif
-					ip += sizeof(void *);
+					ip += sizeof(qb_op_handler);
 
 					// update second instruction pointer
 					p_ip = (int8_t **) ip;
@@ -876,13 +876,12 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 					int8_t **p_ip;
 #ifdef USE_OP_HANDLER
 					if(initializing) {
-						// update next handler
-						void **p_handler = (void **) ip;
+						qb_op_handler *p_handler = (qb_op_handler *) ip;
 						qb_opcode next_opcode = (qb_opcode) *p_handler;
 						*p_handler = op_handlers[next_opcode];
 					}
 #endif
-					ip += sizeof(void *);
+					ip += sizeof(qb_op_handler);
 
 					p_ip = (int8_t **) ip;
 					SHIFT_POINTER(*p_ip, instruction_shift);

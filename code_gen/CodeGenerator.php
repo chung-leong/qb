@@ -112,7 +112,7 @@ class CodeGenerator {
 	protected function writeSwitchLoop($handle) {
 		$lines = array();
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] = 		"register qb_op_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register qb_opcode handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
 		$lines[] = "#ifdef _WIN32";
 		$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -185,6 +185,9 @@ class CodeGenerator {
 		$lines[] = "#ifdef _MSC_VER";		
 		$lines[] = 			"default:";
 		$lines[] = 				"__assume(0);";	
+		$lines[] = "#endif";
+		$lines[] = "#ifdef __GNUC__";
+		$lines[] =			"case QB_OPCODE_COUNT: break;";
 		$lines[] = "#endif";
 		$lines[] = 		"}";
 		$lines[] = "}";
@@ -287,9 +290,83 @@ class CodeGenerator {
 
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
-		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] = "}";
 
+		$lines[] = "#define return		longjmp(cxt->tail_call_exit)";
+		$lines[] = "";
+
+		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip);";
+		$lines[] = "";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$instr = $handler->getInstructionStructure();
+			$opCount = $handler->getOperandCount();
+			$targetCount = $handler->getJumpTargetCount();
+
+			$lines[] = "static int8_t *qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
+			$lines[] = 		$handler->getMacroDefinitions();
+			$lines[] = 		"register qb_tc_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+			$lines[] = 		"";
+		
+			if($targetCount == 0 || $targetCount == 1) {
+				// set next handler
+				$lines[] =	"handler = INSTR->next_handler;";
+			} else if($targetCount == 2) {
+				// assume the first branch will be taken
+				$lines[] = 	"int condition;";
+				$lines[] = 	"handler = INSTR->next_handler1;";
+			} else if($targetCount > 2) {
+				// branch table
+				$lines[] = 	"unsigned int offset;";
+			}
+				
+			$lines[] = 		$handler->getAction();
+
+			if($targetCount == 0) {
+				// move the instruction pointer over this one
+				$lines[] = 	"ip += sizeof($instr);";
+			} else if($targetCount == 1) {
+				// go to the jump target
+				$lines[] = 	"ip = INSTR->instruction_pointer;";
+			} else if($targetCount == 2) {
+				// set the instruction pointer to pointer 1, if condition is true
+				// otherwise update the next handler and set ip to pointer 2
+				$lines[] = "if(condition) {";
+				$lines[] = 		"ip = INSTR->instruction_pointer1;";
+				$lines[] = "} else {";
+				$lines[] = 		"handler = INSTR->next_handler2;";
+				$lines[] = 		"ip = INSTR->instruction_pointer2;";
+				$lines[] = "}";
+			}  else if($targetCount > 2) {
+				$lines[] = "handler = INSTR->branch_table[offset].next_handler;";
+				$lines[] = "ip = INSTR->branch_table[offset].instruction_pointer;";
+			}
+
+			// go to the next instruction unless the function is returning
+			if($targetCount != -1) {
+				$lines[] = "handler(cxt, ip);";
+			}
+			$lines[] = "}";
+			$lines[] = $handler->getMacroUndefinitions();
+			$lines[] = "";
+		}
+		$lines[] = "#undef return";
+		$lines[] = "";
+
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] =		"if(setjmp(cxt->tail_call_exit) == 0) {";
+		$lines[] = 			"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
+		$lines[] =			"handler(cxt, ip);";
+		$lines[] = 		"}";
+		$lines[] = "}";
+		
+		$lines[] = "qb_op_handler *op_handlers[QB_OPCODE_COUNT] = {";
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] =	"qb_tc_$name,";
+		}
+		$lines[] = "};";
 		$this->writeCode($handle, $lines);
 	}
 			
