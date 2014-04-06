@@ -113,13 +113,17 @@ static int32_t qb_encode_address(qb_encoder_context *cxt, qb_address *address, i
 	return TRUE;
 }
 
+#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)
+#	define USE_OP_HANDLER
+#endif
+
 static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
 #ifdef ZEND_DEBUG
 	if(qop->opcode >= QB_OPCODE_COUNT) {
 		qb_debug_abort("Illegal opcode");
 	}
 #endif
-#ifndef _MSC_VER
+#ifdef USE_OP_HANDLER
 	if(cxt->position_independent) {
 		return (void *) ((uintptr_t) qop->opcode);
 	} else {
@@ -778,7 +782,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 		range_start = qfunc->local_storage_base_address + ((uintptr_t) segment_start->memory - (uintptr_t) qfunc->local_storage);
 		range_end = qfunc->local_storage_base_address + ((uintptr_t) segment_end->memory - (uintptr_t) qfunc->local_storage) + segment_end->byte_count;
 
-#ifndef _MSC_VER
+#ifdef USE_OP_HANDLER
 		if(initializing) {
 			// update the first next handler
 			void **p_handler = (void **) ip;
@@ -797,7 +801,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 			if(op_flags & QB_OP_EXIT) {
 				// nothing
 			} else if(!(op_flags & QB_OP_BRANCH_TABLE)) {
-#ifndef _MSC_VER
+#ifdef USE_OP_HANDLER
 				if(initializing) {
 					// update next handler
 					void **p_handler = (void **) ip;
@@ -813,7 +817,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 					SHIFT_POINTER(*p_ip, instruction_shift);
 					ip += sizeof(int8_t *);
 
-#ifndef _MSC_VER
+#ifdef USE_OP_HANDLER
 					if(initializing) {
 						// update second next handler
 						void **p_handler = (void **) ip;
@@ -869,7 +873,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 				uint32_t j;
 				for(j = 0; j < branch_count; j++) {
 					int8_t **p_ip;
-#ifndef _MSC_VER
+#ifdef USE_OP_HANDLER
 					if(initializing) {
 						// update next handler
 						void **p_handler = (void **) ip;
@@ -931,7 +935,9 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 void qb_main(qb_interpreter_context *__restrict cxt);
 
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt, int32_t position_independent TSRMLS_DC) {
-#ifndef _MSC_VER
+#ifdef USE_COMPUTED_GOTO_INTERPRETER_LOOP
+	// the handlers point to code position with in qb_main()
+	// only the function have access to these pointers
 	static int handlers_initialized = FALSE;
 	if(!handlers_initialized) {
 		qb_main(NULL);

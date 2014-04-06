@@ -49,7 +49,9 @@ class CodeGenerator {
 		$lines[] = "#endif";
 
 		$lines = array();
+		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
 		$lines[] = "extern void *op_handlers[];";
+		$lines[] = "#endif";
 		$lines[] = "";
 		$this->writeCode($handle, $lines);
 	}
@@ -128,7 +130,7 @@ class CodeGenerator {
 			} else if($targetCount == 2) {
 				// assume the first branch will be taken
 				$lines[] = 		"int condition;";
-				$lines[] = 		"handler = INSTR->next_handler1";
+				$lines[] = 		"handler = INSTR->next_handler1;";
 			} else if($targetCount > 2) {
 				// branch table
 				$lines[] = 		"unsigned int offset;";
@@ -213,7 +215,7 @@ class CodeGenerator {
 			} else if($targetCount == 2) {
 				// assume the first branch will be taken
 				$lines[] = 		"int condition;";
-				$lines[] = 		"handler = INSTR->next_handler1";
+				$lines[] = 		"handler = INSTR->next_handler1;";
 			} else if($targetCount > 2) {
 				// branch table
 				$lines[] = 		"unsigned int offset;";
@@ -427,7 +429,7 @@ class CodeGenerator {
 		}
 
 		// create function declaration table and reverse look-up table
-		$functionDeclarations = $this->getFunctionDeclarations();
+		$functionDeclarations = $this->getFunctionDeclarations(true);
 		$functionIndices = array();
 		$functionRefCounts = array();
 		foreach($functionDeclarations as $index => &$decl) {
@@ -509,16 +511,10 @@ class CodeGenerator {
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
 		$this->writeCode($handle, "#endif");
 	}
-	
-	public function writeNativeSymbolTable($handle) {
-		$this->currentIndentationLevel = 0;
-		
-		// parse for declaration of helper functions 
-		$functionDeclarations = $this->getFunctionDeclarations();
-		
-		// figure out what the symbols are
+
+	protected function getSymbols($declarations) {
 		$symbols = array();
-		foreach($functionDeclarations as $decl) {
+		foreach($declarations as $decl) {
 			if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)/', $decl, $m)) {
 				$modifiers = $m[1];
 				$functionName = $m[2];
@@ -534,8 +530,24 @@ class CodeGenerator {
 				$symbols[$functionName] = $target;
 			}
 		}
+		return $symbols;
+	}
+	
+	public function writeNativeSymbolTable($handle) {
+		$this->currentIndentationLevel = 0;
+		
+		// parse for declaration of helper functions 
+		$functionDeclarations = $this->getFunctionDeclarations(false);
+		
+		// figure out what the symbols are
+		$symbols = $this->getSymbols($functionDeclarations);
 
-		// load list of intrinsic functions
+		// load lists of function prototypes functions
+		$commonSymbols = $this->getSymbols($this->loadListing("function_prototypes.txt"));
+		$gccSymbols = $this->getSymbols($this->loadListing("function_prototypes_gcc.txt"));
+		$msvcSymbols = $this->getSymbols($this->loadListing("function_prototypes_msvc.txt"));
+
+		// load lists of intrinsic functions
 		$msvcIntrinsics = $this->loadListing("intrinsic_functions_msvc.txt");
 		$gccIntrinsics = $this->loadListing("intrinsic_functions_gcc.txt");
 		
@@ -545,47 +557,51 @@ class CodeGenerator {
 		$msvcFunctionPointers = array("floor", "ceil");
 
 		$lines = array();
-		$count = 0;
 		$lines[] = "qb_native_symbol global_native_symbols[] = {";
 		foreach($symbols as $name => $symbol) {
-			$isIntrinsic = in_array($name, $vc11Intrinsics);
-			$isFunctionPointer = in_array($name, $msvcFunctionPointers);
-			if($isIntrinsic) {
-				$lines[] = "#if _MSC_VER > 1700";
-				$lines[] = "{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
-				$lines[] = "#else";
-			} else if($isFunctionPointer) {
-				$lines[] = "#if defined(_MSC_VER)";
-				$lines[] = "{	\"$name\",	NULL,	0,	0	},";
-				$lines[] = "#else";
-			} 
 			if($symbol == "NULL") {
 				$lines[] = "{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},";
 			} else {
 				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
 			}
-			if($isFunctionPointer) {
+		}
+		
+		foreach($commonSymbols as $name => $symbol) {
+			if(in_array($name, $vc11Intrinsics)) {
+				$lines[] = "#if _MSC_VER > 1700";
+				$lines[] = "{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
+				$lines[] = "#else";
+				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
 				$lines[] = "#endif";
-			} else if($isIntrinsic) {
+			} else if(in_array($name, $msvcFunctionPointers)) {
+				$lines[] = "#if defined(_MSC_VER)";
+				$lines[] = "{	\"$name\",	NULL,	0,	0	},";
+				$lines[] = "#else";
+				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
 				$lines[] = "#endif";
-			}			
-			$count++;
+			} else {
+				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+			} 
 		}
 
 		$lines[] = "#if defined(_MSC_VER)";
+		foreach($msvcSymbols as $name => $symbol) {
+			$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+		}
 		foreach($msvcIntrinsics as $name) {
 			$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
-			$count++;
 		}
 		$lines[] = "#elif defined(__GNUC__)";
+		foreach($gccSymbols as $name => $symbol) {
+			$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+		}
 		foreach($gccIntrinsics as $name) {
 			$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
-			$count++;
 		}
 		$lines[] = "#endif";
 		$lines[] = "};";
 		$lines[] = "";
-		$lines[] = "uint32_t global_native_symbol_count = $count;";
+		$lines[] = "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);";
 		$this->writeCode($handle, $lines);
 	}
 
@@ -677,18 +693,23 @@ class CodeGenerator {
 		return array_merge(array_values($helperFunctions), array_values($handlerFunctions), array_values($controllerFunctions), array_values($dispatcherFunctions));
 	}
 	
-	protected function getFunctionDeclarations() {
+	protected function parseFunctionDeclarations() {
+	}
+
+	protected function getFunctionDeclarations($addPrototypes) {
 		$functionDeclarations = array();
 		
 		// add the generated function first
 		$functionDefinitions = $this->getFunctionDefinitions();
 		
 		// then prepend the list with ones that aren't generated
-		$common = $this->loadListing("function_prototypes.txt");
-		$gcc = $this->loadListing("function_prototypes_gcc.txt");
-		$msvc = $this->loadListing("function_prototypes_msvc.txt");
-		foreach(array_merge($common, $gcc, $msvc) as $line) {
-			array_unshift($functionDefinitions, array($line));
+		if($addPrototypes) {
+			$common = $this->loadListing("function_prototypes.txt");
+			$gcc = $this->loadListing("function_prototypes_gcc.txt");
+			$msvc = $this->loadListing("function_prototypes_msvc.txt");
+			foreach(array_merge($common, $gcc, $msvc) as $line) {
+				array_unshift($functionDefinitions, array($line));
+			}
 		}
 
 		// declare non-inlined functions first

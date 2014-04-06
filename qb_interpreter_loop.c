@@ -216,7 +216,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_increment_branch_on_greater_than_U32(&condition, op1, &res);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -245,7 +245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -274,7 +274,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -303,7 +303,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -332,7 +332,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2206,7 +2206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2233,7 +2233,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2260,7 +2260,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = !op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2287,7 +2287,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = !op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2315,7 +2315,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2344,7 +2344,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2373,7 +2373,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2402,7 +2402,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2431,7 +2431,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2460,7 +2460,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2489,7 +2489,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -2518,7 +2518,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5567,7 +5567,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5596,7 +5596,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5625,7 +5625,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5654,7 +5654,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5683,7 +5683,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5712,7 +5712,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5741,7 +5741,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -5770,7 +5770,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16005,7 +16005,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16034,7 +16034,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16063,7 +16063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16092,7 +16092,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16121,7 +16121,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16150,7 +16150,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16179,7 +16179,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -16208,7 +16208,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26377,7 +26377,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26406,7 +26406,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26435,7 +26435,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26464,7 +26464,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26493,7 +26493,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26522,7 +26522,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26551,7 +26551,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -26580,7 +26580,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -29387,7 +29387,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -29416,7 +29416,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -29445,7 +29445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -29474,7 +29474,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30397,7 +30397,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30426,7 +30426,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30455,7 +30455,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30484,7 +30484,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30513,7 +30513,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30542,7 +30542,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30571,7 +30571,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -30600,7 +30600,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -33407,7 +33407,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -33436,7 +33436,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -33465,7 +33465,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -33494,7 +33494,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34417,7 +34417,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34446,7 +34446,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34475,7 +34475,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34504,7 +34504,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34533,7 +34533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34562,7 +34562,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34591,7 +34591,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -34620,7 +34620,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -37489,7 +37489,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -37518,7 +37518,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -37547,7 +37547,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -37576,7 +37576,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -48958,7 +48958,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_increment_branch_on_greater_than_U32(&condition, op1, &res);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -48987,7 +48987,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -49016,7 +49016,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -49045,7 +49045,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -49074,7 +49074,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -50948,7 +50948,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -50975,7 +50975,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51002,7 +51002,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = !op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51029,7 +51029,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = !op1;
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51057,7 +51057,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51086,7 +51086,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51115,7 +51115,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51144,7 +51144,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51173,7 +51173,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51202,7 +51202,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51231,7 +51231,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -51260,7 +51260,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54309,7 +54309,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54338,7 +54338,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54367,7 +54367,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54396,7 +54396,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54425,7 +54425,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54454,7 +54454,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54483,7 +54483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -54512,7 +54512,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64747,7 +64747,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64776,7 +64776,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64805,7 +64805,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64834,7 +64834,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64863,7 +64863,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64892,7 +64892,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64921,7 +64921,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -64950,7 +64950,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75119,7 +75119,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75148,7 +75148,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75177,7 +75177,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75206,7 +75206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75235,7 +75235,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75264,7 +75264,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75293,7 +75293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -75322,7 +75322,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -78129,7 +78129,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -78158,7 +78158,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -78187,7 +78187,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -78216,7 +78216,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79139,7 +79139,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79168,7 +79168,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79197,7 +79197,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79226,7 +79226,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79255,7 +79255,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79284,7 +79284,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79313,7 +79313,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -79342,7 +79342,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -82149,7 +82149,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -82178,7 +82178,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -82207,7 +82207,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -82236,7 +82236,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83159,7 +83159,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83188,7 +83188,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			condition = (op1 == op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83217,7 +83217,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83246,7 +83246,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83275,7 +83275,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83304,7 +83304,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83333,7 +83333,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -83362,7 +83362,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -86231,7 +86231,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -86260,7 +86260,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -86289,7 +86289,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
@@ -86318,7 +86318,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			int condition;
-			handler = INSTR->next_handler1
+			handler = INSTR->next_handler1;
 			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
