@@ -17,10 +17,6 @@ if (PHP_QB != "no") {
 		}
 	}
 	
-	if (X64) {
-		AC_DEFINE('USE_TAIL_CALL_INTERPRETER_LOOP', 1, 'Using tail call execution loop');
-	}
-
 	var extra_sources="\
 	qb_build.c\
 	qb_compat.c\
