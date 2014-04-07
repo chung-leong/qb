@@ -772,6 +772,7 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 				continue_execution = FALSE;
 			}	break;
 			case QB_VM_TERMINATE: {
+				USE_TSRM
 				continue_execution = FALSE;
 				EG(exit_status) = cxt->exit_status_code;
 				qb_run_in_main_thread(qb_bailout_in_main_thread, NULL, NULL, 0);

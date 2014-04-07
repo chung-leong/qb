@@ -257,7 +257,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\..;..\..\..\Zend;..\..\..\TSRM;..\..\..\main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;PHP_EXPORTS;COMPILE_DL_QB;ZTS=1;HAVE_QB=1;ZEND_DEBUG=0;NDEBUG;_WINDOWS;ZEND_WIN32;PHP_WIN32;_CRT_SECURE_NO_WARNINGS;USE_TAIL_CALL_INTERPRETER_LOOP=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;PHP_EXPORTS;COMPILE_DL_QB;ZTS=1;HAVE_QB=1;ZEND_DEBUG=0;NDEBUG;_WINDOWS;ZEND_WIN32;PHP_WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>

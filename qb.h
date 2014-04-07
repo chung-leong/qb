@@ -130,8 +130,10 @@
 #elif defined(__GNUC__)
 #	define USE_COMPUTED_GOTO_INTERPRETER_LOOP		1
 #elif defined(_MSC_VER)
-#	if defined(__x86_64__)
-#		define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#	if !defined(_DEBUG)
+#		if defined(__x86_64__)
+#			define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#		endif
 #	endif
 #endif
 

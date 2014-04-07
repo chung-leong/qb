@@ -110,15 +110,38 @@ class CodeGenerator {
 		$this->writeCode($handle, $lines);
 	}
 
+	public function writeTimeCheckMacro($handle) {
+		$lines = array();
+		$lines[] = "#if defined(_WIN32)";
+		$lines[] = "#	define TIMER_CHECK() \\";
+		$lines[] = "	if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {\\";
+		$lines[] = "		windows_timeout_check_counter = 0;\\";
+		$lines[] = "		if(*cxt->windows_timed_out_pointer) {\\";
+		$lines[] = "			cxt->exit_type = QB_VM_TIMEOUT;\\";
+		$lines[] = "			return;\\";
+		$lines[] = "		}\\";
+		$lines[] = "	}";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_DC		, uint32_t windows_timeout_check_counter";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC		, windows_timeout_check_counter";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC0		, 0";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_LV		uint32_t windows_timeout_check_counter = 0;";
+		$lines[] = "#else";
+		$lines[] = "#	define TIMER_CHECK()";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_DC";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC0";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_LV";
+		$lines[] = "#endif";
+		$lines[] = "";
+		$this->writeCode($handle, $lines);
+	}	
+
 	protected function writeSwitchLoop($handle) {
 		$lines = array();
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
 		$lines[] = 		"register qb_opcode handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
-		$lines[] = "#ifdef _WIN32";
-		$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
-		$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-		$lines[] = "#endif";
+		$lines[] = 		"TIMER_CHECK_COUNTER_LV";
 		$lines[] =		"";
 		$lines[] = 		"while(1) switch(handler) {";
 
@@ -166,16 +189,10 @@ class CodeGenerator {
 				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
 			}
 
-			if($targetCount == 1 || $targetCount == 2) {
-				$lines[] = 		"#ifdef _WIN32";
-				$lines[] = 		"if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
-				$lines[] =			"windows_timeout_check_counter = 0;";
-				$lines[] = 			"if(*windows_timed_out_pointer) {";
-				$lines[] =				"cxt->exit_type = QB_VM_TIMEOUT;";
-				$lines[] = 				"return;";
-				$lines[] =			"}";
-				$lines[] = 		"}";
-				$lines[] = 		"#endif";
+			if(!$handler->alwaysReturns()) {
+				if($targetCount == 1 || $targetCount == 2) {
+					$lines[] = 	"TIMER_CHECK();";
+				}
 			}
 			$lines[] = 		"}";
 			$lines[] = 		$handler->getMacroUndefinitions();
@@ -202,10 +219,7 @@ class CodeGenerator {
 		$lines[] =		"if(cxt) {";
 		$lines[] = 			"register qb_op_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
-		$lines[] = "#ifdef _WIN32";
-		$lines[] =			"uint32_t windows_timeout_check_counter = 0;";
-		$lines[] = 			"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-		$lines[] = "#endif";
+		$lines[] = 			"TIMER_CHECK_COUNTER_LV";
 		$lines[] =			"";
 		$lines[] = 			"goto *handler;";
 		$lines[] = 			"";
@@ -254,20 +268,11 @@ class CodeGenerator {
 				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
 			}
 
-			if($targetCount == 1 || $targetCount == 2) {
-				$lines[] = 		"#ifdef _WIN32";
-				$lines[] = 		"if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
-				$lines[] =			"windows_timeout_check_counter = 0;";
-				$lines[] = 			"if(*windows_timed_out_pointer) {";
-				$lines[] =				"cxt->exit_type = QB_VM_TIMEOUT;";
-				$lines[] = 				"return;";
-				$lines[] =			"}";
-				$lines[] = 		"}";
-				$lines[] = 		"#endif";
-			}
-
 			// go to the next instruction unless the handler always returns
 			if(!$handler->alwaysReturns()) {
+				if($targetCount == 1 || $targetCount == 2) {
+					$lines[] = 	"TIMER_CHECK();";
+				}
 				$lines[] =		"goto *handler;";
 			}
 			$lines[] = 		"}";
@@ -292,10 +297,10 @@ class CodeGenerator {
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
 
-		$lines[] = "#define return		longjmp(cxt->tail_call_exit, 1)";
+		$lines[] = "#define return		longjmp(*cxt->tail_call_exit, 1)";
 		$lines[] = "";
 
-		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip);";
+		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC);";
 		$lines[] = "";
 
 		foreach($this->handlers as $handler) {
@@ -304,7 +309,7 @@ class CodeGenerator {
 			$opCount = $handler->getOperandCount();
 			$targetCount = $handler->getJumpTargetCount();
 
-			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
+			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC) {";
 			$lines[] = 		$handler->getMacroDefinitions();
 			
 			if($targetCount != -1) {
@@ -348,7 +353,10 @@ class CodeGenerator {
 
 			// go to the next instruction unless the function is returning
 			if(!$handler->alwaysReturns()) {
-				$lines[] = "handler(cxt, ip);";
+				if($targetCount == 1 || $targetCount == 2) {
+					$lines[] = "TIMER_CHECK();";
+				}
+				$lines[] = "handler(cxt, ip TIMER_CHECK_COUNTER_CC);";
 			}
 			$lines[] = $handler->getMacroUndefinitions();
 			$lines[] = "}";
@@ -358,10 +366,12 @@ class CodeGenerator {
 		$lines[] = "";
 
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] =		"if(setjmp(cxt->tail_call_exit) == 0) {";
+		$lines[] =		"jmp_buf state;";
+		$lines[] =		"if(setjmp(state) == 0) {";
 		$lines[] = 			"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
-		$lines[] =			"handler(cxt, ip);";
+		$lines[] =			"cxt->tail_call_exit = &state;";
+		$lines[] =			"handler(cxt, ip TIMER_CHECK_COUNTER_CC0);";
 		$lines[] = 		"}";
 		$lines[] = "}";
 		$lines[] = "";
@@ -374,9 +384,11 @@ class CodeGenerator {
 		$lines[] = "};";
 		$this->writeCode($handle, $lines);
 	}
-			
+		
 	public function writeMainLoop($handle) {
 		$this->currentIndentationLevel = 0;
+		
+		$this->writeTimeCheckMacro($handle);
 		$this->writeCode($handle, "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP)");
 		$this->writeTailCallLoop($handle);
 		$this->writeCode($handle, "#elif defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)");

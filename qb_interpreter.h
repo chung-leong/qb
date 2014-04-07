@@ -104,7 +104,7 @@ struct qb_interpreter_context {
 
 	zval **shadow_variables;
 #ifdef USE_TAIL_CALL_INTERPRETER_LOOP
-	jmp_buf tail_call_exit;
+	jmp_buf *tail_call_exit;
 #endif
 };
 
