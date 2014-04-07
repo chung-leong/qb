@@ -55,6 +55,7 @@ class CodeGenerator {
 		$lines[] = "#else";
 		$lines[] = "#	pragma pack(pop)";
 		$lines[] = "#endif";
+		$lines[] = "";
 
 		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
 		$lines[] = "extern qb_op_handler op_handlers[];";
@@ -291,7 +292,7 @@ class CodeGenerator {
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
 
-		$lines[] = "#define return		longjmp(cxt->tail_call_exit)";
+		$lines[] = "#define return		longjmp(cxt->tail_call_exit, 1)";
 		$lines[] = "";
 
 		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip);";
@@ -303,10 +304,13 @@ class CodeGenerator {
 			$opCount = $handler->getOperandCount();
 			$targetCount = $handler->getJumpTargetCount();
 
-			$lines[] = "static int8_t *qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
+			$lines[] = "static void NO_RETURN qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
 			$lines[] = 		$handler->getMacroDefinitions();
-			$lines[] = 		"register qb_tc_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
-			$lines[] = 		"";
+			
+			if($targetCount != -1) {
+				$lines[] = 	"register qb_tc_handler handler;";
+				$lines[] = 	"";
+			}
 		
 			if($targetCount == 0 || $targetCount == 1) {
 				// set next handler
@@ -360,8 +364,9 @@ class CodeGenerator {
 		$lines[] =			"handler(cxt, ip);";
 		$lines[] = 		"}";
 		$lines[] = "}";
+		$lines[] = "";
 		
-		$lines[] = "qb_op_handler *op_handlers[QB_OPCODE_COUNT] = {";
+		$lines[] = "qb_op_handler op_handlers[QB_OPCODE_COUNT] = {";
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
 			$lines[] =	"qb_tc_$name,";
@@ -652,10 +657,14 @@ class CodeGenerator {
 		
 		foreach($commonSymbols as $name => $symbol) {
 			if(in_array($name, $vc11Intrinsics)) {
-				$lines[] = "#if _MSC_VER > 1700";
-				$lines[] = "{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
+				$lines[] = "#if _MSC_VER >= 1700";
+				$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
 				$lines[] = "#else";
-				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+				if(in_array($name, $msvcFunctionPointers)) {
+					$lines[] = "{	\"$name\",	NULL,	0,	0	},";
+				} else {
+					$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+				}
 				$lines[] = "#endif";
 			} else if(in_array($name, $msvcFunctionPointers)) {
 				$lines[] = "#if defined(_MSC_VER)";

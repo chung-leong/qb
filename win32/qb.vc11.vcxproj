@@ -257,7 +257,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\..;..\..\..\Zend;..\..\..\TSRM;..\..\..\main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;PHP_EXPORTS;COMPILE_DL_QB;ZTS=1;HAVE_QB=1;ZEND_DEBUG=0;NDEBUG;_WINDOWS;ZEND_WIN32;PHP_WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;PHP_EXPORTS;COMPILE_DL_QB;ZTS=1;HAVE_QB=1;ZEND_DEBUG=0;NDEBUG;_WINDOWS;ZEND_WIN32;PHP_WIN32;_CRT_SECURE_NO_WARNINGS;USE_TAIL_CALL_INTERPRETER_LOOP=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -315,7 +315,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_crc64.c" />
-    <ClCompile Include="..\qb_data_tables_msvc.c" />
+    <ClCompile Include="..\qb_data_tables.c" />
     <ClCompile Include="..\qb_debug_interface.c" />
     <ClCompile Include="..\qb_encoder.c" />
     <ClCompile Include="..\qb_exceptions.c" />
@@ -323,8 +323,8 @@
     <ClCompile Include="..\qb_function_inliner.c" />
     <ClCompile Include="..\qb_interpreter.c" />
     <ClCompile Include="..\qb_interpreter_debug.c" />
-    <ClCompile Include="..\qb_interpreter_functions_msvc.c" />
-    <ClCompile Include="..\qb_interpreter_loop_msvc.c" />
+    <ClCompile Include="..\qb_interpreter_functions.c" />
+    <ClCompile Include="..\qb_interpreter_loop.c" />
     <ClCompile Include="..\qb_native_compiler.c" />
     <ClCompile Include="..\qb_native_compiler_win32.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
@@ -433,7 +433,8 @@
     <ClInclude Include="..\qb_function.h" />
     <ClInclude Include="..\qb_function_inliner.h" />
     <ClInclude Include="..\qb_interpreter.h" />
-    <ClInclude Include="..\qb_interpreter_msvc.h" />
+    <ClInclude Include="..\qb_interpreter_functions.h" />
+    <ClInclude Include="..\qb_interpreter_structures.h" />
     <ClInclude Include="..\qb_native_compiler.h" />
     <ClInclude Include="..\qb_op.h" />
     <ClInclude Include="..\qb_op_factories.h" />
@@ -446,6 +447,9 @@
     <ClInclude Include="..\qb_translator_php.h" />
     <ClInclude Include="..\qb_types.h" />
     <ClInclude Include="..\qb_version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

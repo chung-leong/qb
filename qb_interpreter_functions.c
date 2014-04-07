@@ -35539,219 +35539,219 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_do_unpack_little_endian_I64",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 {	"memcpy",	memcpy,	0,	0	},
 {	"memmove",	memmove,	0,	0	},
-#if _MSC_VER > 1700
-{	"sin",	sin,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sin",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sin",	sin,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"asin",	asin,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"asin",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"asin",	asin,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"cos",	cos,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"cos",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"cos",	cos,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"acos",	acos,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"acos",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"acos",	acos,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"tan",	tan,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"tan",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"tan",	tan,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"atan",	atan,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"atan",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"atan",	atan,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"atan2",	atan2,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"atan2",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"atan2",	atan2,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"sinh",	sinh,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sinh",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sinh",	sinh,	0,	0	},
 #endif
 {	"asinh",	asinh,	0,	0	},
-#if _MSC_VER > 1700
-{	"cosh",	cosh,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"cosh",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"cosh",	cosh,	0,	0	},
 #endif
 {	"acosh",	acosh,	0,	0	},
-#if _MSC_VER > 1700
-{	"tanh",	tanh,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"tanh",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"tanh",	tanh,	0,	0	},
 #endif
 {	"atanh",	atanh,	0,	0	},
-#if _MSC_VER > 1700
-{	"exp",	exp,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"exp",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"exp",	exp,	0,	0	},
 #endif
 {	"expm1",	expm1,	0,	0	},
 {	"exp2",	exp2,	0,	0	},
-#if _MSC_VER > 1700
-{	"log",	log,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"log",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"log",	log,	0,	0	},
 #endif
 {	"log1p",	log1p,	0,	0	},
-#if _MSC_VER > 1700
-{	"log10",	log10,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"log10",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"log10",	log10,	0,	0	},
 #endif
 {	"log2",	log2,	0,	0	},
-#if _MSC_VER > 1700
-{	"pow",	pow,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"pow",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"pow",	pow,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"sqrt",	sqrt,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sqrt",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sqrt",	sqrt,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"ceil",	ceil,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"ceil",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
-{	"ceil",	ceil,	0,	0	},
+{	"ceil",	NULL,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"floor",	floor,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"floor",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
-{	"floor",	floor,	0,	0	},
+{	"floor",	NULL,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"fabs",	fabs,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"fabs",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"fabs",	fabs,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"hypot",	hypot,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"hypot",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"hypot",	hypot,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"fmod",	fmod,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"fmod",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"fmod",	fmod,	0,	0	},
 #endif
 {	"rint",	rint,	0,	0	},
 {	"round",	round,	0,	0	},
-#if _MSC_VER > 1700
-{	"sinf",	sinf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sinf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sinf",	sinf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"asinf",	asinf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"asinf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"asinf",	asinf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"cosf",	cosf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"cosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"cosf",	cosf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"acosf",	acosf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"acosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"acosf",	acosf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"tanf",	tanf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"tanf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"tanf",	tanf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"atanf",	atanf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"atanf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"atanf",	atanf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"atan2f",	atan2f,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"atan2f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"atan2f",	atan2f,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"sinhf",	sinhf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sinhf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sinhf",	sinhf,	0,	0	},
 #endif
 {	"asinhf",	asinhf,	0,	0	},
-#if _MSC_VER > 1700
-{	"coshf",	coshf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"coshf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"coshf",	coshf,	0,	0	},
 #endif
 {	"acoshf",	acoshf,	0,	0	},
-#if _MSC_VER > 1700
-{	"tanhf",	tanhf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"tanhf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"tanhf",	tanhf,	0,	0	},
 #endif
 {	"atanhf",	atanhf,	0,	0	},
-#if _MSC_VER > 1700
-{	"expf",	expf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"expf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"expf",	expf,	0,	0	},
 #endif
 {	"expm1f",	expm1f,	0,	0	},
 {	"exp2f",	exp2f,	0,	0	},
-#if _MSC_VER > 1700
-{	"logf",	logf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"logf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"logf",	logf,	0,	0	},
 #endif
 {	"log1pf",	log1pf,	0,	0	},
-#if _MSC_VER > 1700
-{	"log10f",	log10f,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"log10f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"log10f",	log10f,	0,	0	},
 #endif
 {	"log2f",	log2f,	0,	0	},
-#if _MSC_VER > 1700
-{	"powf",	powf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"powf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"powf",	powf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"sqrtf",	sqrtf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"sqrtf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"sqrtf",	sqrtf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"ceilf",	ceilf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"ceilf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"ceilf",	ceilf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"floorf",	floorf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"floorf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"floorf",	floorf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"fabsf",	fabsf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"fabsf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"fabsf",	fabsf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"hypotf",	hypotf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"hypotf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"hypotf",	hypotf,	0,	0	},
 #endif
-#if _MSC_VER > 1700
-{	"fmodf",	fmodf,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+#if _MSC_VER >= 1700
+{	"fmodf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"fmodf",	fmodf,	0,	0	},
 #endif

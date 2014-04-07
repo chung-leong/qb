@@ -8,14 +8,19 @@ ARG_WITH("sse", "Use SSE instructions on x86 processors", "no");
 if (PHP_QB != "no") {
 	var cflags = "/GS-";
 	if (PHP_SSE != "no") {
-		if(!X64) {
-			if(PHP_SSE == "1") {
+		if (!X64) {
+			if (PHP_SSE == "1") {
 				cflags += " /arch:SSE";
 			} else {
 				cflags += " /arch:SSE2";
 			}
 		}
 	}
+	
+	if (X64) {
+		AC_DEFINE('USE_TAIL_CALL_INTERPRETER_LOOP', 1, 'Using tail call execution loop');
+	}
+
 	var extra_sources="\
 	qb_build.c\
 	qb_compat.c\

@@ -1048,6 +1048,7 @@ typedef struct qb_instruction_jump {
 #else
 #	pragma pack(pop)
 #endif
+
 #if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)
 extern qb_op_handler op_handlers[];
 #endif
