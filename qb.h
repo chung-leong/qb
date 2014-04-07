@@ -101,7 +101,6 @@
 #	define NO_RETURN_TYPEDEF
 #endif
 
-
 #if defined(__GNUC__)
 #	if defined(__ELF__)
 #		if defined(__i386__) || defined(__x86_64__)
@@ -122,7 +121,9 @@
 
 #if defined(__clang__)
 #	if defined(__OPTIMIZE__)
-#		define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#		if defined(__x86_64__)
+#			define USE_TAIL_CALL_INTERPRETER_LOOP	1
+#		endif	
 #	else
 #		define USE_COMPUTED_GOTO_INTERPRETER_LOOP	1
 #	endif
