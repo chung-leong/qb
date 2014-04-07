@@ -938,7 +938,11 @@ void qb_free_thread_pool(void) {
 #ifndef WIN32
 		if(pool->signal_thread) {
 			if(__sync_add_and_fetch(&pool->signal_thread_state, 1) == 2) {
+				sigset_t set, old_set;
+				sigfillset(&set);
+				sigprocmask(SIG_SETMASK, &set, &old_set);
 				pthread_kill(pool->signal_thread, SIGQUIT);
+				sigprocmask(SIG_SETMASK, &old_set, NULL);
 			}
 			pthread_join(pool->signal_thread, NULL);
 		}

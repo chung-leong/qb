@@ -2735,7 +2735,7 @@ qb_simple_op_factory factory_exit = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_all,
+	qb_transfer_operands_exit,
 	NULL,
 	0,
 	0,

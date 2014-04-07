@@ -266,8 +266,8 @@ class CodeGenerator {
 				$lines[] = 		"#endif";
 			}
 
-			// go to the next instruction unless the function is returning
-			if($targetCount != -1) {
+			// go to the next instruction unless the handler always returns
+			if(!$handler->alwaysReturns()) {
 				$lines[] =		"goto *handler;";
 			}
 			$lines[] = 		"}";
@@ -347,7 +347,7 @@ class CodeGenerator {
 			}
 
 			// go to the next instruction unless the function is returning
-			if($targetCount != -1) {
+			if(!$handler->alwaysReturns()) {
 				$lines[] = "handler(cxt, ip);";
 			}
 			$lines[] = $handler->getMacroUndefinitions();

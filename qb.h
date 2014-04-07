@@ -122,9 +122,9 @@
 
 #if defined(__clang__)
 #	if defined(__OPTIMIZE__)
-#		//define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#		define USE_TAIL_CALL_INTERPRETER_LOOP		1
 #	else
-#		//define USE_COMPUTED_GOTO_INTERPRETER_LOOP	1
+#		define USE_COMPUTED_GOTO_INTERPRETER_LOOP	1
 #	endif
 #elif defined(__GNUC__)
 #	define USE_COMPUTED_GOTO_INTERPRETER_LOOP		1

@@ -2,7 +2,7 @@
 
 class Leave extends Handler {
 
-	use NoOperands;
+	use NoOperands, AlwaysReturn;
 	
 	public function getJumpTargetCount() {
 		return -1;

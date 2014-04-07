@@ -2,12 +2,8 @@
 
 class Spoon extends Handler {
 
-	use NoOperands;
+	use NoOperands, AlwaysReturn;
 	
-	public function getJumpTargetCount() {
-		return -1;
-	}
-
 	public function getHandlerFunctionType() {
 		return null;
 	}

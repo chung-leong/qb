@@ -286,6 +286,10 @@ class Handler {
 		return false;
 	}
 
+	public function alwaysReturns() {
+		return false;
+	}
+
 	public function needsCondition() {
 		$targetCount = $this->getJumpTargetCount();
 		return ($targetCount >= 2);

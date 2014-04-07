@@ -2,11 +2,7 @@
 
 class Interrupt extends Handler {
 
-	use NoOperands;
-
-	public function getJumpTargetCount() {
-		return -1;
-	}
+	use NoOperands, AlwaysReturn;
 	
 	public function getHandlerFunctionType() {
 		return null;

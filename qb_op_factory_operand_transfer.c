@@ -682,6 +682,17 @@ static int32_t qb_transfer_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 	return TRUE;
 }
 
+static int32_t qb_transfer_operands_exit(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *retval = &operands[0];
+	if(retval->type == QB_OPERAND_ADDRESS) {
+		dest[0] = *retval;
+	} else {
+		dest[0].address = cxt->zero_address;
+		dest[0].type = QB_OPERAND_ADDRESS;
+	}
+	return TRUE;
+}
+
 static int32_t qb_transfer_operands_ext(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	if(dest_count != 0) {
 		qb_operand *opcode = &operands[0];

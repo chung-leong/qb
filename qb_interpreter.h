@@ -73,6 +73,7 @@ enum qb_vm_exit_type {
 	QB_VM_SPOON,
 	QB_VM_EXCEPTION,
 	QB_VM_YIELD,
+	QB_VM_TERMINATE,
 };
 
 struct qb_interpreter_context {
