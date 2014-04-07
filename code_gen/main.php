@@ -25,18 +25,21 @@ function autoload($className) {
 spl_autoload_register('autoload');
 
 function create_file($filename) {
-	global $targetFolder, $fileHandles;
+	global $targetFolder, $fileHandles, $filePaths;
 
 	echo "Creating $filename\n";
 	$path = "$targetFolder/$filename";
-	$handle = fopen($path, "w+");
+	$tmpPath = "$path.tmp";
+	$handle = fopen($tmpPath, "w+");
+	$filePaths[] = $path;
 	$fileHandles[] = $handle;
 	return $handle;
 }
 
 function fix_line_endings() {
-	global $fileHandles;
-	foreach($fileHandles as $handle) {
+	global $fileHandles, $filePaths;
+	$changeCount = 0;
+	foreach($fileHandles as $index => $handle) {
 		fseek($handle, 0, SEEK_END);
 		$size = ftell($handle);
 		fseek($handle, 0, SEEK_SET);
@@ -49,7 +52,26 @@ function fix_line_endings() {
 		fseek($handle, 0, SEEK_SET);
 		fwrite($handle, $data);
 		fclose($handle);
+
+		$path = $filePaths[$index];
+		$tmpPath = "$path.tmp";
+		$replace = true;
+		if(file_exists($path)) {
+			$originalData = file_get_contents($path);
+			if($data === $originalData) {
+				$replace = false;
+			} else {
+				unlink($path);
+			}
+		}		
+		if($replace) {
+			$changeCount++;
+			rename($tmpPath, $path);
+		} else {
+			unlink($tmpPath);
+		}
 	}
+	echo "$changeCount file(s) changed\n";
 }
 
 error_reporting(E_ALL | E_STRICT);

@@ -4,6 +4,10 @@ class Spoon extends Handler {
 
 	use NoOperands;
 	
+	public function getJumpTargetCount() {
+		return -1;
+	}
+
 	public function getHandlerFunctionType() {
 		return null;
 	}

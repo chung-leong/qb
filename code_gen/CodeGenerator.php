@@ -284,7 +284,7 @@ class CodeGenerator {
 		$lines[] = 		"}";
 		$lines[] = "}";
 		$lines[] = "";
-		$lines[] = "qb_op_handler *op_handlers[QB_OPCODE_COUNT];";
+		$lines[] = "qb_op_handler op_handlers[QB_OPCODE_COUNT];";
 
 		$this->writeCode($handle, $lines);
 	}
@@ -304,7 +304,7 @@ class CodeGenerator {
 			$opCount = $handler->getOperandCount();
 			$targetCount = $handler->getJumpTargetCount();
 
-			$lines[] = "static void NO_RETURN qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
+			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip) {";
 			$lines[] = 		$handler->getMacroDefinitions();
 			
 			if($targetCount != -1) {

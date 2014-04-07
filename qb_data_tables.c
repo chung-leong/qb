@@ -30,7 +30,7 @@ const qb_op_info global_op_info[] = {
 	// RET
 {	QB_OP_EXIT, 0, ""	},
 	// INTR
-{	0, sizeof(qb_instruction), ""	},
+{	QB_OP_EXIT, 0, ""	},
 	// EXIT_I32
 {	QB_OP_EXIT, sizeof(qb_instruction_exit_SCA), "s"	},
 	// FCALL_U32_U32_U32
@@ -50,7 +50,7 @@ const qb_op_info global_op_info[] = {
 	// RESUME
 {	0, sizeof(qb_instruction), ""	},
 	// SPOON
-{	0, sizeof(qb_instruction), ""	},
+{	QB_OP_EXIT, 0, ""	},
 	// INC_IF_GT_U32_U32_SCA
 {	QB_OP_BRANCH, sizeof(qb_instruction_branch_SCA_SCA), "sS"	},
 	// IF_LT_U32_U32_SCA

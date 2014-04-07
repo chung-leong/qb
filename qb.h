@@ -93,16 +93,17 @@
 #	define SAVE_TSRMLS
 #endif
 
-#ifdef _MSC_VER
-#	define NO_RETURN	__declspec(noreturn)
+#if defined(__GNUC__)
+#	define NO_RETURN			__attribute__ ((noreturn))
+#	define NO_RETURN_TYPEDEF	__attribute__ ((noreturn))
+#elif defined(_MSC_VER)
+#	define NO_RETURN			__declspec(noreturn)
+#	define NO_RETURN_TYPEDEF
 #endif
 
-#ifdef __GNUC__
-#	define NO_RETURN	__attribute__ ((noreturn))
-#endif
 
-#ifdef __GNUC__
-#	ifdef __ELF__
+#if defined(__GNUC__)
+#	if defined(__ELF__)
 #		if defined(__i386__) || defined(__x86_64__)
 #			define NATIVE_COMPILE_ENABLED	1
 #		elif defined(__ARM_ARCH_7A__)
@@ -113,10 +114,24 @@
 #			define NATIVE_COMPILE_ENABLED	1
 #		endif
 #	endif
+#elif defined(_MSC_VER)
+#	if defined(__i386__) || defined(__x86_64__)
+#		define NATIVE_COMPILE_ENABLED	1
+#	endif
 #endif
 
-#ifdef _MSC_VER
-#	define NATIVE_COMPILE_ENABLED	1
+#if defined(__clang__)
+#	if defined(__OPTIMIZE__)
+#		//define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#	else
+#		//define USE_COMPUTED_GOTO_INTERPRETER_LOOP	1
+#	endif
+#elif defined(__GNUC__)
+#	define USE_COMPUTED_GOTO_INTERPRETER_LOOP		1
+#elif defined(_MSC_VER)
+#	if defined(__x86_64__)
+#		define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#	endif
 #endif
 
 #define QB_EXTNAME	"qb"
