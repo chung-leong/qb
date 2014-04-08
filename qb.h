@@ -132,7 +132,7 @@
 #elif defined(_MSC_VER)
 #	if !defined(_DEBUG)
 #		if defined(__x86_64__)
-#			define USE_TAIL_CALL_INTERPRETER_LOOP		1
+#			define USE_TAIL_CALL_INTERPRETER_LOOP	1
 #		endif
 #	endif
 #endif

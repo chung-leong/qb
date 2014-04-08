@@ -143,60 +143,13 @@ class CodeGenerator {
 		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
 		$lines[] = 		"TIMER_CHECK_COUNTER_LV";
 		$lines[] =		"";
-		$lines[] = 		"while(1) switch(handler) {";
+		$lines[] = 		"while(1) switch((int) handler) {";
 
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
-			$instr = $handler->getInstructionStructure();
-			$opCount = $handler->getOperandCount();
-			$targetCount = $handler->getJumpTargetCount();
-
-			$lines[] =		"case QB_$name:";
-			$lines[] = 		$handler->getMacroDefinitions();
-			$lines[] = 		"{";
-		
-			if($targetCount == 0 || $targetCount == 1) {
-				// set next handler
-				$lines[] =		"handler = INSTR->next_handler;";
-			} else if($targetCount == 2) {
-				// assume the first branch will be taken
-				$lines[] = 		"int condition;";
-				$lines[] = 		"handler = INSTR->next_handler1;";
-			} else if($targetCount > 2) {
-				// branch table
-				$lines[] = 		"unsigned int offset;";
-			}
-				
-			$lines[] = 			$handler->getAction();
-
-			if($targetCount == 0) {
-				// move the instruction pointer over this one
-				$lines[] = 		"ip += sizeof($instr);";
-			} else if($targetCount == 1) {
-				// go to the jump target
-				$lines[] = 		"ip = INSTR->instruction_pointer;";
-			} else if($targetCount == 2) {
-				// set the instruction pointer to pointer 1, if condition is true
-				// otherwise update the next handler and set ip to pointer 2
-				$lines[] = 		"if(condition) {";
-				$lines[] = 			"ip = INSTR->instruction_pointer1;";
-				$lines[] = 		"} else {";
-				$lines[] = 			"handler = INSTR->next_handler2;";
-				$lines[] = 			"ip = INSTR->instruction_pointer2;";
-				$lines[] = 		"}";
-			}  else if($targetCount > 2) {
-				$lines[] = 		"handler = INSTR->branch_table[offset].next_handler;";
-				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
-			}
-
-			if(!$handler->alwaysReturns()) {
-				if($targetCount == 1 || $targetCount == 2) {
-					$lines[] = 	"TIMER_CHECK();";
-				}
-			}
-			$lines[] = 		"}";
-			$lines[] = 		$handler->getMacroUndefinitions();
-			$lines[] =		"break;";
+			$lines[] =		"case QB_$name: {";
+			$lines[] = 			$handler->getCode();
+			$lines[] = 		"}	break;";
 			$lines[] =		"";
 		}
 
@@ -204,12 +157,65 @@ class CodeGenerator {
 		$lines[] = 			"default:";
 		$lines[] = 				"__assume(0);";	
 		$lines[] = "#endif";
-		$lines[] = "#ifdef __GNUC__";
-		$lines[] =			"case QB_OPCODE_COUNT: break;";
-		$lines[] = "#endif";
 		$lines[] = 		"}";
 		$lines[] = "}";
 
+		$this->writeCode($handle, $lines);
+	}
+
+	protected function getBTreeNode($start, $end) {
+		if(isset($this->handlers[$start])) {
+			$lines = array();
+			$count = $end - $start;
+			if($count > 16) {
+				$mid = $start + ceil($count / 2);
+				$node1 = $this->getBTreeNode($start, $mid);
+				$node2 = $this->getBTreeNode($start, $mid);
+				if($node1 && $node2) {
+					$lines[] = "if(handler < $mid) {";
+					$lines[] = 		$node1;
+					$lines[] = "} else {";
+					$lines[] = 		$node1;
+					$lines[] = "}";
+				} else if($node1) {
+					$lines[] = $node1;
+				}
+			} else {
+				$lines[] = "switch((int) handler) {";
+				for($i = $start; $i < $end; $i++) {
+					if(isset($this->handlers[$i])) {
+						$handler = $this->handlers[$i];
+						$name = $handler->getName();
+						$lines[] = "case QB_$name: {";
+						$lines[] =		$handler->getCode();
+						$lines[] = "}	break;"; 
+					} else {
+						break;
+					}
+				}
+				$lines[] = "#ifdef _MSC_VER";		
+				$lines[] = 			"default:";
+				$lines[] = 				"__assume(0);";	
+				$lines[] = "#endif";
+				$lines[] = "}";
+			}
+		}
+		return $lines;
+	}
+
+	protected function writeBTreeLoop($handle) {
+		$count = count($this->handlers);
+		for($range = 1; $range < $count; $range *= 2);
+		$lines = array();
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = 		"register qb_opcode handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
+		$lines[] = 		"TIMER_CHECK_COUNTER_LV";
+		$lines[] =		"";
+		$lines[] = 		"while(1) {";
+		$lines[] = 			$this->getBTreeNode(0, $range);
+		$lines[] =		"}";
+		$lines[] = "}";
 		$this->writeCode($handle, $lines);
 	}
 
@@ -226,57 +232,13 @@ class CodeGenerator {
 
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
-			$instr = $handler->getInstructionStructure();
-			$opCount = $handler->getOperandCount();
-			$targetCount = $handler->getJumpTargetCount();
-
-			$lines[] =		"label_$name:";
-			$lines[] = 		$handler->getMacroDefinitions();
-			$lines[] = 		"{";
-		
-			if($targetCount == 0 || $targetCount == 1) {
-				// set next handler
-				$lines[] =		"handler = INSTR->next_handler;";
-			} else if($targetCount == 2) {
-				// assume the first branch will be taken
-				$lines[] = 		"int condition;";
-				$lines[] = 		"handler = INSTR->next_handler1;";
-			} else if($targetCount > 2) {
-				// branch table
-				$lines[] = 		"unsigned int offset;";
-			}
-				
-			$lines[] = 			$handler->getAction();
-
-			if($targetCount == 0) {
-				// move the instruction pointer over this one
-				$lines[] = 		"ip += sizeof($instr);";
-			} else if($targetCount == 1) {
-				// go to the jump target
-				$lines[] = 		"ip = INSTR->instruction_pointer;";
-			} else if($targetCount == 2) {
-				// set the instruction pointer to pointer 1, if condition is true
-				// otherwise update the next handler and set ip to pointer 2
-				$lines[] = 		"if(condition) {";
-				$lines[] = 			"ip = INSTR->instruction_pointer1;";
-				$lines[] = 		"} else {";
-				$lines[] = 			"handler = INSTR->next_handler2;";
-				$lines[] = 			"ip = INSTR->instruction_pointer2;";
-				$lines[] = 		"}";
-			}  else if($targetCount > 2) {
-				$lines[] = 		"handler = INSTR->branch_table[offset].next_handler;";
-				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
-			}
-
+			$lines[] =		"label_$name: {";
+			$lines[] = 			$handler->getCode();
 			// go to the next instruction unless the handler always returns
 			if(!$handler->alwaysReturns()) {
-				if($targetCount == 1 || $targetCount == 2) {
-					$lines[] = 	"TIMER_CHECK();";
-				}
 				$lines[] =		"goto *handler;";
 			}
 			$lines[] = 		"}";
-			$lines[] = 		$handler->getMacroUndefinitions();
 			$lines[] =		"";
 		}
 		$lines[] = 		"} else {";
@@ -305,60 +267,15 @@ class CodeGenerator {
 
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
-			$instr = $handler->getInstructionStructure();
-			$opCount = $handler->getOperandCount();
-			$targetCount = $handler->getJumpTargetCount();
-
-			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC) {";
-			$lines[] = 		$handler->getMacroDefinitions();
-			
-			if($targetCount != -1) {
+			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC) {";			
+			if(!$handler->alwaysReturns()) {
 				$lines[] = 	"register qb_tc_handler handler;";
 				$lines[] = 	"";
 			}
-		
-			if($targetCount == 0 || $targetCount == 1) {
-				// set next handler
-				$lines[] =	"handler = INSTR->next_handler;";
-			} else if($targetCount == 2) {
-				// assume the first branch will be taken
-				$lines[] = 	"int condition;";
-				$lines[] = 	"handler = INSTR->next_handler1;";
-			} else if($targetCount > 2) {
-				// branch table
-				$lines[] = 	"unsigned int offset;";
-			}
-				
-			$lines[] = 		$handler->getAction();
-
-			if($targetCount == 0) {
-				// move the instruction pointer over this one
-				$lines[] = 	"ip += sizeof($instr);";
-			} else if($targetCount == 1) {
-				// go to the jump target
-				$lines[] = 	"ip = INSTR->instruction_pointer;";
-			} else if($targetCount == 2) {
-				// set the instruction pointer to pointer 1, if condition is true
-				// otherwise update the next handler and set ip to pointer 2
-				$lines[] = "if(condition) {";
-				$lines[] = 		"ip = INSTR->instruction_pointer1;";
-				$lines[] = "} else {";
-				$lines[] = 		"handler = INSTR->next_handler2;";
-				$lines[] = 		"ip = INSTR->instruction_pointer2;";
-				$lines[] = "}";
-			}  else if($targetCount > 2) {
-				$lines[] = "handler = INSTR->branch_table[offset].next_handler;";
-				$lines[] = "ip = INSTR->branch_table[offset].instruction_pointer;";
-			}
-
-			// go to the next instruction unless the function is returning
+			$lines[] = 		$handler->getCode();
 			if(!$handler->alwaysReturns()) {
-				if($targetCount == 1 || $targetCount == 2) {
-					$lines[] = "TIMER_CHECK();";
-				}
 				$lines[] = "handler(cxt, ip TIMER_CHECK_COUNTER_CC);";
 			}
-			$lines[] = $handler->getMacroUndefinitions();
 			$lines[] = "}";
 			$lines[] = "";
 		}
@@ -393,6 +310,8 @@ class CodeGenerator {
 		$this->writeTailCallLoop($handle);
 		$this->writeCode($handle, "#elif defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)");
 		$this->writeComputedGotoLoop($handle);
+		$this->writeCode($handle, "#elif defined(USE_BTREE_INTERPRETER_LOOP)");
+		$this->writeBTreeLoop($handle);
 		$this->writeCode($handle, "#else");
 		$this->writeSwitchLoop($handle);
 		$this->writeCode($handle, "#endif");

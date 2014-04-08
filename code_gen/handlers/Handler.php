@@ -71,6 +71,59 @@ class Handler {
 		return $this->addressMode;
 	}
 
+	// return code for running the instruction
+	public function getCode() {
+		$lines = array();
+		$instr = $this->getInstructionStructure();
+		$targetCount = $this->getJumpTargetCount();
+
+		$lines[] = 			$this->getMacroDefinitions();
+
+		if(!$this->alwaysReturns()) {
+			if($targetCount == 0 || $targetCount == 1) {
+				// set next handler
+				$lines[] = "handler = INSTR->next_handler;";
+			} else if($targetCount == 2) {
+				// assume the first branch will be taken
+				$lines[] = "int condition;";
+				$lines[] = "handler = INSTR->next_handler1;";
+			} else if($targetCount > 2) {
+				// branch table
+				$lines[] = "unsigned int offset;";
+			}
+		}
+			
+		$lines[] = 		$this->getAction();
+
+		if(!$this->alwaysReturns()) {
+			if($targetCount == 0) {
+				// move the instruction pointer over this one
+				$lines[] = "ip += sizeof($instr);";
+			} else if($targetCount == 1) {
+				// go to the jump target
+				$lines[] = "ip = INSTR->instruction_pointer;";
+			} else if($targetCount == 2) {
+				// set the instruction pointer to pointer 1, if condition is true
+				// otherwise update the next handler and set ip to pointer 2
+				$lines[] = "if(condition) {";
+				$lines[] = 		"ip = INSTR->instruction_pointer1;";
+				$lines[] = "} else {";
+				$lines[] = 		"handler = INSTR->next_handler2;";
+				$lines[] = 		"ip = INSTR->instruction_pointer2;";
+				$lines[] = "}";
+			}  else if($targetCount > 2) {
+				$lines[] = "handler = INSTR->branch_table[offset].next_handler;";
+				$lines[] = "ip = INSTR->branch_table[offset].instruction_pointer;";
+			}
+			if($targetCount == 1 || $targetCount == 2) {
+				$lines[] = "TIMER_CHECK();";
+			}
+		}
+
+		$lines[] = 			$this->getMacroUndefinitions();
+		return $lines;
+	}
+
 	// return code for helper functions needed by the handler
 	public function getHelperFunctions() {
 	}
@@ -373,7 +426,7 @@ class Handler {
 		return false;
 	}
 	
-	public function getMacroDefinitions() {
+	protected function getMacroDefinitions() {
 		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
@@ -411,7 +464,7 @@ class Handler {
 		return $lines;
 	}
 	
-	public function getMacroUndefinitions() {
+	protected function getMacroUndefinitions() {
 		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
