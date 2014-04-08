@@ -260,6 +260,17 @@ class CodeGenerator {
 		$this->writeCode($handle, $lines);
 	}
 
+	protected function replaceReturn($lines, $statement) {
+		foreach($lines as &$line) {
+			if(is_array($line)) {
+				$line = $this->replaceReturn($line, $statement);
+			} else if(is_string($line)) {
+				$line = preg_replace('/\breturn\b/', $statement, $line);
+			}
+		}
+		return $lines;
+	}
+
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
 
@@ -314,8 +325,6 @@ class CodeGenerator {
 		$this->writeTailCallLoop($handle);
 		$this->writeCode($handle, "#elif defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)");
 		$this->writeComputedGotoLoop($handle);
-		$this->writeCode($handle, "#elif defined(USE_BTREE_INTERPRETER_LOOP)");
-		$this->writeBTreeLoop($handle);
 		$this->writeCode($handle, "#else");
 		$this->writeSwitchLoop($handle);
 		$this->writeCode($handle, "#endif");
