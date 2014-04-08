@@ -260,17 +260,6 @@ class CodeGenerator {
 		$this->writeCode($handle, $lines);
 	}
 
-	protected function replaceReturn($lines, $statement) {
-		foreach($lines as &$line) {
-			if(is_array($line)) {
-				$line = $this->replaceReturn($line, $statement);
-			} else if(is_string($line)) {
-				$line = preg_replace('/\breturn\b/', $statement, $line);
-			}
-		}
-		return $lines;
-	}
-
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
 
@@ -291,8 +280,6 @@ class CodeGenerator {
 			$lines[] = "}";
 			$lines[] = "";
 		}
-		$lines[] = "#undef return";
-		$lines[] = "";
 
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
 		$lines[] = 		"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
