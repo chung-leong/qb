@@ -103,9 +103,6 @@ struct qb_interpreter_context {
 	void ***tsrm_ls;
 
 	zval **shadow_variables;
-#ifdef USE_TAIL_CALL_INTERPRETER_LOOP
-	jmp_buf *tail_call_exit;
-#endif
 };
 
 #if ZEND_DEBUG
