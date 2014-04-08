@@ -18,7 +18,7 @@ QB performs code translation on a per-function basis. It does not affect in anyw
  <date>2014-03-30</date>
  <time>19:00:00</time>
  <version>
-  <release>2.2.0</release>
+  <release>2.3</release>
   <api>0.1.0</api>
  </version>
  <stability>
@@ -26,13 +26,8 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Enabled compiling to native binary in Solaris and FreeBSD
-Fixed issue #29 - Segfault during array resize in Solaris 
-Fixed issue #32 - Segfault when images are resized or created
-Fixed issue #33 - Incorrect CPU count
-Fixed issue #34 - Inability to call functions inside namespace
-Fixed issue #35 - Segfault in PHP 5.5.8 when QB coroutine is called
-Fixed issues flagged by Valgrind
+ <notes>Enabled compilation using clang
+ Improved interpreter performance in 64-bit Windows
 </notes>
  <contents>
   <dir name="/">
@@ -463,8 +458,7 @@ Fixed issues flagged by Valgrind
    <file role="src" name="qb_compiler.h"/>
    <file role="src" name="qb_compiler_optimization.c"/>
    <file role="src" name="qb_crc64.c"/>
-   <file role="src" name="qb_data_tables_gcc.c"/>
-   <file role="src" name="qb_data_tables_msvc.c"/>
+   <file role="src" name="qb_data_tables.c"/>
    <file role="src" name="qb_debug_interface.c"/>
    <file role="src" name="qb_debug_interface.h"/>
    <file role="src" name="qb_encoder.c"/>
@@ -479,12 +473,10 @@ Fixed issues flagged by Valgrind
    <file role="src" name="qb_interpreter.c"/>
    <file role="src" name="qb_interpreter.h"/>
    <file role="src" name="qb_interpreter_debug.c"/>
-   <file role="src" name="qb_interpreter_functions_gcc.c"/>
-   <file role="src" name="qb_interpreter_functions_msvc.c"/>
-   <file role="src" name="qb_interpreter_gcc.h"/>
-   <file role="src" name="qb_interpreter_loop_gcc.c"/>
-   <file role="src" name="qb_interpreter_loop_msvc.c"/>
+   <file role="src" name="qb_interpreter_functions.c"/>
+   <file role="src" name="qb_interpreter_loop.c"/>
    <file role="src" name="qb_interpreter_msvc.h"/>
+   <file role="src" name="qb_interpreter_structures.h"/>
    <file role="src" name="qb_native_compiler.c"/>
    <file role="src" name="qb_native_compiler.h"/>
    <file role="src" name="qb_native_compiler_elf.c"/>
