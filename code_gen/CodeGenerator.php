@@ -167,7 +167,7 @@ class CodeGenerator {
 		if(isset($this->handlers[$start])) {
 			$lines = array();
 			$count = $end - $start;
-			if($count > 16) {
+			if($count > 256) {
 				$mid = $start + ceil($count / 2);
 				$node1 = $this->getBTreeNode($start, $mid);
 				$node2 = $this->getBTreeNode($mid, $end);
@@ -181,23 +181,27 @@ class CodeGenerator {
 					$lines[] = $node1;
 				}
 			} else {
-				$lines[] = "switch((int) handler) {";
-				for($i = $start; $i < $end; $i++) {
-					if(isset($this->handlers[$i])) {
-						$handler = $this->handlers[$i];
-						$name = $handler->getName();
-						$lines[] = "case QB_$name: {";
-						$lines[] =		$handler->getCode();
-						$lines[] = "}	break;"; 
-					} else {
-						break;
+				if($count == 1) {
+					$lines[] = $handler->getCode();
+				} else {
+					$lines[] = "switch((int) handler) {";
+					for($i = $start; $i < $end; $i++) {
+						if(isset($this->handlers[$i])) {
+							$handler = $this->handlers[$i];
+							$name = $handler->getName();
+							$lines[] = "case QB_$name: {";
+							$lines[] =		$handler->getCode();
+							$lines[] = "}	break;"; 
+						} else {
+							break;
+						}
 					}
+					$lines[] = "#ifdef _MSC_VER";		
+					$lines[] = 			"default:";
+					$lines[] = 				"__assume(0);";	
+					$lines[] = "#endif";
+					$lines[] = "}";
 				}
-				$lines[] = "#ifdef _MSC_VER";		
-				$lines[] = 			"default:";
-				$lines[] = 				"__assume(0);";	
-				$lines[] = "#endif";
-				$lines[] = "}";
 			}
 			return $lines;
 		}
