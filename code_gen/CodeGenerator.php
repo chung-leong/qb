@@ -170,12 +170,12 @@ class CodeGenerator {
 			if($count > 16) {
 				$mid = $start + ceil($count / 2);
 				$node1 = $this->getBTreeNode($start, $mid);
-				$node2 = $this->getBTreeNode($start, $mid);
+				$node2 = $this->getBTreeNode($mid, $end);
 				if($node1 && $node2) {
 					$lines[] = "if(handler < $mid) {";
 					$lines[] = 		$node1;
 					$lines[] = "} else {";
-					$lines[] = 		$node1;
+					$lines[] = 		$node2;
 					$lines[] = "}";
 				} else if($node1) {
 					$lines[] = $node1;
@@ -199,8 +199,8 @@ class CodeGenerator {
 				$lines[] = "#endif";
 				$lines[] = "}";
 			}
+			return $lines;
 		}
-		return $lines;
 	}
 
 	protected function writeBTreeLoop($handle) {

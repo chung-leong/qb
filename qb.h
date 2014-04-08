@@ -119,6 +119,7 @@
 #	endif
 #endif
 
+/*
 #if defined(__clang__)
 #	if defined(__OPTIMIZE__)
 #		if defined(__x86_64__)
@@ -136,6 +137,8 @@
 #		endif
 #	endif
 #endif
+*/
+#define USE_BTREE_INTERPRETER_LOOP		1
 
 #define QB_EXTNAME	"qb"
 
