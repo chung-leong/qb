@@ -274,9 +274,6 @@ class CodeGenerator {
 	protected function writeTailCallLoop($handle) {
 		$lines = array();
 
-		$lines[] = "#define return		longjmp(*cxt->tail_call_exit, 1)";
-		$lines[] = "";
-
 		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC);";
 		$lines[] = "";
 
@@ -298,13 +295,9 @@ class CodeGenerator {
 		$lines[] = "";
 
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] =		"jmp_buf state;";
-		$lines[] =		"if(setjmp(state) == 0) {";
-		$lines[] = 			"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
-		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
-		$lines[] =			"cxt->tail_call_exit = &state;";
-		$lines[] =			"handler(cxt, ip TIMER_CHECK_COUNTER_CC0);";
-		$lines[] = 		"}";
+		$lines[] = 		"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
+		$lines[] =		"handler(cxt, ip TIMER_CHECK_COUNTER_CC0);";
 		$lines[] = "}";
 		$lines[] = "";
 		
