@@ -668,25 +668,26 @@ class CodeGenerator {
 		}
 		
 		foreach($commonSymbols as $name => $symbol) {
+			$decl = "{	\"$name\",	$symbol,	0,	0	},";
+			if(in_array($name, $msvcFunctionPointers)) {
+				$decl = array(
+					"#if defined(_MSC_VER)",
+					"{	\"$name\",	NULL,	0,	0	},",
+					"#else",
+					$decl,
+					"#endif",
+				);
+			}
 			if(in_array($name, $vc11Intrinsics)) {
-				$lines[] = "#if _MSC_VER >= 1700";
-				$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
-				$lines[] = "#else";
-				if(in_array($name, $msvcFunctionPointers)) {
-					$lines[] = "{	\"$name\",	NULL,	0,	0	},";
-				} else {
-					$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
-				}
-				$lines[] = "#endif";
-			} else if(in_array($name, $msvcFunctionPointers)) {
-				$lines[] = "#if defined(_MSC_VER)";
-				$lines[] = "{	\"$name\",	NULL,	0,	0	},";
-				$lines[] = "#else";
-				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
-				$lines[] = "#endif";
-			} else {
-				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+				$decl = array(
+					"#if _MSC_VER >= 1700",
+					"{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},",
+					"#else",
+					$decl,
+					"#endif",
+				);	
 			} 
+			$lines[] = $decl;
 		}
 
 		$lines[] = "#if defined(_MSC_VER)";

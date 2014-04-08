@@ -982,7 +982,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 	// remove items with indices larger than the dimension
 	while(p) {
 		Bucket *next = p->pListNext;
-		if((long) p->h >= src_dimension && !p->nKeyLength) {
+		if((long) p->h >= (long) src_dimension && !p->nKeyLength) {
 			zend_hash_index_del(ht, p->h);
 		}
 		p = next;
