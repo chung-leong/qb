@@ -35625,7 +35625,7 @@ qb_native_symbol global_native_symbols[] = {
 {	"ceil",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 #if defined(_MSC_VER)
-{	"ceil",	NULL,	0,	0	},
+{	"ceil",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"ceil",	ceil,	0,	0	},
 #endif
@@ -35634,7 +35634,7 @@ qb_native_symbol global_native_symbols[] = {
 {	"floor",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 #if defined(_MSC_VER)
-{	"floor",	NULL,	0,	0	},
+{	"floor",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 #else
 {	"floor",	floor,	0,	0	},
 #endif

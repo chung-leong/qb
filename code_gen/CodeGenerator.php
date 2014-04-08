@@ -604,7 +604,7 @@ class CodeGenerator {
 			if(in_array($name, $msvcFunctionPointers)) {
 				$decl = array(
 					"#if defined(_MSC_VER)",
-					"{	\"$name\",	NULL,	0,	0	},",
+					"{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},",
 					"#else",
 					$decl,
 					"#endif",
