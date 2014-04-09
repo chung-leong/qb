@@ -136,6 +136,12 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 
 	qb_print(cxt, "typedef float float32_t;\n");
 	qb_print(cxt, "typedef double float64_t;\n");
+
+#if defined(_Complex_I)
+	qb_print(cxt, "typedef float "STRING(complex)" cfloat32_t;\n");
+	qb_print(cxt, "typedef double "STRING(complex)" cfloat64_t;\n");
+#else
+#endif
 	qb_print(cxt, "\n");
 
 	qb_print(cxt, "typedef struct qb_address\tqb_address;\n");
