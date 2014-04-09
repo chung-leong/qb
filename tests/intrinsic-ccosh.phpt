@@ -22,6 +22,18 @@ function test_function() {
 	$c = ccosh($c);
 	echo ccosh($a), "\n";
 	echo "$c\n";
+	echo ccosh(array(0, 0)), "\n";
+	echo ccosh(array(0, +INF)), "\n";
+	echo ccosh(array(0, NAN)), "\n";
+	echo ccosh(array(0.5, +INF)), "\n";
+	echo ccosh(array(4.5, NAN)), "\n";
+	echo ccosh(array(+INF, 0)), "\n";
+	echo ccosh(array(+INF, 12)), "\n";
+	echo ccosh(array(+INF, +INF)), "\n";
+	echo ccosh(array(+INF, NAN)), "\n";
+	echo ccosh(array(NAN, 0)), "\n";
+	echo ccosh(array(NAN, 0.5)), "\n";
+	echo ccosh(array(NAN, NAN)), "\n";
 }
 
 test_function();
@@ -30,3 +42,16 @@ test_function();
 --EXPECT--
 [-2.459135, -2.744817]
 [[-9.172952, -4.128551], [119518.5, -186139], [-6.896729, -15.04217]]
+[1, 0]
+[NAN, 0]
+[NAN, 0]
+[NAN, NAN]
+[NAN, NAN]
+[INF, 0]
+[INF, -INF]
+[INF, NAN]
+[INF, NAN]
+[NAN, 0]
+[NAN, NAN]
+[NAN, NAN]
+

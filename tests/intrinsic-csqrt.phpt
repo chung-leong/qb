@@ -22,6 +22,14 @@ function test_function() {
 	$c = csqrt($c);
 	echo csqrt($a), "\n";
 	echo "$c\n";
+	echo csqrt(array(0, 0)), "\n";
+	echo csqrt(array(2.5, +INF)), "\n";
+	echo csqrt(array(4.5, NAN)), "\n";
+	echo csqrt(array(-INF, 1)), "\n";
+	echo csqrt(array(+INF, 1)), "\n";
+	echo csqrt(array(-INF, NAN)), "\n";
+	echo csqrt(array(+INF, NAN)), "\n";
+	echo csqrt(array(NAN, 0.5)), "\n";
 }
 
 ini_set('precision', 10);
@@ -31,3 +39,12 @@ test_function();
 --EXPECT--
 [1.7989, 1.1118]
 [[2.4987, -1.8009], [0.13857, 3.6082], [1.9405, -0.51533]]
+[0, 0]
+[INF, INF]
+[NAN, NAN]
+[0, INF]
+[INF, 0]
+[NAN, INF]
+[INF, NAN]
+[NAN, NAN]
+
