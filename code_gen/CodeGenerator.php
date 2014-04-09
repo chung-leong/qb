@@ -1774,35 +1774,35 @@ class CodeGenerator {
 	protected function addComplexNumberHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2);
-			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2, true);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2, true);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2, true);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2, true);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2, true);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2, true);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2, true);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2, true);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 1);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 1, true);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 1);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 1, true);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 1);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 1, true);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 1);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 1, true);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 1);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 1, true);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 1);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 1, true);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 1);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 1, true);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 1);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 1, true);
 			
-			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2);
-			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2, true);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2, true);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2, true);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2, true);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2, true);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2, true);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 1);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 1, true);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 1);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 1, true);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 1);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 1, true);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 1);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 1, true);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 1);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 1, true);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1, true);
 		}
 	}
 	

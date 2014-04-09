@@ -11085,23 +11085,23 @@ void qb_do_clear_element_resize_update_dimension_I64(qb_interpreter_context *__r
 	}
 }
 
-void qb_do_complex_abs_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	res_ptr[0] = (float32_t) sqrt(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
+void qb_do_complex_abs_F32(cfloat32_t *op1_ptr, float32_t *res_ptr) {
+	(*res_ptr) = cabsf((*op1_ptr));
 }
 
-void qb_do_complex_abs_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	res_ptr[0] = (float64_t) sqrt(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
+void qb_do_complex_abs_F64(cfloat64_t *op1_ptr, float64_t *res_ptr) {
+	(*res_ptr) = cabs((*op1_ptr));
 }
 
-void qb_do_complex_abs_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_abs_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_abs_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_abs_F32(op1_ptr, res_ptr);
 			
 			res_ptr += 1;
-			op1_ptr += 2;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11112,15 +11112,15 @@ void qb_do_complex_abs_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_abs_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_abs_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_abs_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_abs_F64(op1_ptr, res_ptr);
 			
 			res_ptr += 1;
-			op1_ptr += 2;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11131,23 +11131,23 @@ void qb_do_complex_abs_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_argument_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	res_ptr[0] = (float32_t) atan2(op1_ptr[1], op1_ptr[0]);
+void qb_do_complex_argument_F32(cfloat32_t *op1_ptr, float32_t *res_ptr) {
+	(*res_ptr) = cargf((*op1_ptr));
 }
 
-void qb_do_complex_argument_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	res_ptr[0] = (float64_t) atan2(op1_ptr[1], op1_ptr[0]);
+void qb_do_complex_argument_F64(cfloat64_t *op1_ptr, float64_t *res_ptr) {
+	(*res_ptr) = carg((*op1_ptr));
 }
 
-void qb_do_complex_argument_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_argument_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_argument_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_argument_F32(op1_ptr, res_ptr);
 			
 			res_ptr += 1;
-			op1_ptr += 2;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11158,15 +11158,15 @@ void qb_do_complex_argument_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t o
 	}
 }
 
-void qb_do_complex_argument_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_argument_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_argument_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_argument_F64(op1_ptr, res_ptr);
 			
 			res_ptr += 1;
-			op1_ptr += 2;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11177,29 +11177,23 @@ void qb_do_complex_argument_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t o
 	}
 }
 
-void qb_do_complex_cos_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t r = cosf(op1_ptr[0]) * coshf(op1_ptr[1]);
-	float32_t i = -sinf(op1_ptr[0]) * sinhf(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_cos_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ccosf((*op1_ptr));
 }
 
-void qb_do_complex_cos_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t r = cos(op1_ptr[0]) * cosh(op1_ptr[1]);
-	float64_t i = -sin(op1_ptr[0]) * sinh(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_cos_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ccos((*op1_ptr));
 }
 
-void qb_do_complex_cos_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_cos_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_cos_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_cos_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11210,15 +11204,15 @@ void qb_do_complex_cos_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_cos_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_cos_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_cos_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_cos_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11229,29 +11223,23 @@ void qb_do_complex_cos_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_cosh_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t r = coshf(op1_ptr[0]) * cosf(op1_ptr[1]);
-	float32_t i = sinhf(op1_ptr[0]) * sinf(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_cosh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ccoshf((*op1_ptr));
 }
 
-void qb_do_complex_cosh_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t r = cosh(op1_ptr[0]) * cos(op1_ptr[1]);
-	float64_t i = sinh(op1_ptr[0]) * sin(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_cosh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ccosh((*op1_ptr));
 }
 
-void qb_do_complex_cosh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_cosh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_cosh_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_cosh_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11262,15 +11250,15 @@ void qb_do_complex_cosh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_c
 	}
 }
 
-void qb_do_complex_cosh_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_cosh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_cosh_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_cosh_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11281,33 +11269,25 @@ void qb_do_complex_cosh_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_c
 	}
 }
 
-void qb_do_complex_divide_2x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	float32_t w = op2_ptr[0] * op2_ptr[0] + op2_ptr[1] * op2_ptr[1];
-	float32_t r = ((op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1])) / w;
-	float32_t i = ((op1_ptr[1] * op2_ptr[0]) - (op1_ptr[0] * op2_ptr[1])) / w;
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_divide_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cdivf((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_divide_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t w = op2_ptr[0] * op2_ptr[0] + op2_ptr[1] * op2_ptr[1];
-	float64_t r = ((op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1])) / w;
-	float64_t i = ((op1_ptr[1] * op2_ptr[0]) - (op1_ptr[0] * op2_ptr[1])) / w;
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_divide_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cdiv((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_divide_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_divide_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_divide_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_divide_F32(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11321,17 +11301,17 @@ void qb_do_complex_divide_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1
 	}
 }
 
-void qb_do_complex_divide_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_divide_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_divide_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_divide_F64(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11345,31 +11325,23 @@ void qb_do_complex_divide_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1
 	}
 }
 
-void qb_do_complex_exp_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t w = expf(op1_ptr[0]);
-	float32_t r = w * cosf(op1_ptr[1]);
-	float32_t i = w * sinf(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_exp_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cexpf((*op1_ptr));
 }
 
-void qb_do_complex_exp_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t w = exp(op1_ptr[0]);
-	float64_t r = w * cos(op1_ptr[1]);
-	float64_t i = w * sin(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_exp_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cexp((*op1_ptr));
 }
 
-void qb_do_complex_exp_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_exp_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_exp_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_exp_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11380,15 +11352,15 @@ void qb_do_complex_exp_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_exp_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_exp_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_exp_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_exp_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11399,31 +11371,23 @@ void qb_do_complex_exp_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_log_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t w = sqrtf(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
-	float32_t r = logf(w);
-	float32_t i = atan2f(op1_ptr[1], op1_ptr[0]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_log_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = clogf((*op1_ptr));
 }
 
-void qb_do_complex_log_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t w = sqrt(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
-	float64_t r = log(w);
-	float64_t i = atan2(op1_ptr[1], op1_ptr[0]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_log_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = clog((*op1_ptr));
 }
 
-void qb_do_complex_log_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_log_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_log_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_log_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11434,15 +11398,15 @@ void qb_do_complex_log_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_log_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_log_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_log_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_log_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11453,31 +11417,25 @@ void qb_do_complex_log_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_multiply_2x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	float32_t r = (op1_ptr[0] * op2_ptr[0]) - (op1_ptr[1] * op2_ptr[1]);
-	float32_t i = (op1_ptr[0] * op2_ptr[1]) + (op1_ptr[1] * op2_ptr[0]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_multiply_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cmultf((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_multiply_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t r = (op1_ptr[0] * op2_ptr[0]) - (op1_ptr[1] * op2_ptr[1]);
-	float64_t i = (op1_ptr[0] * op2_ptr[1]) + (op1_ptr[1] * op2_ptr[0]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_multiply_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cmult((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_multiply_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_multiply_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_multiply_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_multiply_F32(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11491,17 +11449,17 @@ void qb_do_complex_multiply_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t o
 	}
 }
 
-void qb_do_complex_multiply_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_multiply_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_multiply_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_multiply_F64(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11515,47 +11473,25 @@ void qb_do_complex_multiply_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t o
 	}
 }
 
-void qb_do_complex_pow_2x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	float32_t u = atan2f(op1_ptr[1], op1_ptr[0]);
-	float32_t v = op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1];
-	float32_t w = 1;
-	float32_t x = powf(v, 0.5f * op2_ptr[0]);
-	float32_t y = op2_ptr[0] * u;
-	float32_t z = 0;
-	if(op2_ptr[1] != 0) {
-		z = 0.5f * op2_ptr[1] * logf(v);
-		w = expf(-op2_ptr[1] * u);
-	}
-	res_ptr[0] = x * w * cosf(y + z);
-	res_ptr[1] = x * w * sinf(y + z);
+void qb_do_complex_pow_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cpowf((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_pow_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t u = atan2(op1_ptr[1], op1_ptr[0]);
-	float64_t v = op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1];
-	float64_t w = 1;
-	float64_t x = pow(v, 0.5 * op2_ptr[0]);
-	float64_t y = op2_ptr[0] * u;
-	float64_t z = 0;
-	if(op2_ptr[1] != 0) {
-		z = 0.5 * op2_ptr[1] * log(v);
-		w = exp(-op2_ptr[1] * u);
-	}
-	res_ptr[0] = x * w * cos(y + z);
-	res_ptr[1] = x * w * sin(y + z);
+void qb_do_complex_pow_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cpow((*op1_ptr), (*op2_ptr));
 }
 
-void qb_do_complex_pow_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_pow_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_pow_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_pow_F32(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11569,17 +11505,17 @@ void qb_do_complex_pow_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_pow_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_pow_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_pow_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_complex_pow_F64(op1_ptr, op2_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
-			op2_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
+			op2_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11593,29 +11529,23 @@ void qb_do_complex_pow_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_sin_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t r = sinf(op1_ptr[0]) * coshf(op1_ptr[1]);
-	float32_t i = cosf(op1_ptr[0]) * sinhf(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_sin_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csinf((*op1_ptr));
 }
 
-void qb_do_complex_sin_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t r = sin(op1_ptr[0]) * cosh(op1_ptr[1]);
-	float64_t i = cos(op1_ptr[0]) * sinh(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_sin_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csin((*op1_ptr));
 }
 
-void qb_do_complex_sin_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_sin_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_sin_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_sin_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11626,15 +11556,15 @@ void qb_do_complex_sin_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_sin_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_sin_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_sin_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_sin_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11645,29 +11575,23 @@ void qb_do_complex_sin_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_sinh_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t r = sinhf(op1_ptr[0]) * cosf(op1_ptr[1]);
-	float32_t i = coshf(op1_ptr[0]) * sinf(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_sinh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csinhf((*op1_ptr));
 }
 
-void qb_do_complex_sinh_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t r = sinh(op1_ptr[0]) * cos(op1_ptr[1]);
-	float64_t i = cosh(op1_ptr[0]) * sin(op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_sinh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csinh((*op1_ptr));
 }
 
-void qb_do_complex_sinh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_sinh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_sinh_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_sinh_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11678,15 +11602,15 @@ void qb_do_complex_sinh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_c
 	}
 }
 
-void qb_do_complex_sinh_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_sinh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_sinh_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_sinh_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11697,33 +11621,23 @@ void qb_do_complex_sinh_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_c
 	}
 }
 
-void qb_do_complex_square_root_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t s = (op1_ptr[1] > 0 ? 1.0f : ((op1_ptr[1] < 0 ? -1.0f : 0.0f)));
-	float32_t w = sqrtf(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
-	float32_t r = sqrtf(0.5f * (op1_ptr[0] + w));
-	float32_t i = (s) ? s * sqrtf(0.5f * (-op1_ptr[0] + w)) : 0;
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_square_root_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csqrtf((*op1_ptr));
 }
 
-void qb_do_complex_square_root_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t s = (op1_ptr[1] > 0 ? 1.0 : ((op1_ptr[1] < 0 ? -1.0 : 0.0)));
-	float64_t w = sqrt(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);
-	float64_t r = sqrt(0.5 * (op1_ptr[0] + w));
-	float64_t i = (s) ? s * sqrt(0.5 * (-op1_ptr[0] + w)) : 0;
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_square_root_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csqrt((*op1_ptr));
 }
 
-void qb_do_complex_square_root_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_square_root_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_square_root_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_square_root_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11734,15 +11648,15 @@ void qb_do_complex_square_root_2x_multiple_times_F32(float32_t *op1_ptr, uint32_
 	}
 }
 
-void qb_do_complex_square_root_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_square_root_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_square_root_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_square_root_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11753,31 +11667,23 @@ void qb_do_complex_square_root_2x_multiple_times_F64(float64_t *op1_ptr, uint32_
 	}
 }
 
-void qb_do_complex_tan_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t w = 1.0f / (cosf(2.0f * op1_ptr[0]) + coshf(2.0f * op1_ptr[1]));
-	float32_t r = w * sinf(2.0f * op1_ptr[0]);
-	float32_t i = w * sinhf(2.0f * op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_tan_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ctanf((*op1_ptr));
 }
 
-void qb_do_complex_tan_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t w = 1.0 / (cos(2.0 * op1_ptr[0]) + cosh(2.0 * op1_ptr[1]));
-	float64_t r = w * sin(2.0 * op1_ptr[0]);
-	float64_t i = w * sinh(2.0 * op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_tan_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ctan((*op1_ptr));
 }
 
-void qb_do_complex_tan_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_tan_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_tan_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_tan_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11788,15 +11694,15 @@ void qb_do_complex_tan_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_tan_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_tan_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_tan_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_tan_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11807,31 +11713,23 @@ void qb_do_complex_tan_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_complex_tanh_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
-	float32_t w = 1.0f / (coshf(2.0f * op1_ptr[0]) + cosf(2.0f * op1_ptr[1]));
-	float32_t r = w * sinhf(2.0f * op1_ptr[0]);
-	float32_t i = w * sinf(2.0f * op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_tanh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ctanhf((*op1_ptr));
 }
 
-void qb_do_complex_tanh_2x_F64(float64_t *op1_ptr, float64_t *res_ptr) {
-	float64_t w = 1.0 / (cosh(2.0 * op1_ptr[0]) + cos(2.0 * op1_ptr[1]));
-	float64_t r = w * sinh(2.0 * op1_ptr[0]);
-	float64_t i = w * sin(2.0 * op1_ptr[1]);
-	res_ptr[0] = r;
-	res_ptr[1] = i;
+void qb_do_complex_tanh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ctanh((*op1_ptr));
 }
 
-void qb_do_complex_tanh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_tanh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float32_t *res_end = res_ptr + res_count;
+		cfloat32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_tanh_2x_F32(op1_ptr, res_ptr);
+			qb_do_complex_tanh_F32(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -11842,15 +11740,15 @@ void qb_do_complex_tanh_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_c
 	}
 }
 
-void qb_do_complex_tanh_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
+void qb_do_complex_tanh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
-		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
-		float64_t *res_end = res_ptr + res_count;
+		cfloat64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		cfloat64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_complex_tanh_2x_F64(op1_ptr, res_ptr);
+			qb_do_complex_tanh_F64(op1_ptr, res_ptr);
 			
-			res_ptr += 2;
-			op1_ptr += 2;
+			res_ptr += 1;
+			op1_ptr += 1;
 			if(res_ptr >= res_end) {
 				break;
 			}
@@ -28524,14 +28422,14 @@ void qb_redirect_multiply_accumulate_2x_multiple_times_F32(qb_interpreter_contex
 #undef res_count
 }
 
-void qb_redirect_complex_abs_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_abs_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 1, 131072)) {
-		qb_do_complex_abs_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 131072)) {
+		qb_do_complex_abs_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28540,14 +28438,14 @@ void qb_redirect_complex_abs_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_argument_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_argument_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 1, 32768)) {
-		qb_do_complex_argument_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 32768)) {
+		qb_do_complex_argument_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28556,16 +28454,16 @@ void qb_redirect_complex_argument_2x_multiple_times_F32(qb_interpreter_context *
 #undef res_count
 }
 
-void qb_redirect_complex_multiply_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_multiply_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 65536)) {
-		qb_do_complex_multiply_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 65536)) {
+		qb_do_complex_multiply_multiple_times_F32(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28576,16 +28474,16 @@ void qb_redirect_complex_multiply_2x_multiple_times_F32(qb_interpreter_context *
 #undef res_count
 }
 
-void qb_redirect_complex_divide_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_divide_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 16384)) {
-		qb_do_complex_divide_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 16384)) {
+		qb_do_complex_divide_multiple_times_F32(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28596,14 +28494,14 @@ void qb_redirect_complex_divide_2x_multiple_times_F32(qb_interpreter_context *__
 #undef res_count
 }
 
-void qb_redirect_complex_exp_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_exp_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_exp_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_exp_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28612,14 +28510,14 @@ void qb_redirect_complex_exp_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_log_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_log_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_log_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_log_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28628,14 +28526,14 @@ void qb_redirect_complex_log_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_square_root_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_square_root_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 131072)) {
-		qb_do_complex_square_root_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 131072)) {
+		qb_do_complex_square_root_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28644,16 +28542,16 @@ void qb_redirect_complex_square_root_2x_multiple_times_F32(qb_interpreter_contex
 #undef res_count
 }
 
-void qb_redirect_complex_pow_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_pow_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 4096)) {
-		qb_do_complex_pow_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 4096)) {
+		qb_do_complex_pow_multiple_times_F32(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28664,14 +28562,14 @@ void qb_redirect_complex_pow_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_sin_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_sin_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_sin_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_sin_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28680,14 +28578,14 @@ void qb_redirect_complex_sin_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_cos_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_cos_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 32768)) {
-		qb_do_complex_cos_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 32768)) {
+		qb_do_complex_cos_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28696,14 +28594,14 @@ void qb_redirect_complex_cos_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_tan_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_tan_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 32768)) {
-		qb_do_complex_tan_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 32768)) {
+		qb_do_complex_tan_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28712,14 +28610,14 @@ void qb_redirect_complex_tan_2x_multiple_times_F32(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_sinh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_sinh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_sinh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_sinh_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28728,14 +28626,14 @@ void qb_redirect_complex_sinh_2x_multiple_times_F32(qb_interpreter_context *__re
 #undef res_count
 }
 
-void qb_redirect_complex_cosh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_cosh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_cosh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_cosh_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -28744,14 +28642,14 @@ void qb_redirect_complex_cosh_2x_multiple_times_F32(qb_interpreter_context *__re
 #undef res_count
 }
 
-void qb_redirect_complex_tanh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_tanh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_tanh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_tanh_multiple_times_F32(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31282,14 +31180,14 @@ void qb_redirect_multiply_accumulate_2x_multiple_times_F64(qb_interpreter_contex
 #undef res_count
 }
 
-void qb_redirect_complex_abs_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_abs_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 1, 65536)) {
-		qb_do_complex_abs_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 65536)) {
+		qb_do_complex_abs_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31298,14 +31196,14 @@ void qb_redirect_complex_abs_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_argument_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_argument_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 1, 32768)) {
-		qb_do_complex_argument_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 32768)) {
+		qb_do_complex_argument_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31314,16 +31212,16 @@ void qb_redirect_complex_argument_2x_multiple_times_F64(qb_interpreter_context *
 #undef res_count
 }
 
-void qb_redirect_complex_multiply_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_multiply_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 524288)) {
-		qb_do_complex_multiply_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 524288)) {
+		qb_do_complex_multiply_multiple_times_F64(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31334,16 +31232,16 @@ void qb_redirect_complex_multiply_2x_multiple_times_F64(qb_interpreter_context *
 #undef res_count
 }
 
-void qb_redirect_complex_divide_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_divide_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 16384)) {
-		qb_do_complex_divide_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 16384)) {
+		qb_do_complex_divide_multiple_times_F64(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31354,14 +31252,14 @@ void qb_redirect_complex_divide_2x_multiple_times_F64(qb_interpreter_context *__
 #undef res_count
 }
 
-void qb_redirect_complex_exp_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_exp_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_exp_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_exp_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31370,14 +31268,14 @@ void qb_redirect_complex_exp_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_log_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_log_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_log_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_log_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31386,14 +31284,14 @@ void qb_redirect_complex_log_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_square_root_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_square_root_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 8192)) {
-		qb_do_complex_square_root_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 8192)) {
+		qb_do_complex_square_root_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31402,16 +31300,16 @@ void qb_redirect_complex_square_root_2x_multiple_times_F64(qb_interpreter_contex
 #undef res_count
 }
 
-void qb_redirect_complex_pow_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_pow_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 2048)) {
-		qb_do_complex_pow_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, 2048)) {
+		qb_do_complex_pow_multiple_times_F64(op1_ptr, op1_count >> 1, op2_ptr, op2_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31422,14 +31320,14 @@ void qb_redirect_complex_pow_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_sin_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_sin_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_sin_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_sin_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31438,14 +31336,14 @@ void qb_redirect_complex_sin_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_cos_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_cos_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_cos_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_cos_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31454,14 +31352,14 @@ void qb_redirect_complex_cos_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_tan_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_tan_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 4096)) {
-		qb_do_complex_tan_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 4096)) {
+		qb_do_complex_tan_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31470,14 +31368,14 @@ void qb_redirect_complex_tan_2x_multiple_times_F64(qb_interpreter_context *__res
 #undef res_count
 }
 
-void qb_redirect_complex_sinh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_sinh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 2048)) {
-		qb_do_complex_sinh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 2048)) {
+		qb_do_complex_sinh_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31486,14 +31384,14 @@ void qb_redirect_complex_sinh_2x_multiple_times_F64(qb_interpreter_context *__re
 #undef res_count
 }
 
-void qb_redirect_complex_cosh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_cosh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 2048)) {
-		qb_do_complex_cosh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 2048)) {
+		qb_do_complex_cosh_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -31502,14 +31400,14 @@ void qb_redirect_complex_cosh_2x_multiple_times_F64(qb_interpreter_context *__re
 #undef res_count
 }
 
-void qb_redirect_complex_tanh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+void qb_redirect_complex_tanh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_ptr		(((cfloat64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_ptr		(((cfloat64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, 2048)) {
-		qb_do_complex_tanh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, 2048)) {
+		qb_do_complex_tanh_multiple_times_F64(op1_ptr, op1_count >> 1, res_ptr, res_count >> 1);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -33798,62 +33696,62 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_do_clear_element_resize_update_dimension_I16",	qb_do_clear_element_resize_update_dimension_I16,	0,	0	},
 {	"qb_do_clear_element_resize_update_dimension_I32",	qb_do_clear_element_resize_update_dimension_I32,	0,	0	},
 {	"qb_do_clear_element_resize_update_dimension_I64",	qb_do_clear_element_resize_update_dimension_I64,	0,	0	},
-{	"qb_do_complex_abs_2x_F32",	qb_do_complex_abs_2x_F32,	0,	0	},
-{	"qb_do_complex_abs_2x_F64",	qb_do_complex_abs_2x_F64,	0,	0	},
-{	"qb_do_complex_abs_2x_multiple_times_F32",	qb_do_complex_abs_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_abs_2x_multiple_times_F64",	qb_do_complex_abs_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_argument_2x_F32",	qb_do_complex_argument_2x_F32,	0,	0	},
-{	"qb_do_complex_argument_2x_F64",	qb_do_complex_argument_2x_F64,	0,	0	},
-{	"qb_do_complex_argument_2x_multiple_times_F32",	qb_do_complex_argument_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_argument_2x_multiple_times_F64",	qb_do_complex_argument_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_cos_2x_F32",	qb_do_complex_cos_2x_F32,	0,	0	},
-{	"qb_do_complex_cos_2x_F64",	qb_do_complex_cos_2x_F64,	0,	0	},
-{	"qb_do_complex_cos_2x_multiple_times_F32",	qb_do_complex_cos_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_cos_2x_multiple_times_F64",	qb_do_complex_cos_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_cosh_2x_F32",	qb_do_complex_cosh_2x_F32,	0,	0	},
-{	"qb_do_complex_cosh_2x_F64",	qb_do_complex_cosh_2x_F64,	0,	0	},
-{	"qb_do_complex_cosh_2x_multiple_times_F32",	qb_do_complex_cosh_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_cosh_2x_multiple_times_F64",	qb_do_complex_cosh_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_divide_2x_F32",	qb_do_complex_divide_2x_F32,	0,	0	},
-{	"qb_do_complex_divide_2x_F64",	qb_do_complex_divide_2x_F64,	0,	0	},
-{	"qb_do_complex_divide_2x_multiple_times_F32",	qb_do_complex_divide_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_divide_2x_multiple_times_F64",	qb_do_complex_divide_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_exp_2x_F32",	qb_do_complex_exp_2x_F32,	0,	0	},
-{	"qb_do_complex_exp_2x_F64",	qb_do_complex_exp_2x_F64,	0,	0	},
-{	"qb_do_complex_exp_2x_multiple_times_F32",	qb_do_complex_exp_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_exp_2x_multiple_times_F64",	qb_do_complex_exp_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_log_2x_F32",	qb_do_complex_log_2x_F32,	0,	0	},
-{	"qb_do_complex_log_2x_F64",	qb_do_complex_log_2x_F64,	0,	0	},
-{	"qb_do_complex_log_2x_multiple_times_F32",	qb_do_complex_log_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_log_2x_multiple_times_F64",	qb_do_complex_log_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_multiply_2x_F32",	qb_do_complex_multiply_2x_F32,	0,	0	},
-{	"qb_do_complex_multiply_2x_F64",	qb_do_complex_multiply_2x_F64,	0,	0	},
-{	"qb_do_complex_multiply_2x_multiple_times_F32",	qb_do_complex_multiply_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_multiply_2x_multiple_times_F64",	qb_do_complex_multiply_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_pow_2x_F32",	qb_do_complex_pow_2x_F32,	0,	0	},
-{	"qb_do_complex_pow_2x_F64",	qb_do_complex_pow_2x_F64,	0,	0	},
-{	"qb_do_complex_pow_2x_multiple_times_F32",	qb_do_complex_pow_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_pow_2x_multiple_times_F64",	qb_do_complex_pow_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_sin_2x_F32",	qb_do_complex_sin_2x_F32,	0,	0	},
-{	"qb_do_complex_sin_2x_F64",	qb_do_complex_sin_2x_F64,	0,	0	},
-{	"qb_do_complex_sin_2x_multiple_times_F32",	qb_do_complex_sin_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_sin_2x_multiple_times_F64",	qb_do_complex_sin_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_sinh_2x_F32",	qb_do_complex_sinh_2x_F32,	0,	0	},
-{	"qb_do_complex_sinh_2x_F64",	qb_do_complex_sinh_2x_F64,	0,	0	},
-{	"qb_do_complex_sinh_2x_multiple_times_F32",	qb_do_complex_sinh_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_sinh_2x_multiple_times_F64",	qb_do_complex_sinh_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_square_root_2x_F32",	qb_do_complex_square_root_2x_F32,	0,	0	},
-{	"qb_do_complex_square_root_2x_F64",	qb_do_complex_square_root_2x_F64,	0,	0	},
-{	"qb_do_complex_square_root_2x_multiple_times_F32",	qb_do_complex_square_root_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_square_root_2x_multiple_times_F64",	qb_do_complex_square_root_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_tan_2x_F32",	qb_do_complex_tan_2x_F32,	0,	0	},
-{	"qb_do_complex_tan_2x_F64",	qb_do_complex_tan_2x_F64,	0,	0	},
-{	"qb_do_complex_tan_2x_multiple_times_F32",	qb_do_complex_tan_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_tan_2x_multiple_times_F64",	qb_do_complex_tan_2x_multiple_times_F64,	0,	0	},
-{	"qb_do_complex_tanh_2x_F32",	qb_do_complex_tanh_2x_F32,	0,	0	},
-{	"qb_do_complex_tanh_2x_F64",	qb_do_complex_tanh_2x_F64,	0,	0	},
-{	"qb_do_complex_tanh_2x_multiple_times_F32",	qb_do_complex_tanh_2x_multiple_times_F32,	0,	0	},
-{	"qb_do_complex_tanh_2x_multiple_times_F64",	qb_do_complex_tanh_2x_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_abs_F32",	qb_do_complex_abs_F32,	0,	0	},
+{	"qb_do_complex_abs_F64",	qb_do_complex_abs_F64,	0,	0	},
+{	"qb_do_complex_abs_multiple_times_F32",	qb_do_complex_abs_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_abs_multiple_times_F64",	qb_do_complex_abs_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_argument_F32",	qb_do_complex_argument_F32,	0,	0	},
+{	"qb_do_complex_argument_F64",	qb_do_complex_argument_F64,	0,	0	},
+{	"qb_do_complex_argument_multiple_times_F32",	qb_do_complex_argument_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_argument_multiple_times_F64",	qb_do_complex_argument_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_cos_F32",	qb_do_complex_cos_F32,	0,	0	},
+{	"qb_do_complex_cos_F64",	qb_do_complex_cos_F64,	0,	0	},
+{	"qb_do_complex_cos_multiple_times_F32",	qb_do_complex_cos_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_cos_multiple_times_F64",	qb_do_complex_cos_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_cosh_F32",	qb_do_complex_cosh_F32,	0,	0	},
+{	"qb_do_complex_cosh_F64",	qb_do_complex_cosh_F64,	0,	0	},
+{	"qb_do_complex_cosh_multiple_times_F32",	qb_do_complex_cosh_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_cosh_multiple_times_F64",	qb_do_complex_cosh_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_divide_F32",	qb_do_complex_divide_F32,	0,	0	},
+{	"qb_do_complex_divide_F64",	qb_do_complex_divide_F64,	0,	0	},
+{	"qb_do_complex_divide_multiple_times_F32",	qb_do_complex_divide_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_divide_multiple_times_F64",	qb_do_complex_divide_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_exp_F32",	qb_do_complex_exp_F32,	0,	0	},
+{	"qb_do_complex_exp_F64",	qb_do_complex_exp_F64,	0,	0	},
+{	"qb_do_complex_exp_multiple_times_F32",	qb_do_complex_exp_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_exp_multiple_times_F64",	qb_do_complex_exp_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_log_F32",	qb_do_complex_log_F32,	0,	0	},
+{	"qb_do_complex_log_F64",	qb_do_complex_log_F64,	0,	0	},
+{	"qb_do_complex_log_multiple_times_F32",	qb_do_complex_log_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_log_multiple_times_F64",	qb_do_complex_log_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_multiply_F32",	qb_do_complex_multiply_F32,	0,	0	},
+{	"qb_do_complex_multiply_F64",	qb_do_complex_multiply_F64,	0,	0	},
+{	"qb_do_complex_multiply_multiple_times_F32",	qb_do_complex_multiply_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_multiply_multiple_times_F64",	qb_do_complex_multiply_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_pow_F32",	qb_do_complex_pow_F32,	0,	0	},
+{	"qb_do_complex_pow_F64",	qb_do_complex_pow_F64,	0,	0	},
+{	"qb_do_complex_pow_multiple_times_F32",	qb_do_complex_pow_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_pow_multiple_times_F64",	qb_do_complex_pow_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_sin_F32",	qb_do_complex_sin_F32,	0,	0	},
+{	"qb_do_complex_sin_F64",	qb_do_complex_sin_F64,	0,	0	},
+{	"qb_do_complex_sin_multiple_times_F32",	qb_do_complex_sin_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_sin_multiple_times_F64",	qb_do_complex_sin_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_sinh_F32",	qb_do_complex_sinh_F32,	0,	0	},
+{	"qb_do_complex_sinh_F64",	qb_do_complex_sinh_F64,	0,	0	},
+{	"qb_do_complex_sinh_multiple_times_F32",	qb_do_complex_sinh_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_sinh_multiple_times_F64",	qb_do_complex_sinh_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_square_root_F32",	qb_do_complex_square_root_F32,	0,	0	},
+{	"qb_do_complex_square_root_F64",	qb_do_complex_square_root_F64,	0,	0	},
+{	"qb_do_complex_square_root_multiple_times_F32",	qb_do_complex_square_root_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_square_root_multiple_times_F64",	qb_do_complex_square_root_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_tan_F32",	qb_do_complex_tan_F32,	0,	0	},
+{	"qb_do_complex_tan_F64",	qb_do_complex_tan_F64,	0,	0	},
+{	"qb_do_complex_tan_multiple_times_F32",	qb_do_complex_tan_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_tan_multiple_times_F64",	qb_do_complex_tan_multiple_times_F64,	0,	0	},
+{	"qb_do_complex_tanh_F32",	qb_do_complex_tanh_F32,	0,	0	},
+{	"qb_do_complex_tanh_F64",	qb_do_complex_tanh_F64,	0,	0	},
+{	"qb_do_complex_tanh_multiple_times_F32",	qb_do_complex_tanh_multiple_times_F32,	0,	0	},
+{	"qb_do_complex_tanh_multiple_times_F64",	qb_do_complex_tanh_multiple_times_F64,	0,	0	},
 {	"qb_do_convert_from_string_F32",	qb_do_convert_from_string_F32,	0,	0	},
 {	"qb_do_convert_from_string_F64",	qb_do_convert_from_string_F64,	0,	0	},
 {	"qb_do_convert_from_string_S08",	qb_do_convert_from_string_S08,	0,	0	},
@@ -34717,20 +34615,20 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_negate_2x_multiple_times_F32",	qb_redirect_negate_2x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_increment_2x_multiple_times_F32",	qb_redirect_increment_2x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_multiply_accumulate_2x_multiple_times_F32",	qb_redirect_multiply_accumulate_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_abs_2x_multiple_times_F32",	qb_redirect_complex_abs_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_argument_2x_multiple_times_F32",	qb_redirect_complex_argument_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_multiply_2x_multiple_times_F32",	qb_redirect_complex_multiply_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_divide_2x_multiple_times_F32",	qb_redirect_complex_divide_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_exp_2x_multiple_times_F32",	qb_redirect_complex_exp_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_log_2x_multiple_times_F32",	qb_redirect_complex_log_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_square_root_2x_multiple_times_F32",	qb_redirect_complex_square_root_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_pow_2x_multiple_times_F32",	qb_redirect_complex_pow_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_sin_2x_multiple_times_F32",	qb_redirect_complex_sin_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_cos_2x_multiple_times_F32",	qb_redirect_complex_cos_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_tan_2x_multiple_times_F32",	qb_redirect_complex_tan_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_sinh_2x_multiple_times_F32",	qb_redirect_complex_sinh_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_cosh_2x_multiple_times_F32",	qb_redirect_complex_cosh_2x_multiple_times_F32,	0,	0	},
-{	"qb_redirect_complex_tanh_2x_multiple_times_F32",	qb_redirect_complex_tanh_2x_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_abs_multiple_times_F32",	qb_redirect_complex_abs_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_argument_multiple_times_F32",	qb_redirect_complex_argument_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_multiply_multiple_times_F32",	qb_redirect_complex_multiply_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_divide_multiple_times_F32",	qb_redirect_complex_divide_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_exp_multiple_times_F32",	qb_redirect_complex_exp_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_log_multiple_times_F32",	qb_redirect_complex_log_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_square_root_multiple_times_F32",	qb_redirect_complex_square_root_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_pow_multiple_times_F32",	qb_redirect_complex_pow_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_sin_multiple_times_F32",	qb_redirect_complex_sin_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_cos_multiple_times_F32",	qb_redirect_complex_cos_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_tan_multiple_times_F32",	qb_redirect_complex_tan_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_sinh_multiple_times_F32",	qb_redirect_complex_sinh_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_cosh_multiple_times_F32",	qb_redirect_complex_cosh_multiple_times_F32,	0,	0	},
+{	"qb_redirect_complex_tanh_multiple_times_F32",	qb_redirect_complex_tanh_multiple_times_F32,	0,	0	},
 {	"qb_redirect_increment_multiple_times_F64",	qb_redirect_increment_multiple_times_F64,	0,	0	},
 {	"qb_redirect_decrement_multiple_times_F64",	qb_redirect_decrement_multiple_times_F64,	0,	0	},
 {	"qb_redirect_add_multiple_times_F64",	qb_redirect_add_multiple_times_F64,	0,	0	},
@@ -34865,20 +34763,20 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_modulo_2x_multiple_times_F64",	qb_redirect_modulo_2x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_negate_2x_multiple_times_F64",	qb_redirect_negate_2x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_multiply_accumulate_2x_multiple_times_F64",	qb_redirect_multiply_accumulate_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_abs_2x_multiple_times_F64",	qb_redirect_complex_abs_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_argument_2x_multiple_times_F64",	qb_redirect_complex_argument_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_multiply_2x_multiple_times_F64",	qb_redirect_complex_multiply_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_divide_2x_multiple_times_F64",	qb_redirect_complex_divide_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_exp_2x_multiple_times_F64",	qb_redirect_complex_exp_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_log_2x_multiple_times_F64",	qb_redirect_complex_log_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_square_root_2x_multiple_times_F64",	qb_redirect_complex_square_root_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_pow_2x_multiple_times_F64",	qb_redirect_complex_pow_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_sin_2x_multiple_times_F64",	qb_redirect_complex_sin_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_cos_2x_multiple_times_F64",	qb_redirect_complex_cos_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_tan_2x_multiple_times_F64",	qb_redirect_complex_tan_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_sinh_2x_multiple_times_F64",	qb_redirect_complex_sinh_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_cosh_2x_multiple_times_F64",	qb_redirect_complex_cosh_2x_multiple_times_F64,	0,	0	},
-{	"qb_redirect_complex_tanh_2x_multiple_times_F64",	qb_redirect_complex_tanh_2x_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_abs_multiple_times_F64",	qb_redirect_complex_abs_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_argument_multiple_times_F64",	qb_redirect_complex_argument_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_multiply_multiple_times_F64",	qb_redirect_complex_multiply_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_divide_multiple_times_F64",	qb_redirect_complex_divide_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_exp_multiple_times_F64",	qb_redirect_complex_exp_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_log_multiple_times_F64",	qb_redirect_complex_log_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_square_root_multiple_times_F64",	qb_redirect_complex_square_root_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_pow_multiple_times_F64",	qb_redirect_complex_pow_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_sin_multiple_times_F64",	qb_redirect_complex_sin_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_cos_multiple_times_F64",	qb_redirect_complex_cos_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_tan_multiple_times_F64",	qb_redirect_complex_tan_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_sinh_multiple_times_F64",	qb_redirect_complex_sinh_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_cosh_multiple_times_F64",	qb_redirect_complex_cosh_multiple_times_F64,	0,	0	},
+{	"qb_redirect_complex_tanh_multiple_times_F64",	qb_redirect_complex_tanh_multiple_times_F64,	0,	0	},
 {	"qb_redirect_increment_multiple_times_I08",	qb_redirect_increment_multiple_times_I08,	0,	0	},
 {	"qb_redirect_decrement_multiple_times_I08",	qb_redirect_decrement_multiple_times_I08,	0,	0	},
 {	"qb_redirect_add_multiple_times_I08",	qb_redirect_add_multiple_times_I08,	0,	0	},

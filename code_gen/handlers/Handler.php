@@ -280,6 +280,10 @@ class Handler {
 		}
 		return $cTypes[$operandType];
 	}
+
+	public function getOperandSizeShift($i) {
+		return 0;
+	}
 	
 	// return the number of elements that consist an operand 
 	public function getOperandSize($i) {
@@ -665,7 +669,12 @@ class Handler {
 							$params[] = "{$name}_count_ptr";
 						} else {
 							if($this->isMultipleData() || !is_numeric($this->getOperandSize($i))) {
-								$params[] = "{$name}_count";
+								$shift = $this->getOperandSizeShift($i);
+								if($shift) {
+									$params[] = "{$name}_count >> $shift";
+								} else {
+									$params[] = "{$name}_count";
+								}
 							}
 						}
 					}

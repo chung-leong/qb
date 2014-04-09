@@ -37,6 +37,18 @@ typedef struct qb_thread_parameters			qb_thread_parameters;
 
 typedef enum qb_primitive_type				qb_primitive_type;
 
+#if defined(_Complex_I)
+typedef float complex						cfloat32_t;
+typedef double complex						cfloat64_t;
+
+#	define cmult(x, y)						((x) * (y))
+#	define cmultf(x, y)						((x) * (y))
+#	define cdiv(x, y)						((x) / (y))
+#	define cdivf(x, y)						((x) / (y))
+#else
+
+#endif
+
 #define MAKE_STRING(...)					#__VA_ARGS__
 #define STRING(x)							MAKE_STRING(x)
 
