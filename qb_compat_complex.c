@@ -559,7 +559,7 @@ cfloat64_t casinh(cfloat64_t n) {
 }
 
 cfloat32_t catanf(cfloat32_t n) {
-	cfloat32_t res;
+	cfloat32_t res = { 0, 0 };
 	return res;
 }
 
@@ -569,12 +569,218 @@ cfloat64_t catan(cfloat64_t n) {
 }
 
 cfloat32_t catanhf(cfloat32_t n) {
+	static const float32_t pi = (float32_t) M_PI;
+	static const float32_t half_pi = (float32_t) M_PI_2;
+	static const float32_t one = (float32_t) 1.0;
+	static const float32_t two = (float32_t) 2.0;
+	static const float32_t four = (float32_t) 4.0;
+	static const float32_t zero = (float32_t) 0;
+	static const float32_t log_two = (float32_t) M_LN2;
+	
+	float32_t x = fabsf(n.r);
+	float32_t y = fabsf(n.i);
 	cfloat32_t res;
+	
+	float32_t safe_upper = FLT_MAX / 2;
+	float32_t safe_lower = FLT_MIN / 2;
+	
+	if(zend_isnan(x)) {
+		if(zend_isinf(y)) {
+			res.r = 0;
+			res.i = signbit(n.i) ? -half_pi : half_pi;
+		} else {
+			res.r = x;
+			res.i = x;
+		}
+		return res;
+	} else if(zend_isnan(y)) {
+		if(x == 0) {
+			res.r = x;
+		} else if(zend_isinf(x)) {
+			res.r = 0;
+		} else {
+			res.r = y;
+		}
+		res.i = y;
+		return res;
+	} else if((x > safe_lower) && (x < safe_upper) && (y > safe_lower) && (y < safe_upper)) {
+		float32_t yy = y*y;
+		float32_t mxm1 = one - x;
+	
+		res.r = log1pf(four * x / (mxm1*mxm1 + yy));
+		res.r /= four;
+		if(signbit(n.r)) {
+			res.r = -1 * res.r;
+		}
+		res.i = atan2f((y * two), (mxm1*(one+x) - yy));
+		res.i /= two;
+		if(n.i < 0) {
+			res.i = -1 * res.i;
+		}
+	} else {
+		float32_t mxm1 = one - x;
+		if(x >= safe_upper) {
+			if(zend_isinf(x) || zend_isinf(y)) {
+				res.r = 0;
+			} else if(y >= safe_upper) {
+				res.r = log1pf((four/y) / (x/y + y/x));
+			} else if(y > one) {
+				res.r = log1pf(four / (x + y*y/x));
+			} else {
+				res.r = log1pf(four/x);
+			}
+		} else if(y >= safe_upper) {
+			if(x > one) {
+				res.r = log1pf((four*x/y) / (y + mxm1*mxm1/y));
+			} else {
+				res.r = four*x/y/y;
+			}
+		} else if (x != one) {
+			float32_t div = mxm1*mxm1;
+			if(y > safe_lower) {
+				div += y*y;
+			}
+			res.r = log1pf(four*x/div);
+		} else {
+			res.r = - two * (logf(y) - log_two);
+		}
+		res.r /= four;
+		if(signbit(n.r)) {
+			res.r = -1 * res.r;
+		}
+	
+		if((x >= safe_upper) || (y >= safe_upper)) {
+			res.i = pi;
+		} else if(x <= safe_lower) {
+			if(y <= safe_lower) {
+				res.i = atan2f(two*y, one);
+			} else {
+				if((y == zero) && (x == zero)) {
+					res.i = 0;
+				} else {
+					res.i = atan2f(two*y, one - y*y);
+				}
+			}
+		} else {
+			if((y == zero) && (x == one)) {		
+				res.i = 0;
+			} else {
+				res.i = atan2f(two*y, mxm1*(one+x));
+			}
+		}
+		res.i /= two;
+		if(signbit(n.i)) {
+			res.i = -1 * res.i;
+		}
+	}
 	return res;
 }
 
 cfloat64_t catanh(cfloat64_t n) {
+	static const float64_t pi = (float64_t) M_PI;
+	static const float64_t half_pi = (float64_t) M_PI_2;
+	static const float64_t one = (float64_t) 1.0;
+	static const float64_t two = (float64_t) 2.0;
+	static const float64_t four = (float64_t) 4.0;
+	static const float64_t zero = (float64_t) 0;
+	static const float64_t log_two = (float64_t) M_LN2;
+	
+	float64_t x = fabs(n.r);
+	float64_t y = fabs(n.i);
 	cfloat64_t res;
+	
+	float64_t safe_upper = DBL_MAX / 2;
+	float64_t safe_lower = DBL_MIN / 2;
+	
+	if(zend_isnan(x)) {
+		if(zend_isinf(y)) {
+			res.r = 0;
+			res.i = signbit(n.i) ? -half_pi : half_pi;
+		} else {
+			res.r = x;
+			res.i = x;
+		}
+		return res;
+	} else if(zend_isnan(y)) {
+		if(x == 0) {
+			res.r = x;
+		} else if(zend_isinf(x)) {
+			res.r = 0;
+		} else {
+			res.r = y;
+		}
+		res.i = y;
+		return res;
+	} else if((x > safe_lower) && (x < safe_upper) && (y > safe_lower) && (y < safe_upper)) {
+		float64_t yy = y*y;
+		float64_t mxm1 = one - x;
+	
+		res.r = log1p(four * x / (mxm1*mxm1 + yy));
+		res.r /= four;
+		if(signbit(n.r)) {
+			res.r = -1 * res.r;
+		}
+		res.i = atan2((y * two), (mxm1*(one+x) - yy));
+		res.i /= two;
+		if(n.i < 0) {
+			res.i = -1 * res.i;
+		}
+	} else {
+		float64_t mxm1 = one - x;
+		if(x >= safe_upper) {
+			if(zend_isinf(x) || zend_isinf(y)) {
+				res.r = 0;
+			} else if(y >= safe_upper) {
+				res.r = log1p((four/y) / (x/y + y/x));
+			} else if(y > one) {
+				res.r = log1p(four / (x + y*y/x));
+			} else {
+				res.r = log1p(four/x);
+			}
+		} else if(y >= safe_upper) {
+			if(x > one) {
+				res.r = log1p((four*x/y) / (y + mxm1*mxm1/y));
+			} else {
+				res.r = four*x/y/y;
+			}
+		} else if (x != one) {
+			float64_t div = mxm1*mxm1;
+			if(y > safe_lower) {
+				div += y*y;
+			}
+			res.r = log1p(four*x/div);
+		} else {
+			res.r = - two * (log(y) - log_two);
+		}
+		res.r /= four;
+		if(signbit(n.r)) {
+			res.r = -1 * res.r;
+		}
+	
+		if((x >= safe_upper) || (y >= safe_upper)) {
+			res.i = pi;
+		} else if(x <= safe_lower) {
+			if(y <= safe_lower) {
+				res.i = atan2(two*y, one);
+			} else {
+				if((y == zero) && (x == zero)) {
+					res.i = 0;
+				} else {
+					res.i = atan2(two*y, one - y*y);
+				}
+			}
+		} else {
+			if((y == zero) && (x == one)) {		
+				res.i = 0;
+			} else {
+				res.i = atan2(two*y, mxm1*(one+x));
+			}
+		}
+		res.i /= two;
+		if(signbit(n.i)) {
+			res.i = -1 * res.i;
+		}
+	}
 	return res;
 }
 
