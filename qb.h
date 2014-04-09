@@ -44,9 +44,12 @@
 #else
 #	include <stdint.h>
 #	include <inttypes.h>
-#	include <complex.h>
 #	include <sys/types.h>
 #	include <sys/param.h>
+#endif
+
+#ifdef HAVE_COMPLEX_H
+#	include <complex.h>
 #endif
 
 #ifdef _MSC_VER

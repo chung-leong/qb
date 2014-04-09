@@ -63,7 +63,7 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ Define to 1 if you have the `__builtin_bswap16' function ])
       AC_MSG_RESULT([yes])
     ]
   )
@@ -74,7 +74,7 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP32,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP32,1,[ Define to 1 if you have the `__builtin_bswap32' function ])
       AC_MSG_RESULT([yes])
     ]
   )
@@ -85,11 +85,15 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP64,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP64,1,[ Define to 1 if you have the `__builtin_bswap64' function. ])
       AC_MSG_RESULT([yes])
     ]
   )
   CFLAGS="$ac_saved_cflags"
+
+  AC_CHECK_HEADERS([complex.h],
+	[ AC_DEFINE(HAVE_COMPLEX_H,1,[ Define to 1 if you have the <complex.h> header file. ]) ]
+  )
 
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
