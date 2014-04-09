@@ -35,7 +35,15 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <math.h>
+
+// prevent math.h from declaring cabs()
+#ifdef _MSC_VER
+#	define __STDC__		1
+#	include <math.h>
+#	undef __STDC__
+#else
+#	include <math.h>
+#endif
 
 #ifdef _MSC_VER
 #	include "win32\php_stdint.h"
@@ -149,9 +157,9 @@
 
 #include "qb_debug_interface.h"
 #include "qb_version.h"
+#include "qb_types.h"
 #include "qb_compat.h"
 #include "qb_opcodes.h"
-#include "qb_types.h"
 #include "qb_op.h"
 #include "qb_thread.h"
 #include "qb_storage.h"

@@ -25,7 +25,7 @@
 #	define znode_op					znode
 #	define ZEND_FETCH_CLASS_MASK	0x0f
 
-	zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC);
+zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC);
 #endif
 
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
@@ -36,7 +36,7 @@
 #	define PHP_ROUND_HALF_EVEN		0x03    /* Banker's rounding */
 #	define PHP_ROUND_HALF_ODD		0x04
 
-	extern char *(*zend_resolve_path)(const char *filename, int filename_len TSRMLS_DC);
+extern char *(*zend_resolve_path)(const char *filename, int filename_len TSRMLS_DC);
 
 #	define Z_REFCOUNT_P(zv)		zv->refcount
 #	define Z_ADDREF_P(zv)			zv->refcount++
@@ -164,7 +164,7 @@
 #	endif
 
 #	if ZEND_ENGINE_2_1
-		char *zend_get_type_by_const(int type);
+char *zend_get_type_by_const(int type);
 #	endif
 #endif
 
@@ -197,25 +197,25 @@
 #endif
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
-	static inline unsigned short __builtin_bswap16(unsigned short v) {
-	  return (((v) >> 8) & 0x00FF) | (((v) << 8) & 0xFF00);
-	}
+static inline unsigned short __builtin_bswap16(unsigned short v) {
+  return (((v) >> 8) & 0x00FF) | (((v) << 8) & 0xFF00);
+}
 #endif
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP32)
-	static inline unsigned long __builtin_bswap32(unsigned long v) {
-	  return (((v) >> 24) & 0x000000FF) | (((v) >>  8) & 0x0000FF00)
-		   | (((v) <<  8) & 0x00FF0000) | (((v) << 24) & 0xFF000000);
-	}
+static inline unsigned long __builtin_bswap32(unsigned long v) {
+  return (((v) >> 24) & 0x000000FF) | (((v) >>  8) & 0x0000FF00)
+	   | (((v) <<  8) & 0x00FF0000) | (((v) << 24) & 0xFF000000);
+}
 #endif
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP64)
-	static inline unsigned long long __builtin_bswap64(unsigned long long v) {
-	  return (((v) >> 56) & 0x00000000000000FFLL) | (((v) >> 40) & 0x000000000000FF00LL)
-		   | (((v) >> 24) & 0x0000000000FF0000LL) | (((v) >>  8) & 0x00000000FF000000LL)
-		   | (((v) <<  8) & 0x000000FF00000000LL) | (((v) << 24) & 0x0000FF0000000000LL)
-		   | (((v) << 40) & 0x00FF000000000000LL) | (((v) << 56) & 0xFF00000000000000LL);
-	}
+static inline unsigned long long __builtin_bswap64(unsigned long long v) {
+  return (((v) >> 56) & 0x00000000000000FFLL) | (((v) >> 40) & 0x000000000000FF00LL)
+	   | (((v) >> 24) & 0x0000000000FF0000LL) | (((v) >>  8) & 0x00000000FF000000LL)
+	   | (((v) <<  8) & 0x000000FF00000000LL) | (((v) << 24) & 0x0000FF0000000000LL)
+	   | (((v) << 40) & 0x00FF000000000000LL) | (((v) << 56) & 0xFF00000000000000LL);
+}
 #endif
 
 #ifndef M_E
@@ -240,129 +240,199 @@
 #	define llabs		_abs64
 #	define isnan		_isnan
 
-	double asinh(double z);
-	double acosh(double x);
-	double atanh(double z);
-	double log1p(double x);
-	double expm1(double x);
-	double log2(double x);
-	double exp2(double x);
-	double rint(double x);
-	double round(double x);
-	double rsqrt(double x);
+double asinh(double z);
+double acosh(double x);
+double atanh(double z);
+double log1p(double x);
+double expm1(double x);
+double log2(double x);
+double exp2(double x);
+double rint(double x);
+double round(double x);
+double rsqrt(double x);
 
-	float rsqrtf(float x);
+float rsqrtf(float x);
 
-	float exp2f(float x);
-	float expm1f(float x);
-	float log2f(float x);
-	float log1pf(float x);
-	float asinhf(float x);
-	float acoshf(float x);
-	float atanhf(float x);
-	float rintf(float x);
-	float roundf(float x);
+float exp2f(float x);
+float expm1f(float x);
+float log2f(float x);
+float log1pf(float x);
+float asinhf(float x);
+float acoshf(float x);
+float atanhf(float x);
+float rintf(float x);
+float roundf(float x);
 
 #	undef fabsf
 #	define fabsf	__fabsf
-	float __fabsf(float x);
+float __fabsf(float x);
 
 #	undef sinf
 #	define sinf	__sinf
-	float __sinf(float x);
+float __sinf(float x);
 
 #	undef asinf
 #	define asinf	__asinf
-	float __asinf(float x);
+float __asinf(float x);
 
 #	undef cosf
 #	define cosf	__cosf
-	float __cosf(float x);
+float __cosf(float x);
 
 #	undef acosf
 #	define acosf	__acosf
-	float __acosf(float x);
+float __acosf(float x);
 
 #	undef tanf
 #	define tanf	__tanf
-	float __tanf(float x);
+float __tanf(float x);
 
 #	undef atanf
 #	define atanf	__atanf
-	float __atanf(float x);
+float __atanf(float x);
 
 #	undef atan2f
 #	define atan2f	__atan2f
-	float __atan2f(float x, float y);
+float __atan2f(float x, float y);
 
 #	undef sinhf
 #	define sinhf	__sinhf
-	float __sinhf(float x);
+float __sinhf(float x);
 
 #	undef coshf
 #	define coshf	__coshf
-	float __coshf(float x);
+float __coshf(float x);
 
 #	undef tanhf
 #	define tanhf	__tanhf
-	float __tanhf(float x);
+float __tanhf(float x);
 
 #	undef expf
 #	define expf	__expf
-	float __expf(float x);
+float __expf(float x);
 
 #	undef logf
 #	define logf	__logf
-	float __logf(float x);
+float __logf(float x);
 
 #	undef log10f
 #	define log10f	__log10f
-	float __log10f(float x);
+float __log10f(float x);
 
 #	undef powf
 #	define powf	__powf
-	float __powf(float x, float y);
+float __powf(float x, float y);
 
 #	undef sqrtf
 #	define sqrtf	__sqrtf
-	float __sqrtf(float x);
+float __sqrtf(float x);
 
 #	undef ceilf
 #	define ceilf	__ceilf
-	float __ceilf(float x);
+float __ceilf(float x);
 
 #	undef floorf
 #	define floorf	__floorf
-	float __floorf(float x);
+float __floorf(float x);
 
 #	undef hypotf
 #	define hypotf	__hypotf
-	float __hypotf(float x, float y);
+float __hypotf(float x, float y);
 
 #	undef fmodf
 #	define fmodf	__fmodf
-	float __fmodf(float n, float d);
+float __fmodf(float n, float d);
 #endif
 
 #ifndef _MSC_VER
 #	ifndef HAVE_EXP2F
-		float exp2f(float x);
+float exp2f(float x);
 #	endif
 
 #	ifndef HAVE_ROUNDF
-		float roundf(float x);
+float roundf(float x);
 #	endif
 
 #	ifndef HAVE_LOG2F
-		float log2f(float x);
+float log2f(float x);
 #	endif
 #endif
 
+#if defined(_Complex_I)
+#	define cmult(x, y)						((x) * (y))
+#	define cmultf(x, y)						((x) * (y))
+#	define cdiv(x, y)						((x) / (y))
+#	define cdivf(x, y)						((x) / (y))
+#else
+float32_t cabsf(cfloat32_t n);
+float64_t cabs(cfloat64_t n);
+
+float32_t cargf(cfloat32_t n);
+float64_t carg(cfloat64_t n);
+
+cfloat32_t cacosf(cfloat32_t n);
+cfloat64_t cacos(cfloat64_t n);
+
+cfloat32_t cacoshf(cfloat32_t n);
+cfloat64_t cacosh(cfloat64_t n);
+
+cfloat32_t casinf(cfloat32_t n);
+cfloat64_t casin(cfloat64_t n);
+
+cfloat32_t casinhf(cfloat32_t n);
+cfloat64_t casinh(cfloat64_t n);
+
+cfloat32_t catanf(cfloat32_t n);
+cfloat64_t catan(cfloat64_t n);
+
+cfloat32_t catanhf(cfloat32_t n);
+cfloat64_t catanh(cfloat64_t n);
+
+cfloat32_t ccosf(cfloat32_t n);
+cfloat64_t ccos(cfloat64_t n);
+
+cfloat32_t ccoshf(cfloat32_t n);
+cfloat64_t ccosh(cfloat64_t n);
+
+cfloat32_t cdivf(cfloat32_t n1, cfloat32_t n2);
+cfloat64_t cdiv(cfloat64_t n1, cfloat64_t n2);
+
+cfloat32_t cexpf(cfloat32_t n);
+cfloat64_t cexp(cfloat64_t n);
+
+cfloat32_t clogf(cfloat32_t n);
+cfloat64_t clog(cfloat64_t n);
+
+cfloat32_t cmultf(cfloat32_t n1, cfloat32_t n2);
+cfloat64_t cmult(cfloat64_t n1, cfloat64_t n2);
+
+cfloat32_t cpowf(cfloat32_t n, cfloat32_t e);
+cfloat64_t cpow(cfloat64_t n, cfloat64_t e);
+
+cfloat32_t csinf(cfloat32_t n);
+cfloat64_t csin(cfloat64_t n);
+
+cfloat32_t csinhf(cfloat32_t n);
+cfloat64_t csinh(cfloat64_t n);
+
+cfloat32_t csqrtf(cfloat32_t n);
+cfloat64_t csqrt(cfloat64_t n);
+
+cfloat32_t ctanf(cfloat32_t n);
+cfloat64_t ctan(cfloat64_t n);
+
+cfloat32_t ctanhf(cfloat32_t n);
+cfloat64_t ctanh(cfloat64_t n);
+#endif
+
+#ifndef M_LN2
+#define M_LN2          0.69314718055994530942  /* log_e 2 */
+#endif
 
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		PHPAPI double _php_math_round(double value, int places, int mode);
+PHPAPI double _php_math_round(double value, int places, int mode);
 #else
-		double _php_math_round(double value, int places, int mode);
+double _php_math_round(double value, int places, int mode);
 #endif
 
 #ifndef TRUE
@@ -436,24 +506,23 @@
 #	undef snprintf
 #	define snprintf			__ap_php_snprintf
 
-	int ap_php_snprintf(char *buf, size_t len, const char *format,...);
-	int ap_php_vsnprintf(char *buf, size_t len, const char *format, va_list ap);
-	double zend_strtod(const char *s00, char **se);
+int ap_php_snprintf(char *buf, size_t len, const char *format,...);
+int ap_php_vsnprintf(char *buf, size_t len, const char *format, va_list ap);
+double zend_strtod(const char *s00, char **se);
 #endif
 
 #ifdef VC6_MSVCRT
-
-	extern FILE *	(*vc6_fdopen)(int _FileHandle, const char * _Mode);
-	extern int		(*vc6_open_osfhandle)(intptr_t _OSFileHandle, int _Flags);
-	extern FILE *	(*vc6_fopen)(const char * _Filename, const char * _Mode);
-	extern int		(*vc6_fclose)(FILE * _File);
-	extern size_t	(*vc6_fread)(void * _DstBuf, size_t _ElementSize, size_t _Count, FILE * _File);
-	extern size_t	(*vc6_fwrite)(const void * _Str, size_t _Size, size_t _Count, FILE * _File);
-	extern int		(*vc6_fprintf)(FILE * _File, const char * _Format, ...);
-	extern int		(*vc6_vfprintf)(FILE * _File, const char * _Format, va_list _ArgList);
-	extern void *	(*vc6_malloc)(size_t _Size);
-	extern void		(*vc6_free)(void * _Memory);
-	extern char *	(*vc6_strdup)(const char * _Src);
+extern FILE *	(*vc6_fdopen)(int _FileHandle, const char * _Mode);
+extern int		(*vc6_open_osfhandle)(intptr_t _OSFileHandle, int _Flags);
+extern FILE *	(*vc6_fopen)(const char * _Filename, const char * _Mode);
+extern int		(*vc6_fclose)(FILE * _File);
+extern size_t	(*vc6_fread)(void * _DstBuf, size_t _ElementSize, size_t _Count, FILE * _File);
+extern size_t	(*vc6_fwrite)(const void * _Str, size_t _Size, size_t _Count, FILE * _File);
+extern int		(*vc6_fprintf)(FILE * _File, const char * _Format, ...);
+extern int		(*vc6_vfprintf)(FILE * _File, const char * _Format, va_list _ArgList);
+extern void *	(*vc6_malloc)(size_t _Size);
+extern void		(*vc6_free)(void * _Memory);
+extern char *	(*vc6_strdup)(const char * _Src);
 
 #	define _fdopen			vc6_fdopen
 #	define _open_osfhandle	vc6_open_osfhandle
@@ -470,29 +539,32 @@
 #	undef strdup
 #	define strdup			vc6_strdup
 
-	int qb_get_vc6_msvcrt_functions(void);
-
+int qb_get_vc6_msvcrt_functions(void);
 #endif
 
 #ifdef _MSC_VER
-	void _ftol2(void);
-	void _ftol2_sse(void);
-	void _allshr(void);
-	void _allshl(void);
+void _ftol2(void);
+void _ftol2_sse(void);
+void _allshr(void);
+void _allshl(void);
+
+static inline int signbit(double n) {
+	return (_fpclass(n) & (_FPCLASS_NINF | _FPCLASS_NN | _FPCLASS_ND | _FPCLASS_NZ)) != 0;
+}
 #endif
 
 #ifdef __GNUC__
-	__extension__ extern long long int llabs (long long int __x);
-	extern double round (double __x);
-	extern double expm1 (double __x);
-	extern double log1p (double __x);
-	extern double exp2 (double __x);
-	extern double log2 (double __x);
+__extension__ extern long long int llabs (long long int __x);
+extern double round (double __x);
+extern double expm1 (double __x);
+extern double log1p (double __x);
+extern double exp2 (double __x);
+extern double log2 (double __x);
 #endif
 
 #ifndef _MSC_VER
 #	if !HAVE_QSORT_R
-		void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *, void *), void *arg);
+void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *, void *), void *arg);
 #	endif
 #endif
 
