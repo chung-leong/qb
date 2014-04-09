@@ -18,6 +18,34 @@
 
 /* $Id$ */
 
+static inline cfloat32_t pif(cfloat32_t n) {
+	cfloat32_t res;
+	res.r = 0 - (1 * n.i);
+	res.i = 0 + (1 * n.r);
+	return res;
+}
+
+static inline cfloat64_t pi(cfloat64_t n) {
+	cfloat64_t res;
+	res.r = 0 - (1 * n.i);
+	res.i = 0 + (1 * n.r);
+	return res;
+}
+
+static inline cfloat32_t mif(cfloat32_t n) {
+	cfloat32_t res;
+	res.r = 0 - (-1 * n.i);
+	res.i = 0 + (-1 * n.r);
+	return res;
+}
+
+static inline cfloat64_t mi(cfloat64_t n) {
+	cfloat64_t res;
+	res.r = 0 - (-1 * n.i);
+	res.i = 0 + (-1 * n.r);
+	return res;
+}
+
 float32_t cabsf(cfloat32_t n) {
 	float32_t res;
 	res = sqrtf(n.r * n.r + n.i * n.i);
@@ -285,12 +313,24 @@ cfloat64_t cacos(cfloat64_t n) {
 }
 
 cfloat32_t cacoshf(cfloat32_t n) {
-	cfloat32_t res;
+	// acosh(z) = ±i acos(z)
+	cfloat32_t res = cacosf(n);
+	if(signbit(res.i)) {
+		res = pif(res);
+	} else {
+		res = mif(res);
+	}
 	return res;
 }
 
 cfloat64_t cacosh(cfloat64_t n) {
-	cfloat64_t res;
+	// acosh(z) = ±i acos(z)
+	cfloat64_t res = cacos(n);
+	if(signbit(res.i)) {
+		res = pi(res);
+	} else {
+		res = mi(res);
+	}
 	return res;
 }
 
@@ -550,21 +590,45 @@ cfloat64_t casin(cfloat64_t n) {
 
 cfloat32_t casinhf(cfloat32_t n) {
 	cfloat32_t res;
+	// asinh(z) = i asin(-i z);
+	res = pif(casinf(mif(n)));
 	return res;
 }
 
 cfloat64_t casinh(cfloat64_t n) {
 	cfloat64_t res;
+	// asinh(z) = i asin(-i z);
+	res = pi(casin(mi(n)));
 	return res;
 }
 
 cfloat32_t catanf(cfloat32_t n) {
-	cfloat32_t res = { 0, 0 };
+	cfloat32_t res;
+	if(n.r == 0 && n.i == 1) {
+		res.r = 0;
+		res.i = (float32_t) INFINITY;
+	} else if(n.r == 0 && n.i == -1) {
+		res.r = 0;
+		res.i = - (float32_t) INFINITY;
+	} else {
+		// atan(z) = -i atanh(iz):
+		res = mif(catanhf(pif(n)));
+	}
 	return res;
 }
 
 cfloat64_t catan(cfloat64_t n) {
 	cfloat64_t res;
+	if(n.r == 0 && n.i == 1) {
+		res.r = 0;
+		res.i = (float64_t) INFINITY;
+	} else if(n.r == 0 && n.i == -1) {
+		res.r = 0;
+		res.i = - (float64_t) INFINITY;
+	} else {
+		// atan(z) = -i atanh(iz):
+		res = mi(catanh(pi(n)));
+	}
 	return res;
 }
 

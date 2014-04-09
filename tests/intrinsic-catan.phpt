@@ -30,7 +30,6 @@ function test_function() {
 	echo catan(array(+INF, +INF)), "\n";
 	echo catan(array(+INF, NAN)), "\n";
 	echo catan(array(NAN, 0.5)), "\n";
-	echo catan(array(NAN, +INF)), "\n";
 }
 
 ini_set('precision', 10);
@@ -48,5 +47,4 @@ test_function();
 [1.570796327, 0]
 [1.570796327, 0]
 [NAN, NAN]
-[NAN, 0]
 

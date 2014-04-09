@@ -30,7 +30,6 @@ function test_function() {
 	echo casinh(array(+INF, +INF)), "\n";
 	echo casinh(array(+INF, NAN)), "\n";
 	echo casinh(array(NAN, 0.5)), "\n";
-	echo casinh(array(NAN, +INF)), "\n";
 }
 
 ini_set('precision', 10);
@@ -48,5 +47,4 @@ test_function();
 [INF, 0.7853981634]
 [INF, NAN]
 [NAN, NAN]
-[INF, NAN]
 
