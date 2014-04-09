@@ -1803,6 +1803,19 @@ class CodeGenerator {
 			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 1, true);
 			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1);
 			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1, true);
+
+			$this->handlers[] = new ComplexAsin("CASIN", $elementType, 1);
+			$this->handlers[] = new ComplexAsin("CASIN", $elementType, 1, true);
+			$this->handlers[] = new ComplexAcos("CACOS", $elementType, 1);
+			$this->handlers[] = new ComplexAcos("CACOS", $elementType, 1, true);
+			$this->handlers[] = new ComplexAtan("CATAN", $elementType, 1);
+			$this->handlers[] = new ComplexAtan("CATAN", $elementType, 1, true);
+			$this->handlers[] = new ComplexAsinh("CASINH", $elementType, 1);
+			$this->handlers[] = new ComplexAsinh("CASINH", $elementType, 1, true);
+			$this->handlers[] = new ComplexAcosh("CACOSH", $elementType, 1);
+			$this->handlers[] = new ComplexAcosh("CACOSH", $elementType, 1, true);
+			$this->handlers[] = new ComplexAtanh("CATANH", $elementType, 1);
+			$this->handlers[] = new ComplexAtanh("CATANH", $elementType, 1, true);
 		}
 	}
 	
