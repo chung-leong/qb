@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-#include "qb.h"z
+#include "qb.h"
 
 #ifdef _MSC_VER
 double asinh(double z) {
