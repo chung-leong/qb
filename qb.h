@@ -61,6 +61,21 @@
 #endif
 
 #ifdef _MSC_VER
+#	if _M_IX86_FP == 2
+#		define __SSE2__		1
+#		define __SSE__			1
+#	elif _M_IX86_FP == 1
+#		define __SSE__			1
+#	endif
+
+#	if defined(_M_IX86)
+#		define __i386__
+#	elif defined(_M_X64)
+#		define __x86_64__
+#	endif
+#endif
+
+#ifdef _MSC_VER
 #	define QB_LITTLE_ENDIAN
 #else
 #	if __BYTE_ORDER == __LITTLE_ENDIAN
