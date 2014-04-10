@@ -34,13 +34,13 @@ function test_function() {
 	echo ctanh(array(NAN, +INF)), "\n";
 }
 
-ini_set('precision', 10);
+ini_set('precision', 8);
 test_function();
 
 ?>
 --EXPECT--
-[1.0047, 0.036423]
-[[0.99673, 0.0037109], [-1, 9.2914E-12], [1.0012, 0.0013819]]
+[1.005, 0.03642]
+[[0.9967, 0.003711], [-1, 9.291E-12], [1.001, 0.001382]]
 [0, 0]
 [NAN, NAN]
 [NAN, NAN]
@@ -51,4 +51,3 @@ test_function();
 [NAN, 0]
 [NAN, NAN]
 [NAN, NAN]
-

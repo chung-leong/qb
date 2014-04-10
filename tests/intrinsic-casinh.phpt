@@ -32,19 +32,19 @@ function test_function() {
 	echo casinh(array(NAN, 0.5)), "\n";
 }
 
-ini_set('precision', 10);
+ini_set('precision', 8);
 test_function();
 
 ?>
 --EXPECT--
-[-2, -0.85839]
-[[0, 0], [NAN, NAN], [INF, 1.5708]]
-[2.882289695, 1.10463462]
+[-2, -0.8584]
+[[0, 0], [NAN, NAN], [INF, 1.571]]
+[2.8822897, 1.1046346]
 [NAN, NAN]
 [-INF, 0]
 [INF, 0]
-[-INF, 0.7853981634]
-[INF, 0.7853981634]
+[-INF, 0.78539816]
+[INF, 0.78539816]
 [INF, NAN]
 [NAN, NAN]
 
