@@ -359,7 +359,7 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		}
 	}
 	if(cxt->function->sent_variable->address) {
-#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 8
+#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 7
 		static zval _dummy_value, *dummy_value = &_dummy_value;
 		if(generator->send_target) {
 			zval_ptr_dtor(generator->send_target);
@@ -722,6 +722,10 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	qb_free_task_group(group);
 }
 
+static void qb_bailout_in_main_thread(void *param1, void *param2, int param3) {
+	zend_bailout();
+}
+
 static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 	int32_t continue_execution = FALSE;
 	int32_t fork_execution = FALSE;
@@ -766,6 +770,12 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 			case QB_VM_TIMEOUT: {
 				zend_timeout(0);
 				continue_execution = FALSE;
+			}	break;
+			case QB_VM_TERMINATE: {
+				USE_TSRM
+				continue_execution = FALSE;
+				EG(exit_status) = cxt->exit_status_code;
+				qb_run_in_main_thread(qb_bailout_in_main_thread, NULL, NULL, 0);
 			}	break;
 		}
 	} while(continue_execution);

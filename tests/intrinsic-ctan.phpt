@@ -22,6 +22,14 @@ function test_function() {
 	$c = ctan($c);
 	echo ctan($a), "\n";
 	echo "$c\n";
+	echo ctan(array(4.5, NAN)), "\n";
+	echo ctan(array(-INF, 8)), "\n";
+	echo ctan(array(+INF, 12)), "\n";
+	echo ctan(array(-INF, +INF)), "\n";
+	echo ctan(array(+INF, +INF)), "\n";
+	echo ctan(array(+INF, NAN)), "\n";
+	echo ctan(array(NAN, 0.5)), "\n";
+	echo ctan(array(NAN, +INF)), "\n";
 }
 
 ini_set('precision', 10);
@@ -31,3 +39,12 @@ test_function();
 --EXPECT--
 [-0.00050798, 1.0004]
 [[-8.511E-9, -1], [-0.17295, 0.82258], [0.023412, -0.97248]]
+[NAN, NAN]
+[NAN, NAN]
+[NAN, NAN]
+[-0, 1]
+[0, 1]
+[NAN, NAN]
+[NAN, NAN]
+[0, 1]
+

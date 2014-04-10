@@ -1,7 +1,6 @@
 <?php
 
 class CodeGenerator {
-	protected $compiler;
 	protected $handlers = array();
 	protected $elementTypes = array("U32", "S32", "F32", "F64", "S08", "U08", "S16", "U16", "S64", "U64");
 	protected $floatTypes = array("F32", "F64");
@@ -17,153 +16,298 @@ class CodeGenerator {
 		}
 	}
 	
-	public function writeTypeDeclarations($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeTypeDeclarations($handle) {
 		$this->currentIndentationLevel = 0;
 	
-		fwrite($handle, "#if defined(__sun) || defined(__sun__)\n");
-		fwrite($handle, "#pragma pack(1)\n");
-		fwrite($handle, "#else\n");
-		fwrite($handle, "#pragma pack(push, 1)\n");
-		fwrite($handle, "#endif\n\n");
+		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
+		$lines[] = "typedef void * qb_op_handler;";
+		$lines[] = "#else";
+		$lines[] = "typedef int32_t qb_op_handler;";
+		$lines[] = "#endif";
+		$lines[] = "";
+
+		$lines[] = "#if defined(__sun) || defined(__sun__)";
+		$lines[] = "#pragma pack(1)";
+		$lines[] = "#else";
+		$lines[] = "#pragma pack(push, 1)";
+		$lines[] = "#endif";
+		$lines[] = "";
 		
 		$branchTableEntry = array(
 			"typedef struct qb_branch_table_entry {",
-				"void *next_handler;",
+				"qb_op_handler next_handler;",
 				"int8_t *instruction_pointer;",
 			"} qb_branch_table_entry;",
 		);
-		$this->writeCode($handle, $branchTableEntry);
-		fwrite($handle, "\n");
+		$lines[] = $branchTableEntry;
+		$lines[] = "";
 		
 		$structs = $this->getInstructionStructureDefinitions();
 		foreach($structs as $struct) {
 			if($struct) {
-				$this->writeCode($handle, $struct);
-				fwrite($handle, "\n");
+				$lines[] = $struct;
+				$lines[] = "";
 			}
 		}
 		
-		fwrite($handle, "#if defined(__sun) || defined(__sun__)\n\n");
-		fwrite($handle, "#pragma pack()\n");
-		fwrite($handle, "#else\n");
-		fwrite($handle, "#pragma pack(pop)\n");
-		fwrite($handle, "#endif\n");
+		$lines[] = "#if defined(__sun) || defined(__sun__)";
+		$lines[] = "#	pragma pack()";
+		$lines[] = "#else";
+		$lines[] = "#	pragma pack(pop)";
+		$lines[] = "#endif";
+		$lines[] = "";
 
-		$lines = array();
-		$lines[] = "extern void *op_handlers[];";
+		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
+		$lines[] = "extern qb_op_handler op_handlers[];";
+		$lines[] = "#endif";
 		$lines[] = "";
 		$this->writeCode($handle, $lines);
 	}
 	
-	public function writeFunctionPrototypes($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeFunctionPrototypes($handle) {
 		$this->currentIndentationLevel = 0;
+		$lines = array();
 
 		$functions = $this->getFunctionDefinitions();
 		$inlinePattern = '/\b(inline|zend_always_inline)\b/';
-		
+
 		// add non-inline functions first
 		foreach($functions as $function) {
 			$line1 = $function[0];
 			
 			if(!preg_match($inlinePattern, $line1)) {
 				$prototype = preg_replace('/\s*{\s*$/', ';', $line1);
-				fwrite($handle, "$prototype\n");
+				$lines[] = $prototype;
 			}
 		}
-		fwrite($handle, "\n");
+		$lines[] = "";
 		
 		// add inline-functions
 		foreach($functions as $function) {
 			$line1 = $function[0];
 			
 			if(preg_match($inlinePattern, $line1)) {
-				$this->writeCode($handle, $function);
-				fwrite($handle, "\n");
+				$lines[] = $function;
+				$lines[] = "";
 			}
 		}
+		$this->writeCode($handle, $lines);
 	}
 
-	public function writeFunctionDefinitions($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeFunctionDefinitions($handle) {
 		$this->currentIndentationLevel = 0;
+		$lines = array();
 		
 		$functions = $this->getFunctionDefinitions();
 		foreach($functions as $function) {
 			$line1 = $function[0];
 		
 			if(!preg_match('/\b(inline|zend_always_inline)\b/', $line1)) {
-				$this->writeCode($handle, $function);
-				fwrite($handle, "\n");
+				$lines[] = $function;
+				$lines[] = "";
 			}
+		}
+		$this->writeCode($handle, $lines);
+	}
+
+	public function writeTimeCheckMacro($handle) {
+		$lines = array();
+		$lines[] = "#if defined(_WIN32)";
+		$lines[] = "#	define TIMER_CHECK() \\";
+		$lines[] = "	if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {\\";
+		$lines[] = "		windows_timeout_check_counter = 0;\\";
+		$lines[] = "		if(*cxt->windows_timed_out_pointer) {\\";
+		$lines[] = "			cxt->exit_type = QB_VM_TIMEOUT;\\";
+		$lines[] = "			return;\\";
+		$lines[] = "		}\\";
+		$lines[] = "	}";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_DC		, uint32_t windows_timeout_check_counter";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC		, windows_timeout_check_counter";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC0		, 0";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_LV		uint32_t windows_timeout_check_counter = 0;";
+		$lines[] = "#else";
+		$lines[] = "#	define TIMER_CHECK()";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_DC";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_CC0";
+		$lines[] = "#	define TIMER_CHECK_COUNTER_LV";
+		$lines[] = "#endif";
+		$lines[] = "";
+		$this->writeCode($handle, $lines);
+	}	
+
+	protected function writeSwitchLoop($handle) {
+		$lines = array();
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = 		"register qb_opcode handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
+		$lines[] = 		"TIMER_CHECK_COUNTER_LV";
+		$lines[] =		"";
+		$lines[] = 		"while(1) switch((int) handler) {";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] =		"case QB_$name: {";
+			$lines[] = 			$handler->getCode();
+			$lines[] = 		"}	break;";
+			$lines[] =		"";
+		}
+
+		$lines[] = "#ifdef _MSC_VER";		
+		$lines[] = 			"default:";
+		$lines[] = 				"__assume(0);";	
+		$lines[] = "#endif";
+		$lines[] = 		"}";
+		$lines[] = "}";
+
+		$this->writeCode($handle, $lines);
+	}
+
+	protected function getBTreeNode($start, $end) {
+		if(isset($this->handlers[$start])) {
+			$lines = array();
+			$count = $end - $start;
+			if($count > 256) {
+				$mid = $start + ceil($count / 2);
+				$node1 = $this->getBTreeNode($start, $mid);
+				$node2 = $this->getBTreeNode($mid, $end);
+				if($node1 && $node2) {
+					$lines[] = "if(handler < $mid) {";
+					$lines[] = 		$node1;
+					$lines[] = "} else {";
+					$lines[] = 		$node2;
+					$lines[] = "}";
+				} else if($node1) {
+					$lines[] = $node1;
+				}
+			} else {
+				if($count == 1) {
+					$lines[] = $handler->getCode();
+				} else {
+					$lines[] = "switch((int) handler) {";
+					for($i = $start; $i < $end; $i++) {
+						if(isset($this->handlers[$i])) {
+							$handler = $this->handlers[$i];
+							$name = $handler->getName();
+							$lines[] = "case QB_$name: {";
+							$lines[] =		$handler->getCode();
+							$lines[] = "}	break;"; 
+						} else {
+							break;
+						}
+					}
+					$lines[] = "#ifdef _MSC_VER";		
+					$lines[] = 			"default:";
+					$lines[] = 				"__assume(0);";	
+					$lines[] = "#endif";
+					$lines[] = "}";
+				}
+			}
+			return $lines;
 		}
 	}
-	
-	public function writeMainLoop($handle, $compiler) {
-		$this->setCompiler($compiler);
+
+	protected function writeBTreeLoop($handle) {
+		$count = count($this->handlers);
+		for($range = 1; $range < $count; $range *= 2);
+		$lines = array();
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = 		"register qb_opcode handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
+		$lines[] = 		"TIMER_CHECK_COUNTER_LV";
+		$lines[] =		"";
+		$lines[] = 		"while(1) {";
+		$lines[] = 			$this->getBTreeNode(0, $range);
+		$lines[] =		"}";
+		$lines[] = "}";
+		$this->writeCode($handle, $lines);
+	}
+
+	protected function writeComputedGotoLoop($handle) {
+		$lines = array();
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] =		"if(cxt) {";
+		$lines[] = 			"register qb_op_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
+		$lines[] = 			"TIMER_CHECK_COUNTER_LV";
+		$lines[] =			"";
+		$lines[] = 			"goto *handler;";
+		$lines[] = 			"";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] =		"label_$name: {";
+			$lines[] = 			$handler->getCode();
+			// go to the next instruction unless the handler always returns
+			if(!$handler->alwaysReturns()) {
+				$lines[] =		"goto *handler;";
+			}
+			$lines[] = 		"}";
+			$lines[] =		"";
+		}
+		$lines[] = 		"} else {";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
+		}
+
+		$lines[] = 		"}";
+		$lines[] = "}";
+		$lines[] = "";
+		$lines[] = "qb_op_handler op_handlers[QB_OPCODE_COUNT];";
+
+		$this->writeCode($handle, $lines);
+	}
+
+	protected function writeTailCallLoop($handle) {
+		$lines = array();
+
+		$lines[] = "typedef void (*qb_tc_handler)(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC);";
+		$lines[] = "";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] = "static void qb_tc_$name(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip TIMER_CHECK_COUNTER_DC) {";			
+			if(!$handler->alwaysReturns()) {
+				$lines[] = 	"register qb_tc_handler handler;";
+				$lines[] = 	"";
+			}
+			$lines[] = 		$handler->getCode();
+			if(!$handler->alwaysReturns()) {
+				$lines[] = "handler(cxt, ip TIMER_CHECK_COUNTER_CC);";
+			}
+			$lines[] = "}";
+			$lines[] = "";
+		}
+
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = 		"register qb_tc_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
+		$lines[] =		"handler(cxt, ip TIMER_CHECK_COUNTER_CC0);";
+		$lines[] = "}";
+		$lines[] = "";
+		
+		$lines[] = "qb_op_handler op_handlers[QB_OPCODE_COUNT] = {";
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] =	"qb_tc_$name,";
+		}
+		$lines[] = "};";
+		$this->writeCode($handle, $lines);
+	}
+		
+	public function writeMainLoop($handle) {
 		$this->currentIndentationLevel = 0;
 		
-		$lines = array();
-		$lines[] = "";			
-		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		// cxt is null when we initialize the handler array
-		if($compiler == "GCC") {
-			$lines[] = 	"if(cxt) {";
-		}
-		$lines[] = 			"register void *__restrict handler;";
-		$lines[] = 			"register int8_t *__restrict ip;";
-		
-		if($compiler == "MSVC") {
-			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
-			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-		}
-		$lines[] = 			"";
-		$lines[] = 			"{";
-		$lines[] = 				"handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
-		$lines[] = 				"ip = cxt->instruction_pointer + sizeof(qb_instruction);";
-		if($compiler == "GCC") {
-			$lines[] = 			"goto *handler;";
-		}
-		$lines[] = 			"}";
-		$lines[] = "";
-		if($compiler == "MSVC") {
-			// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
-			$lines[] = 		"do {";
-			$lines[] = 			"switch((intptr_t) handler) {";
-		}
-		$this->writeCode($handle, $lines);
-		
-		foreach($this->handlers as $handler) {
-			$lines = $handler->getCode();
-			$lines[] = "";
-			$this->writeCode($handle, $lines);
-		}
-		
-		$lines = array();
-		if($compiler == "MSVC") {
-			$lines[] = 			"default:";
-			$lines[] = 				"__assume(0);";
-			$lines[] = 			"}";
-			$lines[] = 		"} while(1);";
-		}
-		if($compiler == "GCC") {
-			$lines[] = 	"} else {";
-			foreach($this->handlers as $handler) {
-				$name = $handler->getName();
-				$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
-			}
-			$lines[] = 	"}";
-		}
-		$this->writeCode($handle, $lines);
-
-		$lines = array();
-		$lines[] = 	"}";
-		$lines[] = 	"";
-		if($compiler == "GCC") {
-			$lines[] = 	"void *op_handlers[QB_OPCODE_COUNT];";
-		}
-		$this->writeCode($handle, $lines);
+		$this->writeTimeCheckMacro($handle);
+		$this->writeCode($handle, "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP)");
+		$this->writeTailCallLoop($handle);
+		$this->writeCode($handle, "#elif defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)");
+		$this->writeComputedGotoLoop($handle);
+		$this->writeCode($handle, "#else");
+		$this->writeSwitchLoop($handle);
+		$this->writeCode($handle, "#endif");
 	}
 	
 	public function writeOpCodes($handle) {
@@ -270,19 +414,18 @@ class CodeGenerator {
 		$zend_opnames = $this->loadListing("zend_op_names.txt");
 		$pbj_opnames = $this->loadListing("pixel_bender_op_names.txt");
 
-		fwrite($handle, "#ifdef HAVE_ZLIB\n");
+		$this->writeCode($handle, "#ifdef HAVE_ZLIB");
 		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, true, true);
 		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, true, true);
-		fwrite($handle, "#else\n");
+		$this->writeCode($handle, "#else");
 		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, false, true);
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, false, true);
 		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, false, true);
-		fwrite($handle, "#endif\n");
+		$this->writeCode($handle, "#endif");
 	}
 
-	public function writeNativeCodeTables($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeNativeCodeTables($handle) {
 		$this->currentIndentationLevel = 0;
 		
 		$actions = array();
@@ -299,7 +442,7 @@ class CodeGenerator {
 		}
 
 		// create function declaration table and reverse look-up table
-		$functionDeclarations = $this->getFunctionDeclarations();
+		$functionDeclarations = $this->getFunctionDeclarations(true);
 		$functionIndices = array();
 		$functionRefCounts = array();
 		foreach($functionDeclarations as $index => &$decl) {
@@ -315,7 +458,7 @@ class CodeGenerator {
 		$references = array();
 		foreach($this->handlers as $handler) {
 			$indices = array();
-			$action = $handler->getCode();
+			$action = $handler->getAction();
 			if($action) {
 				if(is_scalar($action)) {
 					$action = array($action);
@@ -371,41 +514,27 @@ class CodeGenerator {
 		}
 		unset($decl);
 		
-		fwrite($handle, "#ifdef HAVE_ZLIB\n");
+		$this->writeCode($handle, "#ifdef HAVE_ZLIB");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
-		fwrite($handle, "#else\n");
+		$this->writeCode($handle, "#else");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
-		fwrite($handle, "#endif\n");
+		$this->writeCode($handle, "#endif");
 	}
-	
-	public function writeNativeSymbolTable($handle, $compiler) {
-		$this->setCompiler($compiler);
-		$this->currentIndentationLevel = 0;
-		
-		// parse for declaration of helper functions 
-		$functionDeclarations = $this->getFunctionDeclarations();
-		
-		// figure out what the symbols are
+
+	protected function getSymbols($declarations) {
 		$symbols = array();
-		foreach($functionDeclarations as $decl) {
+		foreach($declarations as $decl) {
 			if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)/', $decl, $m)) {
 				$modifiers = $m[1];
 				$functionName = $m[2];
 				$target = null;
 				
 				if(strpos($decl, "{") === false) {
-					if($this->compiler == "MSVC" && $functionName == "floor" || $functionName == "ceil") {
-						// floor() is not constant in MSVC when intrinsic are used
-						// it therefore cannot be used as an initializer
-						// need it get the address at runtime instead
-						$target = "NULL";
-					} else {
-						$target = $functionName;
-					}
+					$target = $functionName;
 				} else {
 					// a function body could be generated inside the object file for the inline function
 					// need to indicate that the symbol is known 
@@ -414,65 +543,104 @@ class CodeGenerator {
 				$symbols[$functionName] = $target;
 			}
 		}
-
-		// load list of intrinsic functions
-		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
-		
-		if($compiler == "MSVC") {
-			// these functions cannot be declared in VC11
-			$vc11_intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
-		}
-		fwrite($handle, "\n");
+		return $symbols;
+	}
 	
-		$count = 0;
-		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
-		foreach($symbols as $name => $symbol) {
-			$flags = array();
-			if(isset($vc11_intrinsics) && in_array($name, $vc11_intrinsics)) {
-				$flags[] = "QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION";
-			} else if($symbol == "NULL") {
-				$flags[] = "QB_NATIVE_SYMBOL_INLINE_FUNCTION";
-			}
-			if($flags) {
-				$flags = implode(" | ", $flags);
-			} else {
-				$flags = "0";
-			}
-			fwrite($handle, "	{	\"$name\",	$symbol,	0,	$flags	},\n");
-			$count++;
-		}
-		foreach($intrinsics as $name) {
-			fwrite($handle, "	{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},\n");
-			$count++;
-		}
-		fwrite($handle, "};\n\n");
-		fwrite($handle, "uint32_t global_native_symbol_count = $count;\n\n");
+	public function writeNativeSymbolTable($handle) {
+		$this->currentIndentationLevel = 0;
 		
+		// parse for declaration of helper functions 
+		$functionDeclarations = $this->getFunctionDeclarations(false);
+		
+		// figure out what the symbols are
+		$symbols = $this->getSymbols($functionDeclarations);
 
+		// load lists of function prototypes functions
+		$commonSymbols = $this->getSymbols($this->loadListing("function_prototypes.txt"));
+		$gccSymbols = $this->getSymbols($this->loadListing("function_prototypes_gcc.txt"));
+		$msvcSymbols = $this->getSymbols($this->loadListing("function_prototypes_msvc.txt"));
+
+		// load lists of intrinsic functions
+		$msvcIntrinsics = $this->loadListing("intrinsic_functions_msvc.txt");
+		$gccIntrinsics = $this->loadListing("intrinsic_functions_gcc.txt");
+		
+		// these functions cannot be declared in VC11
+		$vc11Intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
+
+		$msvcFunctionPointers = array("floor", "ceil");
+
+		$lines = array();
+		$lines[] = "qb_native_symbol global_native_symbols[] = {";
+		foreach($symbols as $name => $symbol) {
+			if($symbol == "NULL") {
+				$lines[] = "{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},";
+			} else {
+				$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+			}
+		}
+		
+		foreach($commonSymbols as $name => $symbol) {
+			$decl = "{	\"$name\",	$symbol,	0,	0	},";
+			if(in_array($name, $msvcFunctionPointers)) {
+				$decl = array(
+					"#if defined(_MSC_VER)",
+					"{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},",
+					"#else",
+					$decl,
+					"#endif",
+				);
+			}
+			if(in_array($name, $vc11Intrinsics)) {
+				$decl = array(
+					"#if _MSC_VER >= 1700",
+					"{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},",
+					"#else",
+					$decl,
+					"#endif",
+				);	
+			} 
+			$lines[] = $decl;
+		}
+
+		$lines[] = "#if defined(_MSC_VER)";
+		foreach($msvcSymbols as $name => $symbol) {
+			$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+		}
+		foreach($msvcIntrinsics as $name) {
+			$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
+		}
+		$lines[] = "#elif defined(__GNUC__)";
+		foreach($gccSymbols as $name => $symbol) {
+			$lines[] = "{	\"$name\",	$symbol,	0,	0	},";
+		}
+		foreach($gccIntrinsics as $name) {
+			$lines[] = "{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},";
+		}
+		$lines[] = "#endif";
+		$lines[] = "};";
+		$lines[] = "";
+		$lines[] = "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);";
+		$this->writeCode($handle, $lines);
 	}
 
 	public function writeNativeDebugStub($handle) {
-		fwrite($handle, "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG\n");
-		fwrite($handle, "#include \"qb_native_proc_debug.c\"\n");
-		fwrite($handle, "#ifdef HAVE_NATIVE_PROC_RECORDS\n");
-		fwrite($handle, "qb_native_proc_record *native_proc_table = native_proc_records;\n");
-		fwrite($handle, "uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);\n");
-		fwrite($handle, "#else\n");
-		fwrite($handle, "qb_native_proc_record *native_proc_table = NULL;\n");
-		fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
-		fwrite($handle, "#endif\n");
-		fwrite($handle, "#endif\n");
-	}
-
-	protected function setCompiler($compiler) {
-		Handler::setCompiler($compiler);
-		$this->compiler = $compiler;
+		$lines = array();
+		$lines[] = "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG";
+		$lines[] = "#	include \"qb_native_proc_debug.c\"";
+		$lines[] = "#	ifdef HAVE_NATIVE_PROC_RECORDS";
+		$lines[] = "qb_native_proc_record *native_proc_table = native_proc_records;";
+		$lines[] = "uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);";
+		$lines[] = "#	else";
+		$lines[] = "qb_native_proc_record *native_proc_table = NULL;";
+		$lines[] = "uint32_t native_proc_table_size = 0;";
+		$lines[] = "#	endif";
+		$lines[] = "#endif";
+		$this->writeCode($handle, $lines);
 	}
 	
 	protected function loadListing($filename) {
 		$folder = dirname(__FILE__);
 		$path = "$folder/listings/$filename";
-		$path = str_replace("%COMPILER%", strtolower($this->compiler), $path);
 		$lines = file($path, FILE_IGNORE_NEW_LINES);
 		$filteredLines = array();
 		foreach($lines as $line) {
@@ -543,17 +711,23 @@ class CodeGenerator {
 		return array_merge(array_values($helperFunctions), array_values($handlerFunctions), array_values($controllerFunctions), array_values($dispatcherFunctions));
 	}
 	
-	protected function getFunctionDeclarations() {
+	protected function parseFunctionDeclarations() {
+	}
+
+	protected function getFunctionDeclarations($addPrototypes) {
 		$functionDeclarations = array();
 		
 		// add the generated function first
 		$functionDefinitions = $this->getFunctionDefinitions();
 		
 		// then prepend the list with ones that aren't generated
-		$common = $this->loadListing("function_prototypes.txt");
-		$compilerSpecific = $this->loadListing("function_prototypes_%COMPILER%.txt");
-		foreach(array_merge($common, $compilerSpecific) as $line) {
-			array_unshift($functionDefinitions, array($line));
+		if($addPrototypes) {
+			$common = $this->loadListing("function_prototypes.txt");
+			$gcc = $this->loadListing("function_prototypes_gcc.txt");
+			$msvc = $this->loadListing("function_prototypes_msvc.txt");
+			foreach(array_merge($common, $gcc, $msvc) as $line) {
+				array_unshift($functionDefinitions, array($line));
+			}
 		}
 
 		// declare non-inlined functions first
@@ -591,6 +765,9 @@ class CodeGenerator {
 	}
 
 	protected function writeCode($handle, $lines) {
+		if(!is_array($lines)) {
+			$lines = array($lines);
+		}
 		foreach($lines as $line) {
 			if($line !== null) {
 				if(is_array($line)) {
@@ -1597,35 +1774,48 @@ class CodeGenerator {
 	protected function addComplexNumberHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2);
-			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2, true);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2, true);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2, true);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2, true);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2, true);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2, true);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2, true);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2, true);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 1);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 1, true);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 1);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 1, true);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 1);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 1, true);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 1);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 1, true);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 1);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 1, true);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 1);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 1, true);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 1);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 1, true);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 1);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 1, true);
 			
-			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2);
-			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2, true);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2, true);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2, true);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2, true);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2, true);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2, true);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 1);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 1, true);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 1);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 1, true);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 1);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 1, true);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 1);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 1, true);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 1);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 1, true);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 1, true);
+
+			$this->handlers[] = new ComplexAsin("CASIN", $elementType, 1);
+			$this->handlers[] = new ComplexAsin("CASIN", $elementType, 1, true);
+			$this->handlers[] = new ComplexAcos("CACOS", $elementType, 1);
+			$this->handlers[] = new ComplexAcos("CACOS", $elementType, 1, true);
+			$this->handlers[] = new ComplexAtan("CATAN", $elementType, 1);
+			$this->handlers[] = new ComplexAtan("CATAN", $elementType, 1, true);
+			$this->handlers[] = new ComplexAsinh("CASINH", $elementType, 1);
+			$this->handlers[] = new ComplexAsinh("CASINH", $elementType, 1, true);
+			$this->handlers[] = new ComplexAcosh("CACOSH", $elementType, 1);
+			$this->handlers[] = new ComplexAcosh("CACOSH", $elementType, 1, true);
+			$this->handlers[] = new ComplexAtanh("CATANH", $elementType, 1);
+			$this->handlers[] = new ComplexAtanh("CATANH", $elementType, 1, true);
 		}
 	}
 	

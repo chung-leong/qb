@@ -37,24 +37,6 @@ if test "$PHP_QB" != "no"; then
     	qb_cflags="$qb_cflags -march=$PHP_CPU"
     fi
   fi
-
-  AC_MSG_CHECKING([if compiling with clang])
-  AC_COMPILE_IFELSE(
-    [  AC_LANG_PROGRAM([], 
-      [[
-#ifndef __clang__
-	not clang
-#endif
-      ]])
-    ],
-    [CLANG=yes], 
-    [CLANG=no]
-  )
-  AC_MSG_RESULT([$CLANG])
-
-  if test "$CLANG" == "yes"; then
-    AC_MSG_ERROR(Cannot compile with clang)
-  fi
   
   AC_MSG_CHECKING([whether CC supports -march=native])
   ac_saved_cflags="$CFLAGS"
@@ -81,7 +63,7 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ Define to 1 if you have the `__builtin_bswap16' function ])
       AC_MSG_RESULT([yes])
     ]
   )
@@ -92,7 +74,7 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP32,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP32,1,[ Define to 1 if you have the `__builtin_bswap32' function ])
       AC_MSG_RESULT([yes])
     ]
   )
@@ -103,11 +85,15 @@ if test "$PHP_QB" != "no"; then
     [ ], 
     [ AC_MSG_RESULT([no]) ],
     [ 
-      AC_DEFINE(HAVE_BUILTIN_BSWAP64,1,[ ])
+      AC_DEFINE(HAVE_BUILTIN_BSWAP64,1,[ Define to 1 if you have the `__builtin_bswap64' function. ])
       AC_MSG_RESULT([yes])
     ]
   )
   CFLAGS="$ac_saved_cflags"
+
+  AC_CHECK_HEADERS([complex.h],
+	[ AC_DEFINE(HAVE_COMPLEX_H,1,[ Define to 1 if you have the <complex.h> header file. ]) ]
+  )
 
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
@@ -125,7 +111,7 @@ if test "$PHP_QB" != "no"; then
 	qb_compat.c\
 	qb_crc64.c\
 	qb_compiler.c\
-	qb_data_tables_gcc.c\
+	qb_data_tables.c\
 	qb_debug_interface.c\
 	qb_encoder.c\
 	qb_exceptions.c\
@@ -133,8 +119,8 @@ if test "$PHP_QB" != "no"; then
 	qb_function_inliner.c\
 	qb_interpreter.c\
 	qb_interpreter_debug.c\
-	qb_interpreter_functions_gcc.c\
-	qb_interpreter_loop_gcc.c\
+	qb_interpreter_functions.c\
+	qb_interpreter_loop.c\
 	qb_native_compiler.c\
 	qb_op.c\
 	qb_op_factories.c\

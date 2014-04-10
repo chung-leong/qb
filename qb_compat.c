@@ -551,3 +551,7 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 }
 #endif
 #endif
+
+#if !defined(_Complex_I)
+#	include "qb_compat_complex.c"
+#endif

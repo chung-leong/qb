@@ -25,18 +25,21 @@ function autoload($className) {
 spl_autoload_register('autoload');
 
 function create_file($filename) {
-	global $targetFolder, $fileHandles;
+	global $targetFolder, $fileHandles, $filePaths;
 
 	echo "Creating $filename\n";
 	$path = "$targetFolder/$filename";
-	$handle = fopen($path, "w+");
+	$tmpPath = "$path.tmp";
+	$handle = fopen($tmpPath, "w+");
+	$filePaths[] = $path;
 	$fileHandles[] = $handle;
 	return $handle;
 }
 
 function fix_line_endings() {
-	global $fileHandles;
-	foreach($fileHandles as $handle) {
+	global $fileHandles, $filePaths;
+	$changeCount = 0;
+	foreach($fileHandles as $index => $handle) {
 		fseek($handle, 0, SEEK_END);
 		$size = ftell($handle);
 		fseek($handle, 0, SEEK_SET);
@@ -49,83 +52,88 @@ function fix_line_endings() {
 		fseek($handle, 0, SEEK_SET);
 		fwrite($handle, $data);
 		fclose($handle);
+
+		$path = $filePaths[$index];
+		$tmpPath = "$path.tmp";
+		$replace = true;
+		if(file_exists($path)) {
+			$originalData = file_get_contents($path);
+			if($data === $originalData) {
+				$replace = false;
+			} else {
+				unlink($path);
+			}
+		}		
+		if($replace) {
+			$changeCount++;
+			rename($tmpPath, $path);
+		} else {
+			unlink($tmpPath);
+		}
 	}
+	echo "$changeCount file(s) changed\n";
 }
 
 error_reporting(E_ALL | E_STRICT);
 set_time_limit(0);
 
 $copyright = file_get_contents("$scriptFolder/listings/copyright.txt");
-$include = "#include \"qb.h\"\n";
+$include = '
+#include "qb.h"
+#include "qb_interpreter_structures.h"
+#include "qb_interpreter_functions.h"
+';
 
 $generator = new CodeGenerator;
 
-$handle = create_file("qb_interpreter_gcc.h");
-fwrite($handle, $copyright);
-fwrite($handle, "\n");
-$generator->writeTypeDeclarations($handle, 'GCC');
-$generator->writeFunctionPrototypes($handle, 'GCC');
-
-$handle = create_file("qb_interpreter_msvc.h");
-fwrite($handle, $copyright);
-fwrite($handle, "\n");
-$generator->writeTypeDeclarations($handle, 'MSVC');
-$generator->writeFunctionPrototypes($handle, 'MSVC');
-
-$handle = create_file("qb_interpreter_loop_gcc.c");
-fwrite($handle, $copyright);
-fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
-fwrite($handle, "\n");
-$generator->writeMainLoop($handle, 'GCC');
-$generator->writeNativeDebugStub($handle, 'GCC');
-
-$handle = create_file("qb_interpreter_loop_msvc.c");
-fwrite($handle, $copyright);
-fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
-fwrite($handle, "\n");
-$generator->writeMainLoop($handle, 'MSVC');
-$generator->writeNativeDebugStub($handle, 'MSVC');
-
-$handle = create_file("qb_interpreter_functions_gcc.c");
-fwrite($handle, $copyright);
-fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
-fwrite($handle, "\n");
-$generator->writeFunctionDefinitions($handle, 'GCC');
-$generator->writeNativeSymbolTable($handle, 'GCC');
-
-$handle = create_file("qb_interpreter_functions_msvc.c");
-fwrite($handle, $copyright);
-fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
-fwrite($handle, "\n");
-$generator->writeFunctionDefinitions($handle, 'MSVC', 'FUNCTION DEFINITIONS');
-$generator->writeNativeSymbolTable($handle, 'MSVC', 'NATIVE SYMBOLS');
-
 $handle = create_file("qb_opcodes.h");
 fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_OPCODES_H_\n");
+fwrite($handle, "#define QB_OPCODES_H_\n");
 fwrite($handle, "\n");
 $generator->writeOpCodes($handle);
+fwrite($handle, "#endif\n");
 
-$handle = create_file("qb_data_tables_gcc.c");
+$handle = create_file("qb_interpreter_structures.h");
+fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_INTERPRETER_STRUCTURES_H_\n");
+fwrite($handle, "#define QB_INTERPRETER_STRUCTURES_H_\n");
+fwrite($handle, "\n");
+$generator->writeTypeDeclarations($handle);
+fwrite($handle, "#endif\n");
+
+$handle = create_file("qb_interpreter_functions.h");
+fwrite($handle, $copyright);
+fwrite($handle, "\n\n");
+fwrite($handle, "#ifndef QB_INTERPRETER_FUNCTIONS_H_\n");
+fwrite($handle, "#define QB_INTERPRETER_FUNCTIONS_H_\n");
+fwrite($handle, "\n");
+$generator->writeFunctionPrototypes($handle);
+fwrite($handle, "#endif\n");
+
+$handle = create_file("qb_interpreter_loop.c");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
+fwrite($handle, "\n");
+$generator->writeMainLoop($handle);
+$generator->writeNativeDebugStub($handle);
+
+$handle = create_file("qb_interpreter_functions.c");
+fwrite($handle, $copyright);
+fwrite($handle, $include);
+fwrite($handle, "\n");
+$generator->writeFunctionDefinitions($handle);
+$generator->writeNativeSymbolTable($handle);
+
+$handle = create_file("qb_data_tables.c");
+fwrite($handle, $copyright);
+fwrite($handle, $include);
 fwrite($handle, "\n");
 $generator->writeOpInfo($handle);
 $generator->writeOpNames($handle);
-$generator->writeNativeCodeTables($handle, 'GCC');
-
-$handle = create_file("qb_data_tables_msvc.c");
-fwrite($handle, $copyright);
-fwrite($handle, $include);
-fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
-fwrite($handle, "\n");
-$generator->writeOpInfo($handle, 'MSVC');
-$generator->writeOpNames($handle, 'MSVC');
-$generator->writeNativeCodeTables($handle, 'MSVC');
+$generator->writeNativeCodeTables($handle);
 
 fix_line_endings();
 

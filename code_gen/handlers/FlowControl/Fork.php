@@ -2,7 +2,7 @@
 
 class Fork extends Handler {
 
-	use ScalarAddressMode;
+	use ScalarAddressMode, AlwaysReturn;
 	
 	public function getJumpTargetCount() {
 		return -1;

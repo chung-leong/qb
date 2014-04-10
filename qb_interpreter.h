@@ -73,6 +73,7 @@ enum qb_vm_exit_type {
 	QB_VM_SPOON,
 	QB_VM_EXCEPTION,
 	QB_VM_YIELD,
+	QB_VM_TERMINATE,
 };
 
 struct qb_interpreter_context {
@@ -103,7 +104,6 @@ struct qb_interpreter_context {
 
 	zval **shadow_variables;
 };
-
 
 #if ZEND_DEBUG
 extern qb_native_proc_record *native_proc_table;

@@ -1156,30 +1156,35 @@ static int32_t qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *
 
 static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb_address *address) {
 	if(Z_TYPE_P(zvalue) == IS_LONG) {
+		long value = Z_LVAL_P(zvalue);
 		switch(address->type) {
-			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) value; break;
+			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) value; break;
+			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) value; break;
+			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) value; break;
+			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) value; break;
+			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) value; break;
+			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) value; break;
+			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) value; break;
+			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) value; break;
+			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) value; break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
+		double value = Z_DVAL_P(zvalue);
+		if(zend_isnan(value)) {
+			value = NAN;
+		}
 		switch(address->type) {
-			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) (CTYPE(S64)) value; break;
+			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) (CTYPE(S64)) value; break;
+			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) (CTYPE(S64)) value; break;
+			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) (CTYPE(S64)) value; break;
+			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) (CTYPE(S64)) value; break;
+			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) (CTYPE(S64)) value; break;
+			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) value; break;
+			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) value; break;
+			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) value; break;
+			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) value; break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
 		uint32_t type_size = type_sizes[address->type];

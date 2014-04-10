@@ -8,20 +8,21 @@ ARG_WITH("sse", "Use SSE instructions on x86 processors", "no");
 if (PHP_QB != "no") {
 	var cflags = "/GS-";
 	if (PHP_SSE != "no") {
-		if(!X64) {
-			if(PHP_SSE == "1") {
+		if (!X64) {
+			if (PHP_SSE == "1") {
 				cflags += " /arch:SSE";
 			} else {
 				cflags += " /arch:SSE2";
 			}
 		}
 	}
+	
 	var extra_sources="\
 	qb_build.c\
 	qb_compat.c\
 	qb_crc64.c\
 	qb_compiler.c\
-	qb_data_tables_msvc.c\
+	qb_data_tables.c\
 	qb_debug_interface.c\
 	qb_encoder.c\
 	qb_exceptions.c\
@@ -29,8 +30,8 @@ if (PHP_QB != "no") {
 	qb_function_inliner.c\
 	qb_interpreter.c\
 	qb_interpreter_debug.c\
-	qb_interpreter_functions_msvc.c\
-	qb_interpreter_loop_msvc.c\
+	qb_interpreter_functions.c\
+	qb_interpreter_loop.c\
 	qb_native_compiler.c\
 	qb_op.c\
 	qb_op_factories.c\

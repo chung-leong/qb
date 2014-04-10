@@ -35,7 +35,15 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <math.h>
+
+// prevent math.h from declaring cabs()
+#ifdef _MSC_VER
+#	define __STDC__		1
+#	include <math.h>
+#	undef __STDC__
+#else
+#	include <math.h>
+#endif
 
 #ifdef _MSC_VER
 #	include "win32\php_stdint.h"
@@ -46,6 +54,25 @@
 #	include <inttypes.h>
 #	include <sys/types.h>
 #	include <sys/param.h>
+#endif
+
+#ifdef HAVE_COMPLEX_H
+#	include <complex.h>
+#endif
+
+#ifdef _MSC_VER
+#	if _M_IX86_FP == 2
+#		define __SSE2__		1
+#		define __SSE__			1
+#	elif _M_IX86_FP == 1
+#		define __SSE__			1
+#	endif
+
+#	if defined(_M_IX86)
+#		define __i386__
+#	elif defined(_M_X64)
+#		define __x86_64__
+#	endif
 #endif
 
 #ifdef _MSC_VER
@@ -93,16 +120,16 @@
 #	define SAVE_TSRMLS
 #endif
 
-#ifdef _MSC_VER
-#	define NO_RETURN	__declspec(noreturn)
+#if defined(__GNUC__)
+#	define NO_RETURN			__attribute__ ((noreturn))
+#	define NO_RETURN_TYPEDEF	__attribute__ ((noreturn))
+#elif defined(_MSC_VER)
+#	define NO_RETURN			__declspec(noreturn)
+#	define NO_RETURN_TYPEDEF
 #endif
 
-#ifdef __GNUC__
-#	define NO_RETURN	__attribute__ ((noreturn))
-#endif
-
-#ifdef __GNUC__
-#	ifdef __ELF__
+#if defined(__GNUC__)
+#	if defined(__ELF__)
 #		if defined(__i386__) || defined(__x86_64__)
 #			define NATIVE_COMPILE_ENABLED	1
 #		elif defined(__ARM_ARCH_7A__)
@@ -113,10 +140,28 @@
 #			define NATIVE_COMPILE_ENABLED	1
 #		endif
 #	endif
+#elif defined(_MSC_VER)
+#	if defined(__i386__) || defined(__x86_64__)
+#		define NATIVE_COMPILE_ENABLED	1
+#	endif
 #endif
 
-#ifdef _MSC_VER
-#	define NATIVE_COMPILE_ENABLED	1
+#if defined(__clang__)
+#	if defined(__OPTIMIZE__)
+#		if defined(__x86_64__)
+#			define USE_TAIL_CALL_INTERPRETER_LOOP	1
+#		endif	
+#	else
+#		define USE_COMPUTED_GOTO_INTERPRETER_LOOP	1
+#	endif
+#elif defined(__GNUC__)
+#	define USE_COMPUTED_GOTO_INTERPRETER_LOOP		1
+#elif defined(_MSC_VER)
+#	if !defined(_DEBUG)
+#		if defined(__x86_64__)
+#			define USE_TAIL_CALL_INTERPRETER_LOOP	1
+#		endif
+#	endif
 #endif
 
 #define QB_EXTNAME	"qb"
@@ -127,9 +172,9 @@
 
 #include "qb_debug_interface.h"
 #include "qb_version.h"
+#include "qb_types.h"
 #include "qb_compat.h"
 #include "qb_opcodes.h"
-#include "qb_types.h"
 #include "qb_op.h"
 #include "qb_thread.h"
 #include "qb_storage.h"

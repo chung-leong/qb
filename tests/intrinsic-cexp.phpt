@@ -22,6 +22,18 @@ function test_function() {
 	$c = cexp($c);
 	echo cexp($a), "\n";
 	echo "$c\n";
+	echo cexp(array(0, 0)), "\n";
+	echo cexp(array(2.5, +INF)), "\n";
+	echo cexp(array(4.5, NAN)), "\n";
+	echo cexp(array(+INF, 0)), "\n";
+	echo cexp(array(-INF, 1)), "\n";
+	echo cexp(array(+INF, 1)), "\n";
+	echo cexp(array(-INF, +INF)), "\n";
+	echo cexp(array(+INF, +INF)), "\n";
+	echo cexp(array(-INF, NAN)), "\n";
+	echo cexp(array(+INF, NAN)), "\n";
+	echo cexp(array(NAN, 0.0)), "\n";
+	echo cexp(array(NAN, 0.5)), "\n";
 }
 
 ini_set('precision', 10);
@@ -31,3 +43,16 @@ test_function();
 --EXPECT--
 [-4.8298, -5.5921]
 [[-18.301, -8.2776], [1.2213E-6, 1.902E-6], [-13.781, -30.112]]
+[1, 0]
+[NAN, NAN]
+[NAN, NAN]
+[INF, 0]
+[0, 0]
+[INF, INF]
+[0, 0]
+[INF, NAN]
+[0, 0]
+[INF, NAN]
+[NAN, 0]
+[NAN, NAN]
+

@@ -2,7 +2,7 @@
 
 class Interrupt extends Handler {
 
-	use NoOperands;
+	use NoOperands, AlwaysReturn;
 	
 	public function getHandlerFunctionType() {
 		return null;

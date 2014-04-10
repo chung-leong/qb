@@ -508,7 +508,13 @@ extern qb_basic_op_factory factory_rand;
 extern qb_float_op_factory factory_lcg;
 
 extern qb_float_op_factory factory_complex_abs;
+extern qb_float_op_factory factory_complex_acos;
+extern qb_float_op_factory factory_complex_acosh;
 extern qb_float_op_factory factory_complex_arg;
+extern qb_float_op_factory factory_complex_asin;
+extern qb_float_op_factory factory_complex_asinh;
+extern qb_float_op_factory factory_complex_atan;
+extern qb_float_op_factory factory_complex_atanh;
 extern qb_float_op_factory factory_complex_cos;
 extern qb_float_op_factory factory_complex_cosh;
 extern qb_float_op_factory factory_complex_divide;

@@ -1154,6 +1154,12 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"csinh",				1,		1,		&factory_complex_sinh		},
 	{	0,	"ccosh",				1,		1,		&factory_complex_cosh		},
 	{	0,	"ctanh",				1,		1,		&factory_complex_tanh		},
+	{	0,	"casin",				1,		1,		&factory_complex_asin		},
+	{	0,	"cacos",				1,		1,		&factory_complex_acos		},
+	{	0,	"catan",				1,		1,		&factory_complex_atan		},
+	{	0,	"casinh",				1,		1,		&factory_complex_asinh		},
+	{	0,	"cacosh",				1,		1,		&factory_complex_acosh		},
+	{	0,	"catanh",				1,		1,		&factory_complex_atanh		},
 	{	0,	"rgb2hsv",				1,		1,		&factory_rgb2hsv			},
 	{	0,	"hsv2rgb",				1,		1,		&factory_hsv2rgb			},
 	{	0,	"rgb2hsl",				1,		1,		&factory_rgb2hsl			},
@@ -1167,6 +1173,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"microtime",			0,		1,		&factory_get_time			},
 	{	0,	"gettimeofday",			0,		1,		&factory_get_time			},
 	{	0,	"flush",				0,		0,		&factory_flush				},
+	{	0,	"die",					0,		1,		&factory_exit				},
 
 	// compile time functions
 	{	0,	"defined",				1,		1,		&factory_defined			},

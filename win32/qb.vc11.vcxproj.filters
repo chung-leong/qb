@@ -22,9 +22,6 @@
     <ClCompile Include="..\qb_crc64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\qb_data_tables_msvc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\qb_encoder.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -41,12 +38,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\qb_interpreter_debug.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\qb_interpreter_functions_msvc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\qb_interpreter_loop_msvc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\qb_native_compiler.c">
@@ -124,6 +115,15 @@
     <ClCompile Include="..\qb_debug_interface.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\qb_data_tables.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\qb_interpreter_functions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\qb_interpreter_loop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\php_qb.h">
@@ -157,9 +157,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\qb_native_compiler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\qb_interpreter_msvc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\qb_op.h">
@@ -201,6 +198,8 @@
     <ClInclude Include="..\qb_debug_interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\qb_interpreter_functions.h" />
+    <ClInclude Include="..\qb_interpreter_structures.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -209,5 +208,8 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{ac3c5329-fde2-4f99-9da6-3be442354ba7}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE" />
   </ItemGroup>
 </Project>
