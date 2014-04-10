@@ -20,29 +20,43 @@
 
 static inline cfloat32_t pif(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = 0 - (1 * n.i);
-	res.i = 0 + (1 * n.r);
+	res.r = -1 * n.i;
+	res.i = 1 * n.r;
 	return res;
 }
 
 static inline cfloat64_t pi(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = 0 - (1 * n.i);
-	res.i = 0 + (1 * n.r);
+	res.r = -1 * n.i;
+	res.i = 1 * n.r;
 	return res;
 }
 
 static inline cfloat32_t mif(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = 0 - (-1 * n.i);
-	res.i = 0 + (-1 * n.r);
+	res.r = n.i;
+	res.i = -1 * n.r;
 	return res;
 }
 
 static inline cfloat64_t mi(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = 0 - (-1 * n.i);
-	res.i = 0 + (-1 * n.r);
+	res.r = n.i;
+	res.i = -1 * n.r;
+	return res;
+}
+
+static inline cfloat32_t iif(cfloat32_t n) {
+	cfloat32_t res;
+	res.r = n.i;
+	res.i = -1 * n.r;
+	return res;
+}
+
+static inline cfloat64_t ii(cfloat64_t n) {
+	cfloat64_t res;
+	res.r = n.i;
+	res.i = -1 * n.r;
 	return res;
 }
 
@@ -850,29 +864,61 @@ cfloat64_t catanh(cfloat64_t n) {
 
 cfloat32_t ccosf(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = cosf(n.r) * coshf(n.i);
-	res.i = -sinf(n.r) * sinhf(n.i);
+	// cos(z) = cosh(iz)
+	res = ccoshf(pif(n));
 	return res;
 }
 
 cfloat64_t ccos(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = cos(n.r) * cosh(n.i);
-	res.i = -sin(n.r) * sinh(n.i);
+	// cos(z) = cosh(iz)
+	res = ccosh(pi(n));
 	return res;
 }
 
 cfloat32_t ccoshf(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = coshf(n.r) * cosf(n.i);
-	res.i = sinhf(n.r) * sinf(n.i);
+	if(n.r == 0) {
+		res.r = cosf(n.i);
+		res.i = 0;
+	} else if(n.i == 0) {
+		res.r = coshf(n.r);
+		res.i = 0;
+	} else if(zend_isinf(n.r)) {
+		if(zend_finite(n.i)) {
+			res.r = (float32_t) INFINITY * cosf(n.i);
+			res.i = (float32_t) n.r * sinf(n.i);
+		} else {
+			res.r = (float32_t) INFINITY;
+			res.i = (float32_t) NAN;
+		}
+	} else {
+		res.r = coshf(n.r) * cosf(n.i);
+		res.i = sinhf(n.r) * sinf(n.i);
+	}
 	return res;
 }
 
 cfloat64_t ccosh(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = cosh(n.r) * cos(n.i);
-	res.i = sinh(n.r) * sin(n.i);
+	if(n.r == 0) {
+		res.r = cos(n.i);
+		res.i = 0;
+	} else if(n.i == 0) {
+		res.r = cosh(n.r);
+		res.i = 0;
+	} else if(zend_isinf(n.r)) {
+		if(zend_finite(n.i)) {
+			res.r = (float64_t) INFINITY * cos(n.i);
+			res.i = (float64_t) n.r * sin(n.i);
+		} else {
+			res.r = (float64_t) INFINITY;
+			res.i = (float64_t) NAN;
+		}
+	} else {
+		res.r = cosh(n.r) * cos(n.i);
+		res.i = sinh(n.r) * sin(n.i);
+	}
 	return res;
 }
 
@@ -1054,6 +1100,13 @@ cfloat32_t cmultf(cfloat32_t n1, cfloat32_t n2) {
 
 cfloat64_t cmult(cfloat64_t n1, cfloat64_t n2) {
 	cfloat64_t res;
+	if(n1.r == 0) {
+		res.r = -1 * n1.i * n2.i;
+		res.i = n1.i * n2.r;
+	} else if(n1.i == 0) {
+		res.r = n1.r * n2.r;
+		res.i = n1.r * n2.i;
+	}
 	res.r = (n1.r * n2.r) - (n1.i * n2.i);
 	res.i = (n1.r * n2.i) + (n1.i * n2.r);
 	return res;
@@ -1097,29 +1150,59 @@ cfloat64_t cpow(cfloat64_t n, cfloat64_t e) {
 
 cfloat32_t csinf(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = sinf(n.r) * coshf(n.i);
-	res.i = cosf(n.r) * sinhf(n.i);
+	res = iif(csinhf(pif(n)));
 	return res;
 }
 
 cfloat64_t csin(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = sin(n.r) * cosh(n.i);
-	res.i = cos(n.r) * sinh(n.i);
+	res = ii(csinh(pi(n)));
 	return res;
 }
 
 cfloat32_t csinhf(cfloat32_t n) {
 	cfloat32_t res;
-	res.r = sinhf(n.r) * cosf(n.i);
-	res.i = coshf(n.r) * sinf(n.i);
+	if(n.r == 0) {
+		res.r = 0;
+		res.i = sinf(n.i);
+	} else if(n.i == 0) {
+		res.r = sinhf(n.r);
+		res.i = 0;
+	} else if(zend_isinf(n.r)) {
+		if(zend_finite(n.i)) {
+			res.r = n.r * cosf(n.i);
+			res.i = (float32_t) INFINITY * sinf(n.i);
+		} else {
+			res.r = (float32_t) n.r;
+			res.i = (float32_t) NAN;
+		}
+	} else {
+		res.r = sinhf(n.r) * cosf(n.i);
+		res.i = coshf(n.r) * sinf(n.i);
+	}
 	return res;
 }
 
 cfloat64_t csinh(cfloat64_t n) {
 	cfloat64_t res;
-	res.r = sinh(n.r) * cos(n.i);
-	res.i = cosh(n.r) * sin(n.i);
+	if(n.r == 0) {
+		res.r = 0;
+		res.i = sin(n.i);
+	} else if(n.i == 0) {
+		res.r = sinh(n.r);
+		res.i = 0;
+	} else if(zend_isinf(n.r)) {
+		if(zend_finite(n.i)) {
+			res.r = n.r * cos(n.i);
+			res.i = (float64_t) INFINITY * sin(n.i);
+		} else {
+			res.r = (float64_t) n.r;
+			res.i = (float64_t) NAN;
+		}
+	} else {
+		res.r = sinh(n.r) * cos(n.i);
+		res.i = cosh(n.r) * sin(n.i);
+	}
 	return res;
 }
 
@@ -1169,33 +1252,53 @@ cfloat64_t csqrt(cfloat64_t n) {
 
 cfloat32_t ctanf(cfloat32_t n) {
 	cfloat32_t res;
-	float32_t w = 1.0f / (cosf(2.0f * n.r) + coshf(2.0f * n.i));
-	res.r = w * sinf(2.0f * n.r);
-	res.i = w * sinhf(2.0f * n.i);
+	res = iif(ctanhf(pif(n)));
 	return res;
 }
 
 cfloat64_t ctan(cfloat64_t n) {
 	cfloat64_t res;
-	float64_t w = 1.0 / (cos(2.0 * n.r) + cosh(2.0 * n.i));
-	res.r = w * sin(2.0 * n.r);
-	res.i = w * sinh(2.0 * n.i);
+	res = ii(ctanh(pi(n)));
 	return res;
 }
 
 cfloat32_t ctanhf(cfloat32_t n) {
 	cfloat32_t res;
-	float32_t w = 1.0f / (coshf(2.0f * n.r) + cosf(2.0f * n.i));
-	res.r = w * sinhf(2.0f * n.r);
-	res.i = w * sinf(2.0f * n.i);
+	if(zend_isinf(n.r)) {
+		res.r = signbit(n.r) ? -1 : 1;
+		res.i = 0;
+	} else if(zend_isnan(n.r)) {
+		res.r = (float32_t) NAN;
+		if(n.i == 0) {
+			res.i = 0;
+		} else {
+			res.i = (float32_t) NAN;
+		}
+	} else {
+		float32_t w = 1.0f / (coshf(2.0f * n.r) + cosf(2.0f * n.i));
+		res.r = w * sinhf(2.0f * n.r);
+		res.i = w * sinf(2.0f * n.i);
+	}
 	return res;
 }
 
 cfloat64_t ctanh(cfloat64_t n) {
 	cfloat64_t res;
-	float64_t w = 1.0 / (cosh(2.0 * n.r) + cos(2.0 * n.i));
-	res.r = w * sinh(2.0 * n.r);
-	res.i = w * sin(2.0 * n.i);
+	if(zend_isinf(n.r)) {
+		res.r = signbit(n.r) ? (float64_t) -1.0 : (float64_t) 1.0;
+		res.i = signbit(n.i) ? (float64_t) -0.0 : (float64_t) 0.0;
+	} else if(zend_isnan(n.r)) {
+		res.r = (float64_t) NAN;
+		if(n.i == 0) {
+			res.i = 0;
+		} else {
+			res.i = (float64_t) NAN;
+		}
+	} else {
+		float64_t w = 1.0 / (cosh(2.0 * n.r) + cos(2.0 * n.i));
+		res.r = w * sinh(2.0 * n.r);
+		res.i = w * sin(2.0 * n.i);
+	}
 	return res;
 }
 
