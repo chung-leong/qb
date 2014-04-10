@@ -440,7 +440,7 @@ double _php_math_round(double value, int places, int mode);
 
 #ifndef INFINITY
 #	ifdef _MSC_VER
-#		define INFINITY		(DBL_MAX + DBL_MAX)
+#		define INFINITY		((float) (DBL_MAX + DBL_MAX))
 #	else
 #		define INFINITY		(1.0/0.0)
 #	endif
@@ -448,7 +448,7 @@ double _php_math_round(double value, int places, int mode);
 
 #ifndef NAN
 #	ifdef _MSC_VER
-#		define NAN			(INFINITY - INFINITY)
+#		define NAN			(-(INFINITY - INFINITY))
 #	else
 #		define NAN			(0.0/0.0)
 #	endif
@@ -534,9 +534,43 @@ void _ftol2(void);
 void _ftol2_sse(void);
 void _allshr(void);
 void _allshl(void);
+#endif
+
+#if _MSC_VER <= 1700
+union ieee_bits_64 {
+	int64_t i;
+	float64_t f;
+};
+
+union ieee_bits_32 {
+	int32_t i;
+	float32_t f;
+};
 
 static inline int signbit(double n) {
-	return (_fpclass(n) & (_FPCLASS_NINF | _FPCLASS_NN | _FPCLASS_ND | _FPCLASS_NZ)) != 0;
+	if(!_isnan(n)) {
+		union ieee_bits_64 a;
+		a.f = n;
+		return (a.i & 0x8000000000000000LL) != 0;
+	} else {
+		return 0;
+	}
+}
+
+static inline double copysign(double m, double s) {
+	union ieee_bits_64 a, b;
+	a.f = m;
+	b.f = s;
+	a.i = (a.i & ~0x8000000000000000LL) | (b.i & 0x8000000000000000LL);
+	return a.f;
+}
+
+static inline float copysignf(float m, float s) {
+	union ieee_bits_32 a, b;
+	a.f = m;
+	b.f = s;
+	a.i = (a.i & ~0x80000000) | (b.i & 0x80000000);
+	return a.f;
 }
 #endif
 
