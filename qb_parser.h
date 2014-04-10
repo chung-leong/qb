@@ -138,6 +138,7 @@ void qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_s
 qb_index_alias_scheme *qb_create_index_alias_scheme(qb_parser_context *cxt);
 void qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
 uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t radix);
+void qb_parse_constant(qb_parser_context *cxt, qb_token_position p);
 
 void qb_doc_comment_yyinit(qb_parser_context *cxt, const char *doc_comment, int parser_selector);
 int qb_doc_comment_yyparse(qb_parser_context *cxt);

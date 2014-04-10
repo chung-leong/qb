@@ -262,7 +262,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt) {
 	}
 	if(!ret) {
 		if(cxt->lexer_context == &cxt->definition_lexer_context) {
-			efree(cxt->lexer_context->base);
+			efree((char *) cxt->lexer_context->base);
 			cxt->lexer_context = &cxt->default_lexer_context;
 			return qb_doc_comment_yylex(lvalp, cxt);
 		}

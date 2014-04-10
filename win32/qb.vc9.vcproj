@@ -1265,6 +1265,112 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_parser_bison.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_bison.y"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_TS_VC6|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS_VC6|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.l"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c --no-generation-date -c -o $(InputName).c -t $(InputName).h $(InputFileName)"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c --no-generation-date -c -o $(InputName).c -t $(InputName).h $(InputFileName)"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_TS_VC6|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c --no-generation-date -c -o $(InputName).c -t $(InputName).h $(InputFileName)"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS_VC6|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c --no-generation-date -c -o $(InputName).c -t $(InputName).h $(InputFileName)"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c --no-generation-date -c -o $(InputName).c -t $(InputName).h $(InputFileName)"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\qb_printer.c"
 				>
 			</File>
@@ -1455,6 +1561,14 @@
 			</File>
 			<File
 				RelativePath="..\qb_parser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_bison.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.h"
 				>
 			</File>
 			<File
