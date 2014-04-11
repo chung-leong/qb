@@ -234,6 +234,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	char *native_code_cache_path;
 	char *execution_log_path;
 
+	long tab_width;
+
 	qb_build_context *build_context;
 
 	qb_import_scope **scopes;

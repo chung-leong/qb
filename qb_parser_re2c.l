@@ -1,3 +1,23 @@
+/*
+  +----------------------------------------------------------------------+
+  | PHP Version 5                                                        |
+  +----------------------------------------------------------------------+
+  | Copyright (c) 1997-2012 The PHP Group                                |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: Chung Leong <cleong@cal.berkeley.edu>                        |
+  +----------------------------------------------------------------------+
+*/
+
+/* $Id$ */
+
 #include "qb.h"
 #include "qb_parser_re2c.h"
 #include "qb_parser_bison.h"
@@ -22,7 +42,7 @@ skip:
 	
 	LABEL = [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*;
 	WS = [ \t];
-	NEWLINE = [\r\n];
+	NEWLINE = ("\r\n"|"\r"|"\n");
 	NON_WS = [^ \t\r\n\x00]+;
 	UNQUOTED_STR = [^"' \t\r\n\x00][^ \t\r\n\x00]+;
 	DBL_QUOTE = "\"";

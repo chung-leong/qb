@@ -1,4 +1,23 @@
 %{
+/*
+  +----------------------------------------------------------------------+
+  | PHP Version 5                                                        |
+  +----------------------------------------------------------------------+
+  | Copyright (c) 1997-2012 The PHP Group                                |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: Chung Leong <cleong@cal.berkeley.edu>                        |
+  +----------------------------------------------------------------------+
+*/
+
+/* $Id$ */
 
 #include "qb.h"
 #include "qb_parser_re2c.h"
@@ -8,13 +27,35 @@
 %define api.pure
 %parse-param	{ qb_parser_context *cxt }
 %lex-param		{ qb_parser_context *cxt }
+%locations
+
+%code requires {
+#define YYLTYPE qb_token_position
+#define YYLLOC_DEFAULT(Cur, Rhs, N)            \
+do                                             \
+  if (N)                                       \
+    {                                          \
+      (Cur).index   = YYRHSLOC(Rhs, 1).index;  \
+      (Cur).length  = YYRHSLOC(Rhs, N).index   \
+                    + YYRHSLOC(Rhs, N).length  \
+                    - YYRHSLOC(Rhs, 1).index;  \
+    }                                          \
+  else                                         \
+    {                                          \
+      (Cur).index  += (Cur).length;            \
+      (Cur).length  = 0;                       \
+    }                                          \
+while (0)                                      \
+
+}
 
 %code provides {
 #define yylex		qb_doc_comment_yylex
 #define yyparse		qb_doc_comment_yyparse
 #define yyerror		qb_doc_comment_yyerror
 
-int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
+int qb_doc_comment_yylex(YYSTYPE *lvalp, YYLTYPE *locp, qb_parser_context *cxt);
+int qb_doc_comment_yyerror(YYLTYPE *locp, qb_parser_context *cxt, const char *msg);
 
 #define qb_clean_read_ahead_token(cxt)	\
 	yychar = YYEMPTY;\
@@ -36,7 +77,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 	qb_token_position token;
 	qb_index_alias_scheme *alias_scheme;
 }
- 
+
 %token T_FUNCTION_SELECTOR
 %token T_CLASS_SELECTOR 
 %token T_PROPERTY_SELECTOR
@@ -87,7 +128,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 
 %token T_NEVER
 %token T_ALWAYS
-%token T_ENGINE_QB
+%token T_ENGINE_QB				
 %token T_ENGINE_QB_NATIVE
 %token T_ENGINE_QB_BYTECODE
 
@@ -106,8 +147,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 %type <count>			element_count image_type vector_type
 %type <alias_scheme>	alias_scheme name_list
 
-%type <token>			T_LABEL T_REGEXP T_DECIMAL T_HEXADECIMAL T_TYPE_IMAGE T_TYPE_VECTOR T_TYPE_MATRIX T_COMMENT
-%type <token>			T_TAG_ENGINE T_TAG_INLINE T_TAG_IMPORT T_TAG_GLOBAL T_TAG_LOCAL T_TAG_SHARED T_TAG_LEXICAL T_TAG_PARAM T_TAG_STATIC T_TAG_PROPERTY T_TAG_VAR T_TAG_RETURN T_TAG_RECEIVE
+%type <token>			T_LABEL T_REGEXP T_DECIMAL T_HEXADECIMAL T_TYPE_IMAGE T_TYPE_VECTOR T_TYPE_MATRIX
 
 %%
 
@@ -151,7 +191,7 @@ prop_line
 	;	
 	
 engine_attr
-	: T_TAG_ENGINE engine_type			{ qb_set_engine_flags(cxt, $2); qb_end_statement(cxt); }
+	: T_TAG_ENGINE engine_type			{ qb_set_engine_flags(cxt, $2, @2); qb_end_statement(cxt); }
 	;
 
 engine_type
@@ -161,7 +201,7 @@ engine_type
 	;
 	
 inline_attr
-	: T_TAG_INLINE inline_type			{ qb_set_engine_flags(cxt, $2); qb_end_statement(cxt); }
+	: T_TAG_INLINE inline_type			{ qb_set_engine_flags(cxt, $2, @1); qb_end_statement(cxt); }
 	;
 	
 inline_type
@@ -180,20 +220,20 @@ func_type_decl
 	;
 
 func_var_scope
-	: T_TAG_GLOBAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL); }
-	| T_TAG_LOCAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL); }
-	| T_TAG_SHARED						{ qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED); }
-	| T_TAG_LEXICAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL); }
-	| T_TAG_PARAM						{ qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT); }
-	| T_TAG_STATIC						{ qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC); }
+	: T_TAG_GLOBAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL, @1); }
+	| T_TAG_LOCAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL, @1); }
+	| T_TAG_SHARED						{ qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED, @1); }
+	| T_TAG_LEXICAL						{ qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL, @1); }
+	| T_TAG_PARAM						{ qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT, @1); }
+	| T_TAG_STATIC						{ qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC, @1); }
 	;
 
 return
-	: T_TAG_RETURN						{ qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE); }
+	: T_TAG_RETURN						{ qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE, @1); }
 	;
 	 
 receive
-	: T_TAG_RECEIVE						{ qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE); }
+	: T_TAG_RECEIVE						{ qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE, @1); }
 	;
 	
 class_type_decl
@@ -201,8 +241,8 @@ class_type_decl
 	;
 	
 class_var_scope
-	: T_TAG_STATIC						{ qb_add_property_declaration(cxt, QB_VARIABLE_CLASS); }
-	| T_TAG_PROPERTY					{ qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE); }
+	: T_TAG_STATIC						{ qb_add_property_declaration(cxt, QB_VARIABLE_CLASS, @1); }
+	| T_TAG_PROPERTY					{ qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE, @1); }
 	;
 	
 prop_type_decl
@@ -210,7 +250,7 @@ prop_type_decl
 	;
 		
 prop_var_scope
-	: T_TAG_VAR							{ qb_add_property_declaration(cxt, 0); }
+	: T_TAG_VAR							{ qb_add_property_declaration(cxt, 0, @1); }
 	;
 	
 var_name
@@ -220,54 +260,54 @@ var_name
 
 var_type
 	: primitive_type array_dimensions
-	| string_type						{ qb_add_dimension(cxt, 0, 0); }
+	| string_type						{ qb_add_dimension(cxt, 0, 0, @1); }
 	| char_type array_dimensions
 	| boolean_type array_dimensions
-	| image_type array_dimensions		{ qb_add_dimension(cxt, 0, 0); qb_add_dimension(cxt, 0, 0); qb_add_dimension(cxt, $1, 0); }
-	| vector_type array_dimensions		{ qb_add_dimension(cxt, $1, 0); }
-	| complex_type array_dimensions		{ qb_add_dimension(cxt, 2, 0); }
+	| image_type array_dimensions		{ qb_add_dimension(cxt, 0, 0, @1); qb_add_dimension(cxt, 0, 0, @1); qb_add_dimension(cxt, $1, 0, @1); }
+	| vector_type array_dimensions		{ qb_add_dimension(cxt, $1, 0, @1); }
+	| complex_type array_dimensions		{ qb_add_dimension(cxt, 2, 0, @1); }
 	;
 	
 var_type_or_void
 	: var_type
-	| T_TYPE_VOID						{ qb_set_variable_type(cxt, QB_TYPE_VOID, 0); }
+	| T_TYPE_VOID						{ qb_set_variable_type(cxt, QB_TYPE_VOID, 0, @1); }
 
 primitive_type							
-	: int_type							{ qb_set_variable_type(cxt, $1, 0); }
-	| float_type						{ qb_set_variable_type(cxt, $1, 0); }
+	: int_type							{ qb_set_variable_type(cxt, $1, 0, @1); }
+	| float_type						{ qb_set_variable_type(cxt, $1, 0, @1); }
 	;
 
 string_type
-	: T_TYPE_STRING int_type_base		{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING); }
-	| T_TYPE_STRING						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); }
+	: T_TYPE_STRING int_type_base		{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING, @1); }
+	| T_TYPE_STRING						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, @1); }
 	;
 
 char_type
-	: T_TYPE_CHAR int_type_base			{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING); }
-	| T_TYPE_CHAR						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); }
+	: T_TYPE_CHAR int_type_base			{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING, @1); }
+	| T_TYPE_CHAR						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, @1); }
 	;
 
 boolean_type
-	: T_TYPE_BOOLEAN					{ qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN); }
+	: T_TYPE_BOOLEAN					{ qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN, @1); }
 	;
 	
 image_type
-	: T_TYPE_IMAGE float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE);}
-	| T_TYPE_IMAGE						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); }
-	| T_TYPE_IMAGE4 float_type_base		{ $$ = 4; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE);}
-	| T_TYPE_IMAGE4						{ $$ = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); }
+	: T_TYPE_IMAGE float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE, @1);}
+	| T_TYPE_IMAGE						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, @1); }
+	| T_TYPE_IMAGE4 float_type_base		{ $$ = 4; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE, @1);}
+	| T_TYPE_IMAGE4						{ $$ = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, @1); }
 	;
 
 vector_type
-	: T_TYPE_VECTOR float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR); }
-	| T_TYPE_VECTOR						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); }
-	| T_TYPE_VECTOR3 float_type_base	{ $$ = 3; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR);}
-	| T_TYPE_VECTOR3					{ $$ = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); }
+	: T_TYPE_VECTOR float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR, @1); }
+	| T_TYPE_VECTOR						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, @1); }
+	| T_TYPE_VECTOR3 float_type_base	{ $$ = 3; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR, @1);}
+	| T_TYPE_VECTOR3					{ $$ = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, @1); }
 	;
 
 complex_type
-	: T_TYPE_COMPLEX float_type_base	{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_COMPLEX); }
-	| T_TYPE_COMPLEX					{ qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX); }
+	: T_TYPE_COMPLEX float_type_base	{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_COMPLEX, @1); }
+	| T_TYPE_COMPLEX					{ qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX, @1); }
 	;
 
 int_type_base
@@ -302,12 +342,12 @@ array_dimensions
 	;
 
 array_dimension
-	: '[' element_count ']'				{ qb_add_dimension(cxt, $2, 0); }
-	| '[' ']'							{ qb_add_dimension(cxt, 0, 0); }
-	| '[' '?' ']'						{ qb_add_dimension(cxt, 0, 0); }
-	| '[' '*' ']'						{ qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS); }
+	: '[' element_count ']'				{ qb_add_dimension(cxt, $2, 0, @2); }
+	| '[' ']'							{ qb_add_dimension(cxt, 0, 0, @2); }
+	| '[' '?' ']'						{ qb_add_dimension(cxt, 0, 0, @2); }
+	| '[' '*' ']'						{ qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS, @2); }
 	| '[' T_LABEL ']'					{ qb_parse_constant(cxt, $2); qb_clean_read_ahead_token(cxt); }
-	| '[' alias_scheme ']'				{ qb_add_index_alias_scheme(cxt, $2); }
+	| '[' alias_scheme ']'				{ qb_add_index_alias_scheme(cxt, $2, @2); }
 	;
 	
 element_count

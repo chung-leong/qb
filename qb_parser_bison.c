@@ -61,7 +61,7 @@
 #define YYPULL 1
 
 /* Using locations.  */
-#define YYLSP_NEEDED 0
+#define YYLSP_NEEDED 1
 
 
 
@@ -70,6 +70,25 @@
 /* Line 189 of yacc.c  */
 #line 1 "qb_parser_bison.y"
 
+/*
+  +----------------------------------------------------------------------+
+  | PHP Version 5                                                        |
+  +----------------------------------------------------------------------+
+  | Copyright (c) 1997-2012 The PHP Group                                |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: Chung Leong <cleong@cal.berkeley.edu>                        |
+  +----------------------------------------------------------------------+
+*/
+
+/* $Id$ */
 
 #include "qb.h"
 #include "qb_parser_re2c.h"
@@ -77,7 +96,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 81 "qb_parser_bison.c"
+#line 100 "qb_parser_bison.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -97,6 +116,33 @@
 # define YYTOKEN_TABLE 0
 #endif
 
+/* "%code requires" blocks.  */
+
+/* Line 209 of yacc.c  */
+#line 32 "qb_parser_bison.y"
+
+#define YYLTYPE qb_token_position
+#define YYLLOC_DEFAULT(Cur, Rhs, N)            \
+do                                             \
+  if (N)                                       \
+    {                                          \
+      (Cur).index   = YYRHSLOC(Rhs, 1).index;  \
+      (Cur).length  = YYRHSLOC(Rhs, N).index   \
+                    + YYRHSLOC(Rhs, N).length  \
+                    - YYRHSLOC(Rhs, 1).index;  \
+    }                                          \
+  else                                         \
+    {                                          \
+      (Cur).index  += (Cur).length;            \
+      (Cur).length  = 0;                       \
+    }                                          \
+while (0)                                      \
+
+
+
+
+/* Line 209 of yacc.c  */
+#line 146 "qb_parser_bison.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -166,7 +212,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 31 "qb_parser_bison.y"
+#line 72 "qb_parser_bison.y"
 
 	uint32_t count;
 	uint32_t flags;
@@ -178,23 +224,37 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 182 "qb_parser_bison.c"
+#line 228 "qb_parser_bison.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
+# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 /* "%code provides" blocks.  */
 
 /* Line 261 of yacc.c  */
-#line 12 "qb_parser_bison.y"
+#line 52 "qb_parser_bison.y"
 
 #define yylex		qb_doc_comment_yylex
 #define yyparse		qb_doc_comment_yyparse
 #define yyerror		qb_doc_comment_yyerror
 
-int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
+int qb_doc_comment_yylex(YYSTYPE *lvalp, YYLTYPE *locp, qb_parser_context *cxt);
+int qb_doc_comment_yyerror(YYLTYPE *locp, qb_parser_context *cxt, const char *msg);
 
 #define qb_clean_read_ahead_token(cxt)	\
 	yychar = YYEMPTY;\
@@ -210,13 +270,13 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 
 
 /* Line 261 of yacc.c  */
-#line 214 "qb_parser_bison.c"
+#line 274 "qb_parser_bison.c"
 
 /* Copy the second part of user declarations.  */
 
 
 /* Line 264 of yacc.c  */
-#line 220 "qb_parser_bison.c"
+#line 280 "qb_parser_bison.c"
 
 #ifdef short
 # undef short
@@ -374,13 +434,15 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-	 || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+	 || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL \
+	     && defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
   yytype_int16 yyss_alloc;
   YYSTYPE yyvs_alloc;
+  YYLTYPE yyls_alloc;
 };
 
 /* The size of the maximum gap between one aligned stack and the next.  */
@@ -389,8 +451,8 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
-      + YYSTACK_GAP_MAXIMUM)
+     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE) + sizeof (YYLTYPE)) \
+      + 2 * YYSTACK_GAP_MAXIMUM)
 
 /* Copy COUNT objects from FROM to TO.  The source and destination do
    not overlap.  */
@@ -537,17 +599,17 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   115,   115,   116,   117,   120,   122,   125,   127,   130,
-     132,   136,   137,   138,   139,   140,   144,   145,   149,   150,
-     154,   158,   159,   160,   164,   168,   169,   173,   177,   178,
-     179,   183,   184,   185,   186,   187,   188,   192,   196,   200,
-     204,   205,   209,   213,   217,   218,   222,   223,   224,   225,
-     226,   227,   228,   232,   233,   236,   237,   241,   242,   246,
-     247,   251,   255,   256,   257,   258,   262,   263,   264,   265,
-     269,   270,   274,   277,   280,   281,   282,   283,   284,   285,
-     286,   287,   288,   289,   293,   294,   295,   296,   299,   301,
-     305,   306,   307,   308,   309,   310,   314,   315,   319,   320,
-     323,   324
+       0,   155,   155,   156,   157,   160,   162,   165,   167,   170,
+     172,   176,   177,   178,   179,   180,   184,   185,   189,   190,
+     194,   198,   199,   200,   204,   208,   209,   213,   217,   218,
+     219,   223,   224,   225,   226,   227,   228,   232,   236,   240,
+     244,   245,   249,   253,   257,   258,   262,   263,   264,   265,
+     266,   267,   268,   272,   273,   276,   277,   281,   282,   286,
+     287,   291,   295,   296,   297,   298,   302,   303,   304,   305,
+     309,   310,   314,   317,   320,   321,   322,   323,   324,   325,
+     326,   327,   328,   329,   333,   334,   335,   336,   339,   341,
+     345,   346,   347,   348,   349,   350,   354,   355,   359,   360,
+     363,   364
 };
 #endif
 
@@ -781,7 +843,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (cxt, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, cxt, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -836,9 +898,9 @@ while (YYID (0))
 /* YYLEX -- calling `yylex' with the right arguments.  */
 
 #ifdef YYLEX_PARAM
-# define YYLEX yylex (&yylval, YYLEX_PARAM)
+# define YYLEX yylex (&yylval, &yylloc, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval, cxt)
+# define YYLEX yylex (&yylval, &yylloc, cxt)
 #endif
 
 /* Enable debugging if requested.  */
@@ -861,7 +923,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, cxt); \
+		  Type, Value, Location, cxt); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -875,18 +937,20 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, qb_parser_context *cxt)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, qb_parser_context *cxt)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, cxt)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, cxt)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    YYLTYPE const * const yylocationp;
     qb_parser_context *cxt;
 #endif
 {
   if (!yyvaluep)
     return;
+  YYUSE (yylocationp);
   YYUSE (cxt);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
@@ -909,13 +973,14 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, cxt)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, qb_parser_context *cxt)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, qb_parser_context *cxt)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, cxt)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, cxt)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    YYLTYPE const * const yylocationp;
     qb_parser_context *cxt;
 #endif
 {
@@ -924,7 +989,9 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, cxt)
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, cxt);
+  YY_LOCATION_PRINT (yyoutput, *yylocationp);
+  YYFPRINTF (yyoutput, ": ");
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, cxt);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -967,11 +1034,12 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule, qb_parser_context *cxt)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, qb_parser_context *cxt)
 #else
 static void
-yy_reduce_print (yyvsp, yyrule, cxt)
+yy_reduce_print (yyvsp, yylsp, yyrule, cxt)
     YYSTYPE *yyvsp;
+    YYLTYPE *yylsp;
     int yyrule;
     qb_parser_context *cxt;
 #endif
@@ -987,7 +1055,7 @@ yy_reduce_print (yyvsp, yyrule, cxt)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       , cxt);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , cxt);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -995,7 +1063,7 @@ yy_reduce_print (yyvsp, yyrule, cxt)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule, cxt); \
+    yy_reduce_print (yyvsp, yylsp, Rule, cxt); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1246,17 +1314,19 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, qb_parser_context *cxt)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, qb_parser_context *cxt)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, cxt)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, cxt)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
+    YYLTYPE *yylocationp;
     qb_parser_context *cxt;
 #endif
 {
   YYUSE (yyvaluep);
+  YYUSE (yylocationp);
   YYUSE (cxt);
 
   if (!yymsg)
@@ -1322,6 +1392,9 @@ int yychar;
 /* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
+/* Location data for the lookahead symbol.  */
+YYLTYPE yylloc;
+
     /* Number of syntax errors so far.  */
     int yynerrs;
 
@@ -1332,6 +1405,7 @@ YYSTYPE yylval;
     /* The stacks and their tools:
        `yyss': related to states.
        `yyvs': related to semantic values.
+       `yyls': related to locations.
 
        Refer to the stacks thru separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
@@ -1346,6 +1420,14 @@ YYSTYPE yylval;
     YYSTYPE *yyvs;
     YYSTYPE *yyvsp;
 
+    /* The location stack.  */
+    YYLTYPE yylsa[YYINITDEPTH];
+    YYLTYPE *yyls;
+    YYLTYPE *yylsp;
+
+    /* The locations where the error started and ended.  */
+    YYLTYPE yyerror_range[2];
+
     YYSIZE_T yystacksize;
 
   int yyn;
@@ -1355,6 +1437,7 @@ YYSTYPE yylval;
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
+  YYLTYPE yyloc;
 
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
@@ -1363,7 +1446,7 @@ YYSTYPE yylval;
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
+#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N), yylsp -= (N))
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
@@ -1372,6 +1455,7 @@ YYSTYPE yylval;
   yytoken = 0;
   yyss = yyssa;
   yyvs = yyvsa;
+  yyls = yylsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1387,6 +1471,13 @@ YYSTYPE yylval;
      The wasted elements are never initialized.  */
   yyssp = yyss;
   yyvsp = yyvs;
+  yylsp = yyls;
+
+#if YYLTYPE_IS_TRIVIAL
+  /* Initialize the default location before parsing starts.  */
+  yylloc.first_line   = yylloc.last_line   = 1;
+  yylloc.first_column = yylloc.last_column = 1;
+#endif
 
   goto yysetstate;
 
@@ -1413,6 +1504,7 @@ YYSTYPE yylval;
 	   memory.  */
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
+	YYLTYPE *yyls1 = yyls;
 
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
@@ -1421,8 +1513,10 @@ YYSTYPE yylval;
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
+		    &yyls1, yysize * sizeof (*yylsp),
 		    &yystacksize);
 
+	yyls = yyls1;
 	yyss = yyss1;
 	yyvs = yyvs1;
       }
@@ -1445,6 +1539,7 @@ YYSTYPE yylval;
 	  goto yyexhaustedlab;
 	YYSTACK_RELOCATE (yyss_alloc, yyss);
 	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
+	YYSTACK_RELOCATE (yyls_alloc, yyls);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -1454,6 +1549,7 @@ YYSTYPE yylval;
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
+      yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
@@ -1529,7 +1625,7 @@ yybackup:
 
   yystate = yyn;
   *++yyvsp = yylval;
-
+  *++yylsp = yylloc;
   goto yynewstate;
 
 
@@ -1560,546 +1656,547 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-
+  /* Default location.  */
+  YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 20:
 
 /* Line 1455 of yacc.c  */
-#line 154 "qb_parser_bison.y"
-    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags)); qb_end_statement(cxt); ;}
+#line 194 "qb_parser_bison.y"
+    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(2) - (2)])); qb_end_statement(cxt); ;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 158 "qb_parser_bison.y"
+#line 198 "qb_parser_bison.y"
     { (yyval.flags) = 0; ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 159 "qb_parser_bison.y"
+#line 199 "qb_parser_bison.y"
     { (yyval.flags) = QB_FUNCTION_NATIVE_IF_POSSIBLE; ;}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 160 "qb_parser_bison.y"
+#line 200 "qb_parser_bison.y"
     { (yyval.flags) = QB_FUNCTION_NEVER_NATIVE; ;}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 164 "qb_parser_bison.y"
-    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags)); qb_end_statement(cxt); ;}
+#line 204 "qb_parser_bison.y"
+    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(1) - (2)])); qb_end_statement(cxt); ;}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 168 "qb_parser_bison.y"
+#line 208 "qb_parser_bison.y"
     { (yyval.flags) = QB_FUNCTION_NEVER_INLINE; ;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 169 "qb_parser_bison.y"
+#line 209 "qb_parser_bison.y"
     { (yyval.flags) = QB_FUNCTION_INLINE_ALWAYS; ;}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 173 "qb_parser_bison.y"
+#line 213 "qb_parser_bison.y"
     { qb_add_import(cxt, (yyvsp[(2) - (2)].token)); qb_end_statement(cxt); ;}
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 177 "qb_parser_bison.y"
+#line 217 "qb_parser_bison.y"
     { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 178 "qb_parser_bison.y"
+#line 218 "qb_parser_bison.y"
     { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 179 "qb_parser_bison.y"
+#line 219 "qb_parser_bison.y"
     { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 183 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL); ;}
+#line 223 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL, (yylsp[(1) - (1)])); ;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 184 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL); ;}
+#line 224 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL, (yylsp[(1) - (1)])); ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 185 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED); ;}
+#line 225 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED, (yylsp[(1) - (1)])); ;}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 186 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL); ;}
+#line 226 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL, (yylsp[(1) - (1)])); ;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 187 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT); ;}
+#line 227 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT, (yylsp[(1) - (1)])); ;}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 188 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC); ;}
+#line 228 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC, (yylsp[(1) - (1)])); ;}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 192 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE); ;}
+#line 232 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE, (yylsp[(1) - (1)])); ;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 196 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE); ;}
+#line 236 "qb_parser_bison.y"
+    { qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE, (yylsp[(1) - (1)])); ;}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 200 "qb_parser_bison.y"
+#line 240 "qb_parser_bison.y"
     { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 204 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS); ;}
+#line 244 "qb_parser_bison.y"
+    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS, (yylsp[(1) - (1)])); ;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 205 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE); ;}
+#line 245 "qb_parser_bison.y"
+    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE, (yylsp[(1) - (1)])); ;}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 209 "qb_parser_bison.y"
+#line 249 "qb_parser_bison.y"
     { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 213 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, 0); ;}
+#line 253 "qb_parser_bison.y"
+    { qb_add_property_declaration(cxt, 0, (yylsp[(1) - (1)])); ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 217 "qb_parser_bison.y"
+#line 257 "qb_parser_bison.y"
     { qb_attach_variable_name(cxt, (yyvsp[(2) - (2)].token)); ;}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 218 "qb_parser_bison.y"
+#line 258 "qb_parser_bison.y"
     { qb_attach_variable_name_regexp(cxt, (yyvsp[(2) - (2)].token)); ;}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 223 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0); ;}
+#line 263 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (1)])); ;}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 226 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0); qb_add_dimension(cxt, 0, 0); qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0); ;}
+#line 266 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)])); qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)])); qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)])); ;}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 227 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0); ;}
+#line 267 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)])); ;}
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 228 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 2, 0); ;}
+#line 268 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 2, 0, (yylsp[(1) - (2)])); ;}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 233 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_VOID, 0); ;}
+#line 273 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, QB_TYPE_VOID, 0, (yylsp[(1) - (1)])); ;}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 236 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0); ;}
+#line 276 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)])); ;}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 237 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0); ;}
+#line 277 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)])); ;}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 241 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING); ;}
+#line 281 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)])); ;}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 242 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); ;}
+#line 282 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)])); ;}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 246 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING); ;}
+#line 286 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)])); ;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 247 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); ;}
+#line 287 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)])); ;}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 251 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN); ;}
+#line 291 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN, (yylsp[(1) - (1)])); ;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 255 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE);;}
+#line 295 "qb_parser_bison.y"
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]));;}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 256 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); ;}
+#line 296 "qb_parser_bison.y"
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)])); ;}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 257 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE);;}
+#line 297 "qb_parser_bison.y"
+    { (yyval.count) = 4; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]));;}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 258 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); ;}
+#line 298 "qb_parser_bison.y"
+    { (yyval.count) = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)])); ;}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 262 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR); ;}
+#line 302 "qb_parser_bison.y"
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)])); ;}
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 263 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); ;}
+#line 303 "qb_parser_bison.y"
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)])); ;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 264 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR);;}
+#line 304 "qb_parser_bison.y"
+    { (yyval.count) = 3; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)]));;}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 265 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); ;}
+#line 305 "qb_parser_bison.y"
+    { (yyval.count) = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)])); ;}
     break;
 
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 269 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_COMPLEX); ;}
+#line 309 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (2)])); ;}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 270 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX); ;}
+#line 310 "qb_parser_bison.y"
+    { qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (1)])); ;}
     break;
 
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 274 "qb_parser_bison.y"
+#line 314 "qb_parser_bison.y"
     { (yyval.primitive_type) = (yyvsp[(2) - (3)].primitive_type); ;}
     break;
 
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 277 "qb_parser_bison.y"
+#line 317 "qb_parser_bison.y"
     { (yyval.primitive_type) = (yyvsp[(2) - (3)].primitive_type); ;}
     break;
 
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 280 "qb_parser_bison.y"
+#line 320 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_I08; ;}
     break;
 
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 281 "qb_parser_bison.y"
+#line 321 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_I16; ;}
     break;
 
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 282 "qb_parser_bison.y"
+#line 322 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_I32; ;}
     break;
 
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 283 "qb_parser_bison.y"
+#line 323 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_I64; ;}
     break;
 
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 284 "qb_parser_bison.y"
+#line 324 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_I32; ;}
     break;
 
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 285 "qb_parser_bison.y"
+#line 325 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_U08; ;}
     break;
 
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 286 "qb_parser_bison.y"
+#line 326 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_U16; ;}
     break;
 
   case 81:
 
 /* Line 1455 of yacc.c  */
-#line 287 "qb_parser_bison.y"
+#line 327 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_U32; ;}
     break;
 
   case 82:
 
 /* Line 1455 of yacc.c  */
-#line 288 "qb_parser_bison.y"
+#line 328 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_U64; ;}
     break;
 
   case 83:
 
 /* Line 1455 of yacc.c  */
-#line 289 "qb_parser_bison.y"
+#line 329 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_U32; ;}
     break;
 
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 293 "qb_parser_bison.y"
+#line 333 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_F32; ;}
     break;
 
   case 85:
 
 /* Line 1455 of yacc.c  */
-#line 294 "qb_parser_bison.y"
+#line 334 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_F64; ;}
     break;
 
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 295 "qb_parser_bison.y"
+#line 335 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_F32; ;}
     break;
 
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 296 "qb_parser_bison.y"
+#line 336 "qb_parser_bison.y"
     { (yyval.primitive_type) = QB_TYPE_F64; ;}
     break;
 
   case 90:
 
 /* Line 1455 of yacc.c  */
-#line 305 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, (yyvsp[(2) - (3)].count), 0); ;}
+#line 345 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, (yyvsp[(2) - (3)].count), 0, (yylsp[(2) - (3)])); ;}
     break;
 
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 306 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0); ;}
+#line 346 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (2)])); ;}
     break;
 
   case 92:
 
 /* Line 1455 of yacc.c  */
-#line 307 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0); ;}
+#line 347 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (3)])); ;}
     break;
 
   case 93:
 
 /* Line 1455 of yacc.c  */
-#line 308 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS); ;}
+#line 348 "qb_parser_bison.y"
+    { qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS, (yylsp[(2) - (3)])); ;}
     break;
 
   case 94:
 
 /* Line 1455 of yacc.c  */
-#line 309 "qb_parser_bison.y"
+#line 349 "qb_parser_bison.y"
     { qb_parse_constant(cxt, (yyvsp[(2) - (3)].token)); qb_clean_read_ahead_token(cxt); ;}
     break;
 
   case 95:
 
 /* Line 1455 of yacc.c  */
-#line 310 "qb_parser_bison.y"
-    { qb_add_index_alias_scheme(cxt, (yyvsp[(2) - (3)].alias_scheme)); ;}
+#line 350 "qb_parser_bison.y"
+    { qb_add_index_alias_scheme(cxt, (yyvsp[(2) - (3)].alias_scheme), (yylsp[(2) - (3)])); ;}
     break;
 
   case 96:
 
 /* Line 1455 of yacc.c  */
-#line 314 "qb_parser_bison.y"
+#line 354 "qb_parser_bison.y"
     { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); ;}
     break;
 
   case 97:
 
 /* Line 1455 of yacc.c  */
-#line 315 "qb_parser_bison.y"
+#line 355 "qb_parser_bison.y"
     { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 16); ;}
     break;
 
   case 98:
 
 /* Line 1455 of yacc.c  */
-#line 319 "qb_parser_bison.y"
+#line 359 "qb_parser_bison.y"
     { (yyval.alias_scheme) = (yyvsp[(1) - (1)].alias_scheme); ;}
     break;
 
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 320 "qb_parser_bison.y"
+#line 360 "qb_parser_bison.y"
     { (yyval.alias_scheme) = (yyvsp[(3) - (3)].alias_scheme); qb_attach_index_alias_scheme_class(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token)); ;}
     break;
 
   case 100:
 
 /* Line 1455 of yacc.c  */
-#line 323 "qb_parser_bison.y"
+#line 363 "qb_parser_bison.y"
     { (yyval.alias_scheme) = qb_create_index_alias_scheme(cxt); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token)); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token)); ;}
     break;
 
   case 101:
 
 /* Line 1455 of yacc.c  */
-#line 324 "qb_parser_bison.y"
+#line 364 "qb_parser_bison.y"
     { (yyval.alias_scheme) = (yyvsp[(1) - (3)].alias_scheme); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token)); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2103 "qb_parser_bison.c"
+#line 2200 "qb_parser_bison.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2109,6 +2206,7 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
+  *++yylsp = yyloc;
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -2134,7 +2232,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (cxt, YY_("syntax error"));
+      yyerror (&yylloc, cxt, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -2158,11 +2256,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (cxt, yymsg);
+	    yyerror (&yylloc, cxt, yymsg);
 	  }
 	else
 	  {
-	    yyerror (cxt, YY_("syntax error"));
+	    yyerror (&yylloc, cxt, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -2170,7 +2268,7 @@ yyerrlab:
 #endif
     }
 
-
+  yyerror_range[0] = yylloc;
 
   if (yyerrstatus == 3)
     {
@@ -2186,7 +2284,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, cxt);
+		      yytoken, &yylval, &yylloc, cxt);
 	  yychar = YYEMPTY;
 	}
     }
@@ -2207,6 +2305,7 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
+  yyerror_range[0] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule which action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -2240,9 +2339,9 @@ yyerrlab1:
       if (yyssp == yyss)
 	YYABORT;
 
-
+      yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, cxt);
+		  yystos[yystate], yyvsp, yylsp, cxt);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2250,6 +2349,11 @@ yyerrlab1:
 
   *++yyvsp = yylval;
 
+  yyerror_range[1] = yylloc;
+  /* Using YYLLOC is tempting, but would change the location of
+     the lookahead.  YYLOC is available though.  */
+  YYLLOC_DEFAULT (yyloc, (yyerror_range - 1), 2);
+  *++yylsp = yyloc;
 
   /* Shift the error token.  */
   YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
@@ -2277,7 +2381,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (cxt, YY_("memory exhausted"));
+  yyerror (&yylloc, cxt, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -2285,7 +2389,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, cxt);
+		 yytoken, &yylval, &yylloc, cxt);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -2293,7 +2397,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, cxt);
+		  yystos[*yyssp], yyvsp, yylsp, cxt);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -2311,6 +2415,6 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 327 "qb_parser_bison.y"
+#line 367 "qb_parser_bison.y"
 
 

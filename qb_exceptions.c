@@ -270,24 +270,32 @@ void qb_report_missing_type_declaration_exception(uint32_t line_id, qb_variable 
 	qb_report_exception(line_id, E_ERROR, "Missing type declaration: %s", qvar->name);
 }
 
-void qb_report_unexpected_tag_in_doc_comment_exception(uint32_t line_id, const char *tag, uint32_t tag_len) {
-	qb_report_exception(line_id, E_NOTICE, "Unexpected use of @%.*s", tag_len, tag);
+void qb_report_doc_comment_syntax_exception(uint32_t line_id, uint32_t column_number, const char *token, uint32_t token_len) {
+	if(token_len == 0) {
+		qb_report_exception(line_id, E_ERROR, "Syntax error encountered");
+	} else if(token[0] == '\r' || token[0] == '\n') {
+		qb_report_exception(line_id, E_ERROR, "Unexpected newline encountered", token_len, token, column_number);
+	} else if(column_number) {
+		qb_report_exception(line_id, E_ERROR, "Syntax error encountered near %.*s at column %u", token_len, token, column_number);
+	} else {
+		qb_report_exception(line_id, E_ERROR, "Syntax error encountered near %.*s", token_len, token);
+	}
 }
 
-void qb_report_doc_comment_syntax_exception(uint32_t line_id) {
-	qb_report_exception(line_id, E_NOTICE, "Syntax error encountered while parsing Doc Comments for type information");
+void qb_report_doc_comment_regexp_exception(uint32_t line_id, uint32_t column_number, const char *token, uint32_t token_len, const char *error) {
+	if(column_number) {
+		qb_report_exception(line_id, E_ERROR, "Syntax error '%s' encountered near %.*s at column %u", error, token_len, token, column_number);
+	} else {
+		qb_report_exception(line_id, E_ERROR, "Syntax error '%s' encountered near %.*s", error, token_len, token);
+	}
 }
 
-void qb_report_syntax_error_in_typedef_exception(uint32_t line_id, const char *text) {
-	qb_report_exception(line_id, E_WARNING, "Syntax Error encountered while processing type information: %s", text);
-}
-
-void qb_report_unknown_keyword_in_typedef_exception(uint32_t line_id, const char *keyword) {
-	qb_report_exception(line_id, E_WARNING, "Unknown keyword '%s' encountered while processing type information", keyword);
-}
-
-void qb_report_unexpected_numeric_key_in_typedef_exception(uint32_t line_id) {
-	qb_report_exception(line_id, E_WARNING, "Numeric key encountered where a string is expected");
+void qb_report_doc_comment_missing_constant_exception(uint32_t line_id, uint32_t column_number, const char *token, uint32_t token_len) {
+	if(column_number) {
+		qb_report_exception(line_id, E_ERROR, "Missing constant '%.*s' at column %u", token_len, token, column_number);
+	} else {
+		qb_report_exception(line_id, E_ERROR, "Missing constant '%.*s'", token_len, token);
+	}
 }
 
 void qb_report_missing_scope_exception(uint32_t line_id, const char *scope_accessed) {

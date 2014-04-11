@@ -893,6 +893,8 @@ PHP_INI_BEGIN()
     STD_PHP_INI_BOOLEAN("qb.show_compiler_errors",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_compiler_errors,			zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_source_opcodes",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_source_opcodes,			zend_qb_globals,	qb_globals)
 
+	STD_PHP_INI_ENTRY("qb.tab_width",						"4",	PHP_INI_ALL, 	OnUpdateLong,	tab_width,						zend_qb_globals,	qb_globals)
+
 PHP_INI_END()
 /* }}} */
 

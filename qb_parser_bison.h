@@ -32,6 +32,33 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+/* "%code requires" blocks.  */
+
+/* Line 1676 of yacc.c  */
+#line 32 "qb_parser_bison.y"
+
+#define YYLTYPE qb_token_position
+#define YYLLOC_DEFAULT(Cur, Rhs, N)            \
+do                                             \
+  if (N)                                       \
+    {                                          \
+      (Cur).index   = YYRHSLOC(Rhs, 1).index;  \
+      (Cur).length  = YYRHSLOC(Rhs, N).index   \
+                    + YYRHSLOC(Rhs, N).length  \
+                    - YYRHSLOC(Rhs, 1).index;  \
+    }                                          \
+  else                                         \
+    {                                          \
+      (Cur).index  += (Cur).length;            \
+      (Cur).length  = 0;                       \
+    }                                          \
+while (0)                                      \
+
+
+
+
+/* Line 1676 of yacc.c  */
+#line 62 "qb_parser_bison.h"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -101,7 +128,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 31 "qb_parser_bison.y"
+#line 72 "qb_parser_bison.y"
 
 	uint32_t count;
 	uint32_t flags;
@@ -113,7 +140,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 117 "qb_parser_bison.h"
+#line 144 "qb_parser_bison.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -122,17 +149,32 @@ typedef union YYSTYPE
 
 
 
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
+# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
+
 
 /* "%code provides" blocks.  */
 
 /* Line 1676 of yacc.c  */
-#line 12 "qb_parser_bison.y"
+#line 52 "qb_parser_bison.y"
 
 #define yylex		qb_doc_comment_yylex
 #define yyparse		qb_doc_comment_yyparse
 #define yyerror		qb_doc_comment_yyerror
 
-int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
+int qb_doc_comment_yylex(YYSTYPE *lvalp, YYLTYPE *locp, qb_parser_context *cxt);
+int qb_doc_comment_yyerror(YYLTYPE *locp, qb_parser_context *cxt, const char *msg);
 
 #define qb_clean_read_ahead_token(cxt)	\
 	yychar = YYEMPTY;\
@@ -148,4 +190,4 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 
 
 /* Line 1676 of yacc.c  */
-#line 152 "qb_parser_bison.h"
+#line 194 "qb_parser_bison.h"

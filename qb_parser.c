@@ -39,7 +39,30 @@ int32_t qb_find_engine_tag(const char *doc_comment) {
 	return FALSE;
 }
 
-void qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags) {
+static void qb_find_line_number(qb_parser_context *cxt, uint32_t offset, uint32_t *p_line_number, uint32_t *p_column_number);
+
+static void qb_raise_syntax_error_exception(qb_parser_context *cxt, qb_token_position p) {
+	const char *comment = cxt->comment_lexer_context.base;
+	uint32_t line_number, column_number;
+	qb_find_line_number(cxt, p.index, &line_number, &column_number);
+	qb_report_doc_comment_syntax_exception(LINE_ID(cxt->file_id, line_number), column_number, comment + p.index, p.length);
+}
+
+static void qb_raise_regexp_syntax_error_exception(qb_parser_context *cxt, const char *error, qb_token_position p) {
+	const char *comment = cxt->comment_lexer_context.base;
+	uint32_t line_number, column_number;
+	qb_find_line_number(cxt, p.index, &line_number, &column_number);
+	qb_report_doc_comment_regexp_exception(LINE_ID(cxt->file_id, line_number), column_number, comment + p.index, p.length, error);
+}
+
+static void qb_raise_missing_constant_exception(qb_parser_context *cxt, qb_token_position p) {
+	const char *comment = cxt->comment_lexer_context.base;
+	uint32_t line_number, column_number;
+	qb_find_line_number(cxt, p.index, &line_number, &column_number);
+	qb_report_doc_comment_missing_constant_exception(LINE_ID(cxt->file_id, line_number), column_number, comment + p.index, p.length);
+}
+
+void qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p) {
 	qb_function_declaration *f_decl = cxt->function_declaration;
 	cxt->function_declaration->flags |= flags;
 }
@@ -50,19 +73,19 @@ void qb_add_import(qb_parser_context *cxt, qb_token_position p) {
 	f_decl->import_path_length = p.length;
 }
 
-void qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type) {
+void qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
 	qb_function_declaration *f_decl = cxt->function_declaration;
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
-	qb_type_declaration **p = qb_enlarge_array((void **) &f_decl->declarations, 1);
-	*p = cxt->type_declaration = decl;
+	qb_type_declaration **p_decl = qb_enlarge_array((void **) &f_decl->declarations, 1);
+	*p_decl = cxt->type_declaration = decl;
 	decl->flags |= type;
 }
 
-void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type) {
+void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
 	qb_class_declaration *c_decl = cxt->class_declaration;
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
-	qb_type_declaration **p = qb_enlarge_array((void **) &c_decl->declarations, 1);
-	*p = cxt->type_declaration = decl;
+	qb_type_declaration **p_decl = qb_enlarge_array((void **) &c_decl->declarations, 1);
+	*p_decl = cxt->type_declaration = decl;
 	if(cxt->property_name) {
 		decl->name = cxt->property_name;
 		decl->name_length = cxt->property_name_length;
@@ -81,13 +104,13 @@ void qb_end_variable_declaration(qb_parser_context *cxt) {
 	cxt->type_declaration = NULL;
 }
 
-void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags) {
+void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	decl->type = type;
 	decl->flags |= flags;
 }
 
-void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {
+void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	if(decl->dimension_count < MAX_DIMENSION) {
 		uint32_t index = decl->dimension_count++;
@@ -98,16 +121,18 @@ void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {
 		}
 		decl->flags |= flags;
 	} else {
-		qb_report_too_man_dimension_exception(cxt->line_id);
+		qb_raise_syntax_error_exception(cxt, p);
 	}
 }
 
-void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme) {
+void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	uint32_t index = decl->dimension_count;
 	decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
-	qb_add_dimension(cxt, scheme->dimension, 0);
-	decl->index_alias_schemes[index] = scheme;
+	qb_add_dimension(cxt, scheme->dimension, 0, p);
+	if(index < MAX_DIMENSION) {
+		decl->index_alias_schemes[index] = scheme;
+	}
 }
 
 void qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p) {
@@ -134,7 +159,18 @@ void qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p)
 	decl->regexp = pcre_compile(constricted_pattern, 0, &pcre_error, &pcre_error_offset, NULL);
 	free_alloca(constricted_pattern, use_heap);
 	if(!decl->regexp) {
-		// TODO report the error 
+		qb_token_position q;
+		if(pcre_error_offset <= 0) {
+			q = p;
+		} else if((uint32_t) pcre_error_offset - 1 < p.length)  {
+			q.index = p.index + (pcre_error_offset - 1);
+			q.length = p.length - (pcre_error_offset - 1);
+		} else {
+			// the last character
+			q.index = p.index + (p.length - 1);
+			q.length = 1;
+		}
+		qb_raise_regexp_syntax_error_exception(cxt, pcre_error, q);
 	}
 }
 
@@ -230,111 +266,58 @@ void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 			cxt->lexer_context->base = cxt->lexer_context->cursor = expanded;
 			cxt->lexer_context->token = cxt->lexer_context->marker = NULL;
 			cxt->lexer_context->condition = condition;
+			cxt->constant_position = p;
 		} else {
-			qb_report_undefined_constant_exception(cxt->line_id, NULL, name);
+			qb_raise_missing_constant_exception(cxt, p);
 		}
 		free_alloca(name, use_heap);
 	} else {
-		// force the lexer to return a T_UNEXPECTED
-		cxt->parser_selector = T_UNEXPECTED;
+		qb_raise_syntax_error_exception(cxt, cxt->constant_position);
 	}
 }
 
-int qb_doc_comment_yyerror(qb_parser_context *cxt, const char *msg) {
-	// TODO: report error properly
-	int32_t len = cxt->lexer_context->cursor - cxt->lexer_context->token;
-	const char *token = cxt->lexer_context->token;
-    php_printf("Error: %s near %.*s\n", msg, len, token);
+int qb_doc_comment_yyerror(YYLTYPE *locp, qb_parser_context *cxt, const char *msg) {
+	qb_token_position p;
+	if(cxt->lexer_context == &cxt->definition_lexer_context) {
+		p = cxt->constant_position;
+	} else {
+		p = *locp;
+	}
+	qb_raise_syntax_error_exception(cxt, p);
 	return 0;
 }
 
 int qb_scan_next_token(qb_lexer_context *l);
 
-int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt) {
+int qb_doc_comment_yylex(YYSTYPE *lvalp, YYLTYPE *locp, qb_parser_context *cxt) {
 	int ret;
 	if(cxt->parser_selector) {
 		ret = cxt->parser_selector;
 		cxt->parser_selector = 0;
+		locp->index = 0;
+		locp->length = 0;
 	} else {
 		ret = qb_scan_next_token(cxt->lexer_context);
-		lvalp->token.index = cxt->lexer_context->token - cxt->lexer_context->base;
-		lvalp->token.length = cxt->lexer_context->cursor - cxt->lexer_context->token;
+		locp->index = cxt->lexer_context->token - cxt->lexer_context->base;
+		locp->length = cxt->lexer_context->cursor - cxt->lexer_context->token;
 	}
-	if(!ret) {
-		if(cxt->lexer_context == &cxt->definition_lexer_context) {
+	if(ret == 0) {
+		if(cxt->lexer_context != &cxt->comment_lexer_context) {
 			efree((char *) cxt->lexer_context->base);
-			cxt->lexer_context = &cxt->default_lexer_context;
-			return qb_doc_comment_yylex(lvalp, cxt);
+			cxt->lexer_context = &cxt->comment_lexer_context;
+			return qb_doc_comment_yylex(lvalp, locp, cxt);
 		}
 	}
+	lvalp->token = *locp;
 	return ret;
 }
 
 void qb_doc_comment_yyinit(qb_parser_context *cxt, const char *doc_comment, int parser_selector) {
-	cxt->lexer_context = &cxt->default_lexer_context;
+	cxt->lexer_context = &cxt->comment_lexer_context;
 	cxt->lexer_context->base = cxt->lexer_context->cursor = doc_comment;
 	cxt->lexer_context->token = cxt->lexer_context->marker = NULL;
 	cxt->lexer_context->condition = yycINITIAL;
 	cxt->parser_selector = parser_selector;
-}
-
-static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset) {
-	// load the file
-	uint32_t line_number = 0;
-	TSRMLS_FETCH();
-	if(cxt->file_path) {
-		php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->file_path, "rb", 0, NULL, NULL);
-		if(stream) {
-			char *data = NULL;
-			size_t data_len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);
-			php_stream_close(stream);
-
-			// find where the comment is
-			if(data) {
-				uint32_t current_line_number = 1;
-				const char *p = data, *end = data + (data_len - comment_length);
-				while(p < end) {
-					if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
-						current_line_number++;
-						if(current_line_number >= cxt->line_number_max) {
-							break;
-						}
-					} else {
-						if(memcmp(p, comment, comment_length) == 0) {
-							line_number = current_line_number;
-						}
-					}
-					p++;
-				}
-				efree(data);
-			}
-		}
-	}
-
-	if(line_number) {
-		const char *p = comment, *end = comment + offset;
-		while(p < end) {
-			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
-				line_number++;
-			}
-			p++;
-		}
-	} else {
-		const char *p = comment + comment_length -1, *start = comment + offset;
-		line_number = cxt->line_number_max;
-		while(p >= start) {
-			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
-				line_number--;
-			}
-			p--;
-		}
-	}
-	cxt->line_id = LINE_ID(cxt->file_id, line_number);
-}
-
-static void qb_report_doc_comment_syntax_issue(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int offset) {
-	qb_find_doc_comment_line_number(cxt, comment, comment_length, offset);
-	qb_report_doc_comment_syntax_exception(cxt->line_id);
 }
 
 qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *op_array) {
@@ -400,6 +383,90 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 
 	cxt->class_declaration = NULL;
 	return class_decl;
+}
+
+static void qb_find_line_number(qb_parser_context *cxt, uint32_t offset, uint32_t *p_line_number, uint32_t *p_column_number) {
+	const char *comment = cxt->comment_lexer_context.base;
+	uint32_t comment_length = strlen(comment);
+	uint32_t line_number = 0;
+	uint32_t column_number = 0;
+	TSRMLS_FETCH();
+	if(cxt->file_path) {
+		// load the file
+		php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->file_path, "rb", 0, NULL, NULL);
+		if(stream) {
+			char *data = NULL;
+			size_t data_len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);
+			php_stream_close(stream);
+
+			// find where the comment is
+			if(data) {
+				uint32_t current_line_number = 1;
+				const char *p = data, *end = data + (data_len - comment_length);
+				while(p < end) {
+					if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+						current_line_number++;
+						if(current_line_number >= cxt->line_number_max) {
+							break;
+						}
+					} else {
+						if(memcmp(p, comment, comment_length) == 0) {
+							// find the column number (doing it here in case the comment 
+							// is indented and the token is at the first line)
+							const char *q = p + (offset - 1);
+							long tab_width = QB_G(tab_width);
+							int char_count = 0;
+							while(q >= data) {
+								if(*q == '\n' || *q == '\r') {
+									q++;
+									break;
+								}
+								char_count++;
+								q--;
+							}
+							column_number = 0;
+							while(char_count) {
+								if(*q == '\t') {
+									column_number -= column_number % tab_width;
+									column_number += tab_width;
+								} else {
+									column_number++;
+								}
+								char_count--;
+								q++;
+							}
+							column_number++;
+							line_number = current_line_number;
+							break;
+						}
+					}
+					p++;
+				}
+				efree(data);
+			}
+		}
+	}
+
+	if(line_number) {
+		const char *p = comment, *end = comment + offset;
+		while(p < end) {
+			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+				line_number++;
+			}
+			p++;
+		}
+	} else {
+		const char *p = comment + comment_length -1, *start = comment + offset;
+		line_number = cxt->line_number_max;
+		while(p >= start) {
+			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+				line_number--;
+			}
+			p--;
+		}
+	}
+	*p_line_number = line_number;
+	*p_column_number = column_number;
 }
 
 void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, zend_class_entry *ce, const char *filename, uint32_t line_number TSRMLS_DC) {

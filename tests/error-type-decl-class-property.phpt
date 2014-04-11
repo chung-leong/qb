@@ -5,12 +5,12 @@ Error reporting test (unexpected keyword in type declaration for class property)
 
 class TestClass { 
 
-	/** @engine qb */
+   	/** @engine qb */
 	
 	
 	public $var;
 
-	/** @engine	qb */
+	/** @engine qb */
 	function test_function() {
 		echo "Hello\n";
 	}
