@@ -60,7 +60,8 @@ typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
 typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
 typedef struct qb_arithmetic_op_factory			qb_arithmetic_op_factory;
-typedef struct qb_string_op_factory				qb_string_op_factory;
+typedef struct qb_append_op_factory				qb_append_op_factory;
+typedef struct qb_print_op_factory				qb_print_op_factory;
 typedef struct qb_fcall_op_factory				qb_fcall_op_factory;
 typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
 typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
@@ -100,6 +101,8 @@ typedef int32_t (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_fac
 
 typedef int32_t (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
+typedef enum qb_string_type						qb_string_type;
+
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_produce_composite_proc produce_composite;	\
 	qb_resolve_expression_type_proc resolve_type;	\
@@ -115,6 +118,12 @@ typedef int32_t (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_fa
 	uint32_t coercion_flags;	\
 	uint32_t result_flags;	\
 	uint32_t address_flags;	\
+
+enum qb_string_type {
+	QB_STRING_UTF8,
+	QB_STRING_UTF16,
+	QB_STRING_UTF32,
+};
 
 struct qb_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
@@ -183,11 +192,18 @@ struct qb_arithmetic_op_factory {
 	qb_opcode vector_opcodes[3][2];
 };
 
-struct qb_string_op_factory {
+struct qb_append_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode opcodes[3][10];
+	qb_opcode multidim_opcodes[3][10];
+	qb_opcode text_opcodes[3];
+}; 
+
+struct qb_print_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes[10];
 	qb_opcode multidim_opcodes[10];
-	qb_opcode text_opcodes[10];
+	qb_opcode text_opcodes[3];
 }; 
 
 struct qb_fcall_op_factory {
@@ -449,11 +465,11 @@ extern qb_simple_op_factory factory_fork_count;
 extern qb_simple_op_factory factory_spoon;
 
 extern qb_simple_op_factory factory_empty_string;
-extern qb_string_op_factory factory_add_variable;
+extern qb_append_op_factory factory_add_variable;
 extern qb_simple_op_factory factory_add_string;
 extern qb_derived_op_factory factory_concat;
 extern qb_derived_op_factory factory_concat_assign;
-extern qb_string_op_factory factory_print;
+extern qb_print_op_factory factory_print;
 extern qb_simple_op_factory factory_flush;
 extern qb_derived_op_factory factory_echo;
 

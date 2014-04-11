@@ -18,12 +18,21 @@
 
 /* $Id$ */
 
-static int32_t qb_select_type_dependent_opcode(qb_compiler_context *cxt, qb_opcode opcodes[], qb_primitive_type expr_type, qb_opcode *p_opcode) {
+static qb_opcode qb_select_type_dependent_opcode(qb_compiler_context *cxt, qb_opcode opcodes[], qb_primitive_type expr_type, qb_opcode *p_opcode) {
 	if(expr_type < QB_TYPE_COUNT) {
 		*p_opcode = opcodes[QB_TYPE_F64 - expr_type];
 		return TRUE;
 	} else {
 		qb_report_internal_error(cxt->line_id, "Invalid type");
+		return FALSE;
+	}
+}
+
+static qb_string_type qb_select_get_string_type(qb_compiler_context *cxt, qb_primitive_type type) {
+	if(type <= QB_TYPE_U32) {
+		return type >> 1;
+	} else {
+		qb_report_internal_error(cxt->line_id, "Invalid string type");
 		return FALSE;
 	}
 }
@@ -363,29 +372,34 @@ static int32_t qb_select_opcode_copy_dimension(qb_compiler_context *cxt, qb_op_f
 }
 
 static int32_t qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
-	qb_string_op_factory *sf = (qb_string_op_factory *) f;
-	qb_address *address = operands[1].address;
+	qb_append_op_factory *sf = (qb_append_op_factory *) f;
+	qb_address *src_address = operands[1].address;
+	qb_address *dst_address = result->address;
+	qb_string_type stype = qb_select_get_string_type(cxt, dst_address->type);
 
-	if(address->dimension_count > 1) {
-		return qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes, address->type, p_opcode);
+	if(src_address->dimension_count > 1) {
+		return qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes[QB_STRING_UTF32 - stype], src_address->type, p_opcode);
 	} else {
-		if(address->flags & QB_ADDRESS_STRING) {
-			return qb_select_type_dependent_opcode(cxt, sf->text_opcodes, address->type, p_opcode);
+		if(src_address->flags & QB_ADDRESS_STRING) {
+			*p_opcode = sf->text_opcodes[QB_STRING_UTF32 - stype];
+			return TRUE;
 		} else {
-			return qb_select_type_dependent_opcode(cxt, sf->opcodes, address->type, p_opcode);
+			return qb_select_type_dependent_opcode(cxt, sf->opcodes[QB_STRING_UTF32 - stype], src_address->type, p_opcode);
 		}
 	}
 }
 
 static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
-	qb_string_op_factory *sf = (qb_string_op_factory *) f;
+	qb_print_op_factory *sf = (qb_print_op_factory *) f;
 	qb_address *address = operands[0].address;
 
 	if(address->dimension_count > 1) {
 		return qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes, address->type, p_opcode);
 	} else {
 		if(address->flags & QB_ADDRESS_STRING) {
-			return qb_select_type_dependent_opcode(cxt, sf->text_opcodes, address->type, p_opcode);
+			qb_string_type stype = qb_select_get_string_type(cxt, address->type);
+			*p_opcode = sf->text_opcodes[QB_STRING_UTF32 - stype];
+			return TRUE;
 		} else {
 			return qb_select_type_dependent_opcode(cxt, sf->opcodes, address->type, p_opcode);
 		}

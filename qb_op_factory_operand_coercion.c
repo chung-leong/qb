@@ -154,7 +154,7 @@ static int32_t qb_coerce_operands_add_variable(qb_compiler_context *cxt, qb_op_f
 
 static int32_t qb_coerce_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *addend = &operands[1];
-	return qb_perform_type_coercion(cxt, addend, QB_TYPE_U08, f->coercion_flags);
+	return qb_perform_type_coercion(cxt, addend, expr_type, f->coercion_flags);
 }
 
 static int32_t qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
