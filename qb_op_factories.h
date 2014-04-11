@@ -187,7 +187,7 @@ struct qb_string_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes[10];
 	qb_opcode multidim_opcodes[10];
-	qb_opcode text_opcode;
+	qb_opcode text_opcodes[10];
 }; 
 
 struct qb_fcall_op_factory {

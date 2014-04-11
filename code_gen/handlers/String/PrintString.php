@@ -24,10 +24,11 @@ class PrintString extends Handler {
 			$lines[] = "char buffer[256];";
 			$lines[] = "uint32_t length = 0, i;";
 			$lines[] = "for(i = 0; i < op1_count; i++) {";
-			$lines[] =		"if(i == op1_count - 1 || length >= 250) {";
-			$lines[] =			"php_write(buffer, op1_count TSRMLS_CC);";
-			$lines[] =		"}";
 			$lines[] = 		"length += encode(op1_ptr[i], buffer + length);";
+			$lines[] =		"if(i == op1_count - 1 || length >= 250) {";
+			$lines[] =			"php_write(buffer, length TSRMLS_CC);";
+			$lines[] =			"length = 0;";
+			$lines[] =		"}";
 			$lines[] = "}";
 		}
 		return $lines;

@@ -21550,10 +21550,11 @@ void qb_do_print_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op
 	char buffer[256];
 	uint32_t length = 0, i;
 	for(i = 0; i < op1_count; i++) {
-		if(i == op1_count - 1 || length >= 250) {
-			php_write(buffer, op1_count TSRMLS_CC);
-		}
 		length += encode(op1_ptr[i], buffer + length);
+		if(i == op1_count - 1 || length >= 250) {
+			php_write(buffer, length TSRMLS_CC);
+			length = 0;
+		}
 	}
 }
 
@@ -21562,10 +21563,11 @@ void qb_do_print_string_U32(qb_interpreter_context *__restrict cxt, uint32_t *op
 	char buffer[256];
 	uint32_t length = 0, i;
 	for(i = 0; i < op1_count; i++) {
-		if(i == op1_count - 1 || length >= 250) {
-			php_write(buffer, op1_count TSRMLS_CC);
-		}
 		length += encode(op1_ptr[i], buffer + length);
+		if(i == op1_count - 1 || length >= 250) {
+			php_write(buffer, length TSRMLS_CC);
+			length = 0;
+		}
 	}
 }
 

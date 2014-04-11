@@ -370,8 +370,7 @@ static int32_t qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_fac
 		return qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes, address->type, p_opcode);
 	} else {
 		if(address->flags & QB_ADDRESS_STRING) {
-			*p_opcode = sf->text_opcode;
-			return TRUE;
+			return qb_select_type_dependent_opcode(cxt, sf->text_opcodes, address->type, p_opcode);
 		} else {
 			return qb_select_type_dependent_opcode(cxt, sf->opcodes, address->type, p_opcode);
 		}
@@ -386,8 +385,7 @@ static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f
 		return qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes, address->type, p_opcode);
 	} else {
 		if(address->flags & QB_ADDRESS_STRING) {
-			*p_opcode = sf->text_opcode;
-			return TRUE;
+			return qb_select_type_dependent_opcode(cxt, sf->text_opcodes, address->type, p_opcode);
 		} else {
 			return qb_select_type_dependent_opcode(cxt, sf->opcodes, address->type, p_opcode);
 		}
