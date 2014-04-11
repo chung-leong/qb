@@ -62,26 +62,29 @@ static void qb_raise_missing_constant_exception(qb_parser_context *cxt, qb_token
 	qb_report_doc_comment_missing_constant_exception(LINE_ID(cxt->file_id, line_number), column_number, comment + p.index, p.length);
 }
 
-void qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p) {
+int32_t qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p) {
 	qb_function_declaration *f_decl = cxt->function_declaration;
 	cxt->function_declaration->flags |= flags;
+	return TRUE;
 }
 
-void qb_add_import(qb_parser_context *cxt, qb_token_position p) {
+int32_t qb_add_import(qb_parser_context *cxt, qb_token_position p) {
 	qb_function_declaration *f_decl = cxt->function_declaration;
 	f_decl->import_path = qb_allocate_string(cxt->pool, cxt->lexer_context->base + p.index, p.length);
 	f_decl->import_path_length = p.length;
+	return TRUE;
 }
 
-void qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
+int32_t qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
 	qb_function_declaration *f_decl = cxt->function_declaration;
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
 	qb_type_declaration **p_decl = qb_enlarge_array((void **) &f_decl->declarations, 1);
 	*p_decl = cxt->type_declaration = decl;
 	decl->flags |= type;
+	return TRUE;
 }
 
-void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
+int32_t qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p) {
 	qb_class_declaration *c_decl = cxt->class_declaration;
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
 	qb_type_declaration **p_decl = qb_enlarge_array((void **) &c_decl->declarations, 1);
@@ -98,19 +101,31 @@ void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token
 	} else {
 		decl->flags |= type;
 	}
+	return TRUE;
 }
 
-void qb_end_variable_declaration(qb_parser_context *cxt) {
+int32_t qb_end_variable_declaration(qb_parser_context *cxt) {
 	cxt->type_declaration = NULL;
+	return TRUE;
 }
 
-void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p) {
+int32_t qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	decl->type = type;
 	decl->flags |= flags;
+	return TRUE;
 }
 
-void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p) {
+int32_t qb_set_string_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p) {
+	if(type <= QB_TYPE_U32) {
+		return qb_set_variable_type(cxt, type, flags, p);
+	} else {
+		// TODO: exception
+		return FALSE;
+	}
+}
+
+int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	if(decl->dimension_count < MAX_DIMENSION) {
 		uint32_t index = decl->dimension_count++;
@@ -120,29 +135,34 @@ void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb
 			decl->index_alias_schemes = qb_reallocate_pointers(cxt->pool, decl->index_alias_schemes, index, decl->dimension_count);
 		}
 		decl->flags |= flags;
+		return TRUE;
 	} else {
 		qb_raise_syntax_error_exception(cxt, p);
+		return FALSE;
 	}
 }
 
-void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
+int32_t qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	uint32_t index = decl->dimension_count;
 	decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
-	qb_add_dimension(cxt, scheme->dimension, 0, p);
-	if(index < MAX_DIMENSION) {
+	if(qb_add_dimension(cxt, scheme->dimension, 0, p)) {
 		decl->index_alias_schemes[index] = scheme;
+		return TRUE;
+	} else {
+		return FALSE;
 	}
 }
 
-void qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p) {
+int32_t qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	decl->name = qb_allocate_string(cxt->pool, cxt->lexer_context->base + p.index, p.length);
 	decl->name_length = p.length;
 	decl->hash_value = zend_hash_func(decl->name, decl->name_length + 1);
+	return TRUE;
 }
 
-void qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p) {
+int32_t qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	char *constricted_pattern;
 	const char *pcre_error = NULL;
@@ -158,7 +178,9 @@ void qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p)
 
 	decl->regexp = pcre_compile(constricted_pattern, 0, &pcre_error, &pcre_error_offset, NULL);
 	free_alloca(constricted_pattern, use_heap);
-	if(!decl->regexp) {
+	if(decl->regexp) {
+		return TRUE;
+	} else {
 		qb_token_position q;
 		if(pcre_error_offset <= 0) {
 			q = p;
@@ -171,6 +193,7 @@ void qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p)
 			q.length = 1;
 		}
 		qb_raise_regexp_syntax_error_exception(cxt, pcre_error, q);
+		return FALSE;
 	}
 }
 
@@ -194,24 +217,26 @@ uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t 
 	}
 }
 
-void qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
+int32_t qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	scheme->class_name = qb_allocate_string(cxt->pool, cxt->lexer_context->base + p.index, p.length);
 	scheme->class_name_length = p.length;
+	return TRUE;
 }
 	
 qb_index_alias_scheme *qb_create_index_alias_scheme(qb_parser_context *cxt) {
 	return qb_allocate_index_alias_scheme(cxt->pool);
 }
 
-void qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
+int32_t qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	uint32_t index = scheme->dimension++;
 	scheme->aliases = qb_reallocate_pointers(cxt->pool, scheme->aliases, index, scheme->dimension);
 	scheme->alias_lengths = qb_reallocate_indices(cxt->pool, scheme->alias_lengths, index, scheme->dimension);
 	scheme->aliases[index] = qb_allocate_string(cxt->pool, cxt->lexer_context->base + p.index, p.length);
 	scheme->alias_lengths[index] = p.length;
+	return TRUE;
 }
 
-void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
+int32_t qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 	if(cxt->lexer_context != &cxt->definition_lexer_context) {
 		ALLOCA_FLAG(use_heap)
 		char *name = do_alloca(p.length + 1, use_heap);
@@ -221,7 +246,6 @@ void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 
 		memcpy(name, cxt->lexer_context->base + p.index, name_len);
 		name[name_len] = '\0';
-
 		if(cxt->zend_class && (zend_hash_find(&cxt->zend_class->constants_table, name, name_len + 1, (void **) &p_value) == SUCCESS)) {
 			constant = *p_value;
 		} else {
@@ -230,6 +254,7 @@ void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 				constant = &zconst->value;
 			}
 		}
+		free_alloca(name, use_heap);
 
 		if(constant) {
 			char *expanded;
@@ -267,12 +292,14 @@ void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 			cxt->lexer_context->token = cxt->lexer_context->marker = NULL;
 			cxt->lexer_context->condition = condition;
 			cxt->constant_position = p;
+			return TRUE;
 		} else {
 			qb_raise_missing_constant_exception(cxt, p);
+			return FALSE;
 		}
-		free_alloca(name, use_heap);
 	} else {
 		qb_raise_syntax_error_exception(cxt, cxt->constant_position);
+		return FALSE;
 	}
 }
 
@@ -413,29 +440,30 @@ static void qb_find_line_number(qb_parser_context *cxt, uint32_t offset, uint32_
 						if(memcmp(p, comment, comment_length) == 0) {
 							// find the column number (doing it here in case the comment 
 							// is indented and the token is at the first line)
-							const char *q = p + (offset - 1);
-							long tab_width = QB_G(tab_width);
-							int char_count = 0;
-							while(q >= data) {
-								if(*q == '\n' || *q == '\r') {
+							if(QB_G(tab_width) != 0) {
+								const char *q = p + (offset - 1);
+								long tab_width = QB_G(tab_width);
+								int char_count = 0;
+								while(q >= data) {
+									if(*q == '\n' || *q == '\r') {
+										q++;
+										break;
+									}
+									char_count++;
+									q--;
+								}
+								while(char_count) {
+									if(*q == '\t') {
+										column_number -= column_number % tab_width;
+										column_number += tab_width;
+									} else {
+										column_number++;
+									}
+									char_count--;
 									q++;
-									break;
 								}
-								char_count++;
-								q--;
+								column_number++;
 							}
-							column_number = 0;
-							while(char_count) {
-								if(*q == '\t') {
-									column_number -= column_number % tab_width;
-									column_number += tab_width;
-								} else {
-									column_number++;
-								}
-								char_count--;
-								q++;
-							}
-							column_number++;
 							line_number = current_line_number;
 							break;
 						}

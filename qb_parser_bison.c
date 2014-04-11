@@ -1665,7 +1665,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 194 "qb_parser_bison.y"
-    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(2) - (2)])); qb_end_statement(cxt); ;}
+    { if(!qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(2) - (2)]))) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 21:
@@ -1693,7 +1693,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 204 "qb_parser_bison.y"
-    { qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(1) - (2)])); qb_end_statement(cxt); ;}
+    { if(!qb_set_engine_flags(cxt, (yyvsp[(2) - (2)].flags), (yylsp[(1) - (2)]))) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 25:
@@ -1714,287 +1714,287 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 213 "qb_parser_bison.y"
-    { qb_add_import(cxt, (yyvsp[(2) - (2)].token)); qb_end_statement(cxt); ;}
+    { if(!qb_add_import(cxt, (yyvsp[(2) - (2)].token))) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
 #line 217 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
+    { if(!qb_end_variable_declaration(cxt)) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
 #line 218 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
+    { if(!qb_end_variable_declaration(cxt)) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
 #line 219 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
+    { if(!qb_end_variable_declaration(cxt)) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
 #line 223 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_GLOBAL, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
 #line 224 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_LOCAL, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
 #line 225 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_SHARED, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
 #line 226 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_LEXICAL, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
 #line 227 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_ARGUMENT, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
 #line 228 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_STATIC, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
 #line 232 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_RETURN_VALUE, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
 #line 236 "qb_parser_bison.y"
-    { qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_variable_declaration(cxt, QB_VARIABLE_SENT_VALUE, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
 #line 240 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
+    { if(!qb_end_variable_declaration(cxt)) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
 #line 244 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_property_declaration(cxt, QB_VARIABLE_CLASS, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
 #line 245 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_property_declaration(cxt, QB_VARIABLE_CLASS_INSTANCE, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
 #line 249 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
+    { if(!qb_end_variable_declaration(cxt)) YYABORT; qb_end_statement(cxt); ;}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
 #line 253 "qb_parser_bison.y"
-    { qb_add_property_declaration(cxt, 0, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_property_declaration(cxt, 0, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
 #line 257 "qb_parser_bison.y"
-    { qb_attach_variable_name(cxt, (yyvsp[(2) - (2)].token)); ;}
+    { if(!qb_attach_variable_name(cxt, (yyvsp[(2) - (2)].token))) YYABORT; ;}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
 #line 258 "qb_parser_bison.y"
-    { qb_attach_variable_name_regexp(cxt, (yyvsp[(2) - (2)].token)); ;}
+    { if(!qb_attach_variable_name_regexp(cxt, (yyvsp[(2) - (2)].token))) YYABORT; ;}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
 #line 263 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (1)])); ;}
+    { if(!qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
 #line 266 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)])); qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)])); qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)])); ;}
+    { if(!qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)]))) YYABORT; qb_add_dimension(cxt, 0, 0, (yylsp[(1) - (2)])); qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)])); ;}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
 #line 267 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)])); ;}
+    { if(!qb_add_dimension(cxt, (yyvsp[(1) - (2)].count), 0, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
 #line 268 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 2, 0, (yylsp[(1) - (2)])); ;}
+    { if(!qb_add_dimension(cxt, 2, 0, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
 #line 273 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_VOID, 0, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, QB_TYPE_VOID, 0, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
 #line 276 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
 #line 277 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
 #line 281 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)])); ;}
+    { if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
 #line 282 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
 #line 286 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)])); ;}
+    { if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
 #line 287 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
 #line 291 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
 #line 295 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]));;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]))) YYABORT;;}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
 #line 296 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)])); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
 #line 297 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]));;}
+    { (yyval.count) = 4; if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE, (yylsp[(1) - (2)]))) YYABORT;;}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
 #line 298 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)])); ;}
+    { (yyval.count) = 4; if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
 #line 302 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)])); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
 #line 303 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)])); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
 #line 304 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)]));;}
+    { (yyval.count) = 3; if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
 #line 305 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)])); ;}
+    { (yyval.count) = 3; if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 70:
 
 /* Line 1455 of yacc.c  */
 #line 309 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (2)])); ;}
+    { if(!qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (2)]))) YYABORT; ;}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
 #line 310 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (1)])); ;}
+    { if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX, (yylsp[(1) - (1)]))) YYABORT; ;}
     break;
 
   case 72:
@@ -2113,42 +2113,42 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 345 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, (yyvsp[(2) - (3)].count), 0, (yylsp[(2) - (3)])); ;}
+    { if(!qb_add_dimension(cxt, (yyvsp[(2) - (3)].count), 0, (yylsp[(2) - (3)]))) YYABORT; ;}
     break;
 
   case 91:
 
 /* Line 1455 of yacc.c  */
 #line 346 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (2)])); ;}
+    { if(!qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (2)]))) YYABORT; ;}
     break;
 
   case 92:
 
 /* Line 1455 of yacc.c  */
 #line 347 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (3)])); ;}
+    { if(!qb_add_dimension(cxt, 0, 0, (yylsp[(2) - (3)]))) YYABORT; ;}
     break;
 
   case 93:
 
 /* Line 1455 of yacc.c  */
 #line 348 "qb_parser_bison.y"
-    { qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS, (yylsp[(2) - (3)])); ;}
+    { if(!qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS, (yylsp[(2) - (3)]))) YYABORT; ;}
     break;
 
   case 94:
 
 /* Line 1455 of yacc.c  */
 #line 349 "qb_parser_bison.y"
-    { qb_parse_constant(cxt, (yyvsp[(2) - (3)].token)); qb_clean_read_ahead_token(cxt); ;}
+    { if(!qb_parse_constant(cxt, (yyvsp[(2) - (3)].token))) YYABORT; qb_clean_read_ahead_token(cxt); ;}
     break;
 
   case 95:
 
 /* Line 1455 of yacc.c  */
 #line 350 "qb_parser_bison.y"
-    { qb_add_index_alias_scheme(cxt, (yyvsp[(2) - (3)].alias_scheme), (yylsp[(2) - (3)])); ;}
+    { if(!qb_add_index_alias_scheme(cxt, (yyvsp[(2) - (3)].alias_scheme), (yylsp[(2) - (3)]))) YYABORT; ;}
     break;
 
   case 96:
@@ -2176,21 +2176,21 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 360 "qb_parser_bison.y"
-    { (yyval.alias_scheme) = (yyvsp[(3) - (3)].alias_scheme); qb_attach_index_alias_scheme_class(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token)); ;}
+    { (yyval.alias_scheme) = (yyvsp[(3) - (3)].alias_scheme); if(!qb_attach_index_alias_scheme_class(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token))) YYABORT; ;}
     break;
 
   case 100:
 
 /* Line 1455 of yacc.c  */
 #line 363 "qb_parser_bison.y"
-    { (yyval.alias_scheme) = qb_create_index_alias_scheme(cxt); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token)); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token)); ;}
+    { (yyval.alias_scheme) = qb_create_index_alias_scheme(cxt); if(!qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(1) - (3)].token))) YYABORT; if(!qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token))) YYABORT; ;}
     break;
 
   case 101:
 
 /* Line 1455 of yacc.c  */
 #line 364 "qb_parser_bison.y"
-    { (yyval.alias_scheme) = (yyvsp[(1) - (3)].alias_scheme); qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token)); ;}
+    { (yyval.alias_scheme) = (yyvsp[(1) - (3)].alias_scheme); if(!qb_add_index_alias(cxt, (yyval.alias_scheme), (yyvsp[(3) - (3)].token))) YYABORT; ;}
     break;
 
 

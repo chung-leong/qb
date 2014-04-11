@@ -123,21 +123,22 @@ void qb_free_parser_context(qb_parser_context *cxt);
 
 int32_t qb_find_engine_tag(const char *doc_comment);
 
-void qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p);
-void qb_add_import(qb_parser_context *cxt, qb_token_position p);
-void qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p);
-void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p);
-void qb_end_variable_declaration(qb_parser_context *cxt);
-void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p);
-void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p);
-void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
-void qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p);
-void qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p);
-void qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
+int32_t qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p);
+int32_t qb_add_import(qb_parser_context *cxt, qb_token_position p);
+int32_t qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p);
+int32_t qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_token_position p);
+int32_t qb_end_variable_declaration(qb_parser_context *cxt);
+int32_t qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p);
+int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p);
+int32_t qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
+int32_t qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p);
+int32_t qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p);
+int32_t qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
 qb_index_alias_scheme *qb_create_index_alias_scheme(qb_parser_context *cxt);
-void qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
+int32_t qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
+int32_t qb_parse_constant(qb_parser_context *cxt, qb_token_position p);
+
 uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t radix);
-void qb_parse_constant(qb_parser_context *cxt, qb_token_position p);
 
 void qb_doc_comment_yyinit(qb_parser_context *cxt, const char *doc_comment, int parser_selector);
 int qb_doc_comment_yyparse(qb_parser_context *cxt);
