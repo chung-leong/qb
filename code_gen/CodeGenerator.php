@@ -1372,11 +1372,12 @@ class CodeGenerator {
 		$unsigned = preg_match('/^U/', $elementType);
 		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
 		$float = preg_match('/^F/', $elementType);
-		if($elementType == "U08") {
+		if($elementType == "U08" || $elementType == "U16" || $elementType == "U32") {
 			$this->handlers[] = new PrintString("PRN_STR", $elementType);
 			$this->handlers[] = new AppendString("APP_STR", $elementType);
-			$this->handlers[] = new Flush("FLUSH");
-			
+			if($elementType == "U08") {
+				$this->handlers[] = new Flush("FLUSH");
+			}
 		}
 		if($elementType == "U16" || $elementType == "U32") {
 			if($elementType == "U16") {
@@ -1390,11 +1391,14 @@ class CodeGenerator {
 			$this->handlers[] = new PrintVariable("PRN", $elementType, $addressMode);
 		}
 		$this->handlers[] = new PrintMultidimensionalVariable("PRN_DIM", $elementType);
-		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new AppendVariable("APP_VAR", $elementType, $addressMode);
+		foreach($this->elementTypes as $destElementType) {
+			if($destElementType == "U08" || $destElementType == "U16" || $destElementType == "U32") {
+				foreach($this->addressModes as $addressMode) {
+					$this->handlers[] = new AppendVariable("APP_VAR", "{$elementType}_{$destElementType}", $addressMode);
+				}
+				$this->handlers[] = new AppendMultidimensionalVariable("APP_VAR_DIM", "{$elementType}_{$destElementType}");
+			}
 		}
-		$this->handlers[] = new AppendMultidimensionalVariable("APP_VAR_DIM", $elementType);
-		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			foreach($this->scalarAddressModes as $addressMode) {		
 				$this->handlers[] = new PackLittleEndian("PACK_LE", $elementTypeNoSign, $addressMode);

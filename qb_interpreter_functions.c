@@ -3190,7 +3190,7 @@ void qb_do_alpha_blend_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_co
 	}
 }
 
-void qb_do_append_multidimensional_variable_F32(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_F32_U08(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	float32_t *op1_start = op1_ptr;
 	float32_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3212,7 +3212,7 @@ void qb_do_append_multidimensional_variable_F32(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3225,8 +3225,11 @@ void qb_do_append_multidimensional_variable_F32(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3245,7 +3248,123 @@ void qb_do_append_multidimensional_variable_F32(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_F64(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_F32_U16(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	float32_t *op1_start = op1_ptr;
+	float32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_F32_U32(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	float32_t *op1_start = op1_ptr;
+	float32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_F64_U08(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	float64_t *op1_start = op1_ptr;
 	float64_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3267,7 +3386,7 @@ void qb_do_append_multidimensional_variable_F64(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3280,8 +3399,11 @@ void qb_do_append_multidimensional_variable_F64(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3300,7 +3422,123 @@ void qb_do_append_multidimensional_variable_F64(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_S08(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_F64_U16(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	float64_t *op1_start = op1_ptr;
+	float64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_F64_U32(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	float64_t *op1_start = op1_ptr;
+	float64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S08_U08(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	int8_t *op1_start = op1_ptr;
 	int8_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3322,7 +3560,7 @@ void qb_do_append_multidimensional_variable_S08(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3335,8 +3573,11 @@ void qb_do_append_multidimensional_variable_S08(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3355,7 +3596,123 @@ void qb_do_append_multidimensional_variable_S08(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_S16(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_S08_U16(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	int8_t *op1_start = op1_ptr;
+	int8_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S08_U32(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	int8_t *op1_start = op1_ptr;
+	int8_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S16_U08(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	int16_t *op1_start = op1_ptr;
 	int16_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3377,7 +3734,7 @@ void qb_do_append_multidimensional_variable_S16(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3390,8 +3747,11 @@ void qb_do_append_multidimensional_variable_S16(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3410,7 +3770,123 @@ void qb_do_append_multidimensional_variable_S16(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_S32(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_S16_U16(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	int16_t *op1_start = op1_ptr;
+	int16_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S16_U32(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	int16_t *op1_start = op1_ptr;
+	int16_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S32_U08(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	int32_t *op1_start = op1_ptr;
 	int32_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3432,7 +3908,7 @@ void qb_do_append_multidimensional_variable_S32(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3445,8 +3921,11 @@ void qb_do_append_multidimensional_variable_S32(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3465,7 +3944,123 @@ void qb_do_append_multidimensional_variable_S32(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_S64(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_S32_U16(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	int32_t *op1_start = op1_ptr;
+	int32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S32_U32(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	int32_t *op1_start = op1_ptr;
+	int32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S64_U08(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	int64_t *op1_start = op1_ptr;
 	int64_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3487,7 +4082,7 @@ void qb_do_append_multidimensional_variable_S64(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3500,8 +4095,11 @@ void qb_do_append_multidimensional_variable_S64(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3520,7 +4118,123 @@ void qb_do_append_multidimensional_variable_S64(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_S64_U16(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	int64_t *op1_start = op1_ptr;
+	int64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_S64_U32(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	int64_t *op1_start = op1_ptr;
+	int64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U08_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint8_t *op1_start = op1_ptr;
 	uint8_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3542,7 +4256,7 @@ void qb_do_append_multidimensional_variable_U08(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3555,8 +4269,11 @@ void qb_do_append_multidimensional_variable_U08(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3575,7 +4292,123 @@ void qb_do_append_multidimensional_variable_U08(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_U08_U16(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint8_t *op1_start = op1_ptr;
+	uint8_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U08_U32(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint8_t *op1_start = op1_ptr;
+	uint8_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U16_U08(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint16_t *op1_start = op1_ptr;
 	uint16_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3597,7 +4430,7 @@ void qb_do_append_multidimensional_variable_U16(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3610,8 +4443,11 @@ void qb_do_append_multidimensional_variable_U16(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3630,7 +4466,123 @@ void qb_do_append_multidimensional_variable_U16(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_U16_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint16_t *op1_start = op1_ptr;
+	uint16_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U16_U32(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint16_t *op1_start = op1_ptr;
+	uint16_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U32_U08(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t *op1_start = op1_ptr;
 	uint32_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3652,7 +4604,7 @@ void qb_do_append_multidimensional_variable_U32(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3665,8 +4617,11 @@ void qb_do_append_multidimensional_variable_U32(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3685,7 +4640,123 @@ void qb_do_append_multidimensional_variable_U32(qb_interpreter_context *__restri
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_multidimensional_variable_U64(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_multidimensional_variable_U32_U16(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t *op1_start = op1_ptr;
+	uint32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U32_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t *op1_start = op1_ptr;
+	uint32_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U64_U08(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint64_t *op1_start = op1_ptr;
 	uint64_t *op1_end = op1_ptr + op1_count;
 	uint32_t *op2_start = op2_ptr;
@@ -3707,7 +4778,7 @@ void qb_do_append_multidimensional_variable_U64(qb_interpreter_context *__restri
 	if(total == 0) {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	memset(counts, 0, sizeof(uint32_t) * op2_count);
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
@@ -3720,8 +4791,127 @@ void qb_do_append_multidimensional_variable_U64(qb_interpreter_context *__restri
 			}
 			if(depth + 1 == op2_count) {
 				char sprintf_buffer[64];
-				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
-				memcpy(res_ptr + pos, sprintf_buffer, len);
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+				uint8_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U64_U16(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint64_t *op1_start = op1_ptr;
+	uint64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+				uint16_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
+				pos += len;
+				op1_ptr++;
+				counts[depth]++;
+			} else {
+				res_ptr[pos++] = '[';
+				depth++;
+			}
+		} else {
+			res_ptr[pos++] = ']';
+			counts[depth] = 0;
+			depth--;
+			counts[depth]++;
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_multidimensional_variable_U64_U32(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t op3, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint64_t *op1_start = op1_ptr;
+	uint64_t *op1_end = op1_ptr + op1_count;
+	uint32_t *op2_start = op2_ptr;
+	uint32_t *op2_end = op2_ptr + op2_count;
+	uint32_t depth = 0, pos = (*res_count_ptr);
+	uint32_t counts[64];
+	uint32_t total = 0, multiplier = 1;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
+		total += len;
+		op1_ptr++;
+	}
+	while(op2_ptr < op2_end) {
+		total += multiplier * *op2_ptr * 2;
+		multiplier *= *op2_ptr;
+		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	op2_ptr = op2_start;
+	while(op1_ptr < op1_end || depth > 0) {
+		if(counts[depth] < op2_ptr[depth]) {
+			if(counts[depth] > 0) {
+				res_ptr[pos++] = ',';
+				res_ptr[pos++] = ' ';
+			}
+			if(depth + 1 == op2_count) {
+				char sprintf_buffer[64];
+				uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+				uint32_t *res_end = res_ptr + pos;
+				for(i = 0; i < len; i++) {
+					res_end[i] = sprintf_buffer[i];
+				}
 				pos += len;
 				op1_ptr++;
 				counts[depth]++;
@@ -3741,92 +4931,384 @@ void qb_do_append_multidimensional_variable_U64(qb_interpreter_context *__restri
 }
 
 void qb_do_append_string_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + op1_count);
-	memcpy(res_ptr + (*res_count_ptr), op1_ptr, op1_count);
+	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + op1_count) );
+	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint8_t) * op1_count);
 	(*res_count_ptr) += op1_count;
 }
 
-void qb_do_append_variable_F32(qb_interpreter_context *__restrict cxt, float32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + op1_count) );
+	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint16_t) * op1_count);
+	(*res_count_ptr) += op1_count;
+}
+
+void qb_do_append_string_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + op1_count) );
+	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint32_t) * op1_count);
+	(*res_count_ptr) += op1_count;
+}
+
+void qb_do_append_variable_F32_U08(qb_interpreter_context *__restrict cxt, float32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_F64(qb_interpreter_context *__restrict cxt, float64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_F32_U16(qb_interpreter_context *__restrict cxt, float32_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_S08(qb_interpreter_context *__restrict cxt, int8_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_F32_U32(qb_interpreter_context *__restrict cxt, float32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_S16(qb_interpreter_context *__restrict cxt, int16_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_F64_U08(qb_interpreter_context *__restrict cxt, float64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_S32(qb_interpreter_context *__restrict cxt, int32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_F64_U16(qb_interpreter_context *__restrict cxt, float64_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_S64(qb_interpreter_context *__restrict cxt, int64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_F64_U32(qb_interpreter_context *__restrict cxt, float64_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_U08(qb_interpreter_context *__restrict cxt, uint8_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_S08_U08(qb_interpreter_context *__restrict cxt, int8_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_U16(qb_interpreter_context *__restrict cxt, uint16_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_S08_U16(qb_interpreter_context *__restrict cxt, int8_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_S08_U32(qb_interpreter_context *__restrict cxt, int8_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_U64(qb_interpreter_context *__restrict cxt, uint64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_S16_U08(qb_interpreter_context *__restrict cxt, int16_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	char sprintf_buffer[64];
-	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + len);
-	memcpy(res_ptr + (*res_count_ptr), sprintf_buffer, len);
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
 	(*res_count_ptr) += len;
 }
 
-void qb_do_append_variable_multiple_times_F32(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_S16_U16(qb_interpreter_context *__restrict cxt, int16_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S16_U32(qb_interpreter_context *__restrict cxt, int16_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S32_U08(qb_interpreter_context *__restrict cxt, int32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S32_U16(qb_interpreter_context *__restrict cxt, int32_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S32_U32(qb_interpreter_context *__restrict cxt, int32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S64_U08(qb_interpreter_context *__restrict cxt, int64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S64_U16(qb_interpreter_context *__restrict cxt, int64_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_S64_U32(qb_interpreter_context *__restrict cxt, int64_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U08_U08(qb_interpreter_context *__restrict cxt, uint8_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U08_U16(qb_interpreter_context *__restrict cxt, uint8_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U08_U32(qb_interpreter_context *__restrict cxt, uint8_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U16_U08(qb_interpreter_context *__restrict cxt, uint16_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U16_U16(qb_interpreter_context *__restrict cxt, uint16_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U16_U32(qb_interpreter_context *__restrict cxt, uint16_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U32_U08(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U32_U16(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U32_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U64_U08(qb_interpreter_context *__restrict cxt, uint64_t op1, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1), i;
+	uint8_t *res_end;
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U64_U16(qb_interpreter_context *__restrict cxt, uint64_t op1, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1), i;
+	uint16_t *res_end;
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_U64_U32(qb_interpreter_context *__restrict cxt, uint64_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	char sprintf_buffer[64];
+	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1), i;
+	uint32_t *res_end;
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + len)));
+	res_end = res_ptr + (*res_count_ptr);
+	for(i = 0; i < len; i++) {
+		res_end[i] = sprintf_buffer[i];
+	}
+	(*res_count_ptr) += len;
+}
+
+void qb_do_append_variable_multiple_times_F32_U08(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	float32_t *op1_start = op1_ptr;
@@ -3842,13 +5324,16 @@ void qb_do_append_variable_multiple_times_F32(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -3860,7 +5345,81 @@ void qb_do_append_variable_multiple_times_F32(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_F64(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_F32_U16(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	float32_t *op1_start = op1_ptr;
+	float32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_F32_U32(qb_interpreter_context *__restrict cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	float32_t *op1_start = op1_ptr;
+	float32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_F64_U08(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	float64_t *op1_start = op1_ptr;
@@ -3876,13 +5435,16 @@ void qb_do_append_variable_multiple_times_F64(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -3894,7 +5456,81 @@ void qb_do_append_variable_multiple_times_F64(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_F64_U16(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	float64_t *op1_start = op1_ptr;
+	float64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_F64_U32(qb_interpreter_context *__restrict cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	float64_t *op1_start = op1_ptr;
+	float64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S08_U08(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	int8_t *op1_start = op1_ptr;
@@ -3910,13 +5546,16 @@ void qb_do_append_variable_multiple_times_S08(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -3928,7 +5567,81 @@ void qb_do_append_variable_multiple_times_S08(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_S16(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_S08_U16(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int8_t *op1_start = op1_ptr;
+	int8_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S08_U32(qb_interpreter_context *__restrict cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int8_t *op1_start = op1_ptr;
+	int8_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S16_U08(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	int16_t *op1_start = op1_ptr;
@@ -3944,13 +5657,16 @@ void qb_do_append_variable_multiple_times_S16(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -3962,7 +5678,81 @@ void qb_do_append_variable_multiple_times_S16(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_S32(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_S16_U16(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int16_t *op1_start = op1_ptr;
+	int16_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S16_U32(qb_interpreter_context *__restrict cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int16_t *op1_start = op1_ptr;
+	int16_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S32_U08(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	int32_t *op1_start = op1_ptr;
@@ -3978,13 +5768,16 @@ void qb_do_append_variable_multiple_times_S32(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -3996,7 +5789,81 @@ void qb_do_append_variable_multiple_times_S32(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_S64(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_S32_U16(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int32_t *op1_start = op1_ptr;
+	int32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S32_U32(qb_interpreter_context *__restrict cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int32_t *op1_start = op1_ptr;
+	int32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S64_U08(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	int64_t *op1_start = op1_ptr;
@@ -4012,13 +5879,16 @@ void qb_do_append_variable_multiple_times_S64(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -4030,7 +5900,81 @@ void qb_do_append_variable_multiple_times_S64(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_S64_U16(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int64_t *op1_start = op1_ptr;
+	int64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_S64_U32(qb_interpreter_context *__restrict cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	int64_t *op1_start = op1_ptr;
+	int64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U08_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	uint8_t *op1_start = op1_ptr;
@@ -4046,13 +5990,16 @@ void qb_do_append_variable_multiple_times_U08(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -4064,7 +6011,81 @@ void qb_do_append_variable_multiple_times_U08(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_U08_U16(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint8_t *op1_start = op1_ptr;
+	uint8_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U08_U32(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint8_t *op1_start = op1_ptr;
+	uint8_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U16_U08(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	uint16_t *op1_start = op1_ptr;
@@ -4080,13 +6101,16 @@ void qb_do_append_variable_multiple_times_U16(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -4098,7 +6122,81 @@ void qb_do_append_variable_multiple_times_U16(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_U16_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint16_t *op1_start = op1_ptr;
+	uint16_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U16_U32(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint16_t *op1_start = op1_ptr;
+	uint16_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U32_U08(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	uint32_t *op1_start = op1_ptr;
@@ -4114,13 +6212,16 @@ void qb_do_append_variable_multiple_times_U32(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -4132,7 +6233,81 @@ void qb_do_append_variable_multiple_times_U32(qb_interpreter_context *__restrict
 	(*res_count_ptr) += total;
 }
 
-void qb_do_append_variable_multiple_times_U64(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
+void qb_do_append_variable_multiple_times_U32_U16(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint32_t *op1_start = op1_ptr;
+	uint32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U32_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint32_t *op1_start = op1_ptr;
+	uint32_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U64_U08(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
 	uint32_t pos = (*res_count_ptr);
 	uint32_t total = 0;
 	uint64_t *op1_start = op1_ptr;
@@ -4148,13 +6323,90 @@ void qb_do_append_variable_multiple_times_U64(qb_interpreter_context *__restrict
 	} else {
 		total = 2;
 	}
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], (*res_count_ptr) + total);
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + total)));
 	res_ptr[pos++] = '[';
 	op1_ptr = op1_start;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
-		memcpy(res_ptr + pos, sprintf_buffer, len);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+		uint8_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U64_U16(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint64_t *op1_start = op1_ptr;
+	uint64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+		uint16_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
+		pos += len;
+		op1_ptr++;
+		if(op1_ptr != op1_end) {
+			res_ptr[pos++] = ',';
+			res_ptr[pos++] = ' ';
+		}
+	}
+	res_ptr[pos++] = ']';
+	(*res_count_ptr) += total;
+}
+
+void qb_do_append_variable_multiple_times_U64_U32(qb_interpreter_context *__restrict cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
+	uint32_t pos = (*res_count_ptr);
+	uint32_t total = 0;
+	uint64_t *op1_start = op1_ptr;
+	uint64_t *op1_end = op1_ptr + op1_count;
+	if(op1_count) {
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
+	}
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + total)));
+	res_ptr[pos++] = '[';
+	op1_ptr = op1_start;
+	while(op1_ptr < op1_end) {
+		char sprintf_buffer[64];
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, *op1_ptr), i;
+		uint32_t *res_end = res_ptr + pos;
+		for(i = 0; i < len; i++) {
+			res_end[i] = sprintf_buffer[i];
+		}
 		pos += len;
 		op1_ptr++;
 		if(op1_ptr != op1_end) {
@@ -19293,6 +21545,30 @@ void qb_do_print_string_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1
 	php_write(op1_ptr, op1_count TSRMLS_CC);
 }
 
+void qb_do_print_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count) {
+	USE_TSRM
+	char buffer[256];
+	uint32_t length = 0, i;
+	for(i = 0; i < op1_count; i++) {
+		if(i == op1_count - 1 || length >= 250) {
+			php_write(buffer, op1_count TSRMLS_CC);
+		}
+		length += encode(op1_ptr[i], buffer + length);
+	}
+}
+
+void qb_do_print_string_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count) {
+	USE_TSRM
+	char buffer[256];
+	uint32_t length = 0, i;
+	for(i = 0; i < op1_count; i++) {
+		if(i == op1_count - 1 || length >= 250) {
+			php_write(buffer, op1_count TSRMLS_CC);
+		}
+		length += encode(op1_ptr[i], buffer + length);
+	}
+}
+
 void qb_do_print_variable_F32(qb_interpreter_context *__restrict cxt, float32_t op1) {
 	USE_TSRM
 	char sprintf_buffer[64];
@@ -32760,6 +35036,20 @@ void qb_redirect_shift_right_multiple_times_U64(qb_interpreter_context *__restri
 #undef res_count
 }
 
+void qb_redirect_print_string_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_print_string_U32, ip);
+	} else {
+		qb_do_print_string_U32(cxt, op1_ptr, op1_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+}
+
 void qb_redirect_print_variable_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
 #define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
@@ -33174,6 +35464,20 @@ void qb_redirect_print_multidimensional_variable_S16(qb_interpreter_context *__r
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+}
+
+void qb_redirect_print_string_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_print_string_U16, ip);
+	} else {
+		qb_do_print_string_U16(cxt, op1_ptr, op1_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
 }
 
 void qb_redirect_print_variable_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
@@ -33847,37 +36151,99 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_do_alpha_blend_4x_F64",	qb_do_alpha_blend_4x_F64,	0,	0	},
 {	"qb_do_alpha_blend_4x_multiple_times_F32",	qb_do_alpha_blend_4x_multiple_times_F32,	0,	0	},
 {	"qb_do_alpha_blend_4x_multiple_times_F64",	qb_do_alpha_blend_4x_multiple_times_F64,	0,	0	},
-{	"qb_do_append_multidimensional_variable_F32",	qb_do_append_multidimensional_variable_F32,	0,	0	},
-{	"qb_do_append_multidimensional_variable_F64",	qb_do_append_multidimensional_variable_F64,	0,	0	},
-{	"qb_do_append_multidimensional_variable_S08",	qb_do_append_multidimensional_variable_S08,	0,	0	},
-{	"qb_do_append_multidimensional_variable_S16",	qb_do_append_multidimensional_variable_S16,	0,	0	},
-{	"qb_do_append_multidimensional_variable_S32",	qb_do_append_multidimensional_variable_S32,	0,	0	},
-{	"qb_do_append_multidimensional_variable_S64",	qb_do_append_multidimensional_variable_S64,	0,	0	},
-{	"qb_do_append_multidimensional_variable_U08",	qb_do_append_multidimensional_variable_U08,	0,	0	},
-{	"qb_do_append_multidimensional_variable_U16",	qb_do_append_multidimensional_variable_U16,	0,	0	},
-{	"qb_do_append_multidimensional_variable_U32",	qb_do_append_multidimensional_variable_U32,	0,	0	},
-{	"qb_do_append_multidimensional_variable_U64",	qb_do_append_multidimensional_variable_U64,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F32_U08",	qb_do_append_multidimensional_variable_F32_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F32_U16",	qb_do_append_multidimensional_variable_F32_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F32_U32",	qb_do_append_multidimensional_variable_F32_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F64_U08",	qb_do_append_multidimensional_variable_F64_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F64_U16",	qb_do_append_multidimensional_variable_F64_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_F64_U32",	qb_do_append_multidimensional_variable_F64_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S08_U08",	qb_do_append_multidimensional_variable_S08_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S08_U16",	qb_do_append_multidimensional_variable_S08_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S08_U32",	qb_do_append_multidimensional_variable_S08_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S16_U08",	qb_do_append_multidimensional_variable_S16_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S16_U16",	qb_do_append_multidimensional_variable_S16_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S16_U32",	qb_do_append_multidimensional_variable_S16_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S32_U08",	qb_do_append_multidimensional_variable_S32_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S32_U16",	qb_do_append_multidimensional_variable_S32_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S32_U32",	qb_do_append_multidimensional_variable_S32_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S64_U08",	qb_do_append_multidimensional_variable_S64_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S64_U16",	qb_do_append_multidimensional_variable_S64_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_S64_U32",	qb_do_append_multidimensional_variable_S64_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U08_U08",	qb_do_append_multidimensional_variable_U08_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U08_U16",	qb_do_append_multidimensional_variable_U08_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U08_U32",	qb_do_append_multidimensional_variable_U08_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U16_U08",	qb_do_append_multidimensional_variable_U16_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U16_U16",	qb_do_append_multidimensional_variable_U16_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U16_U32",	qb_do_append_multidimensional_variable_U16_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U32_U08",	qb_do_append_multidimensional_variable_U32_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U32_U16",	qb_do_append_multidimensional_variable_U32_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U32_U32",	qb_do_append_multidimensional_variable_U32_U32,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U64_U08",	qb_do_append_multidimensional_variable_U64_U08,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U64_U16",	qb_do_append_multidimensional_variable_U64_U16,	0,	0	},
+{	"qb_do_append_multidimensional_variable_U64_U32",	qb_do_append_multidimensional_variable_U64_U32,	0,	0	},
 {	"qb_do_append_string_U08",	qb_do_append_string_U08,	0,	0	},
-{	"qb_do_append_variable_F32",	qb_do_append_variable_F32,	0,	0	},
-{	"qb_do_append_variable_F64",	qb_do_append_variable_F64,	0,	0	},
-{	"qb_do_append_variable_S08",	qb_do_append_variable_S08,	0,	0	},
-{	"qb_do_append_variable_S16",	qb_do_append_variable_S16,	0,	0	},
-{	"qb_do_append_variable_S32",	qb_do_append_variable_S32,	0,	0	},
-{	"qb_do_append_variable_S64",	qb_do_append_variable_S64,	0,	0	},
-{	"qb_do_append_variable_U08",	qb_do_append_variable_U08,	0,	0	},
-{	"qb_do_append_variable_U16",	qb_do_append_variable_U16,	0,	0	},
-{	"qb_do_append_variable_U32",	qb_do_append_variable_U32,	0,	0	},
-{	"qb_do_append_variable_U64",	qb_do_append_variable_U64,	0,	0	},
-{	"qb_do_append_variable_multiple_times_F32",	qb_do_append_variable_multiple_times_F32,	0,	0	},
-{	"qb_do_append_variable_multiple_times_F64",	qb_do_append_variable_multiple_times_F64,	0,	0	},
-{	"qb_do_append_variable_multiple_times_S08",	qb_do_append_variable_multiple_times_S08,	0,	0	},
-{	"qb_do_append_variable_multiple_times_S16",	qb_do_append_variable_multiple_times_S16,	0,	0	},
-{	"qb_do_append_variable_multiple_times_S32",	qb_do_append_variable_multiple_times_S32,	0,	0	},
-{	"qb_do_append_variable_multiple_times_S64",	qb_do_append_variable_multiple_times_S64,	0,	0	},
-{	"qb_do_append_variable_multiple_times_U08",	qb_do_append_variable_multiple_times_U08,	0,	0	},
-{	"qb_do_append_variable_multiple_times_U16",	qb_do_append_variable_multiple_times_U16,	0,	0	},
-{	"qb_do_append_variable_multiple_times_U32",	qb_do_append_variable_multiple_times_U32,	0,	0	},
-{	"qb_do_append_variable_multiple_times_U64",	qb_do_append_variable_multiple_times_U64,	0,	0	},
+{	"qb_do_append_string_U16",	qb_do_append_string_U16,	0,	0	},
+{	"qb_do_append_string_U32",	qb_do_append_string_U32,	0,	0	},
+{	"qb_do_append_variable_F32_U08",	qb_do_append_variable_F32_U08,	0,	0	},
+{	"qb_do_append_variable_F32_U16",	qb_do_append_variable_F32_U16,	0,	0	},
+{	"qb_do_append_variable_F32_U32",	qb_do_append_variable_F32_U32,	0,	0	},
+{	"qb_do_append_variable_F64_U08",	qb_do_append_variable_F64_U08,	0,	0	},
+{	"qb_do_append_variable_F64_U16",	qb_do_append_variable_F64_U16,	0,	0	},
+{	"qb_do_append_variable_F64_U32",	qb_do_append_variable_F64_U32,	0,	0	},
+{	"qb_do_append_variable_S08_U08",	qb_do_append_variable_S08_U08,	0,	0	},
+{	"qb_do_append_variable_S08_U16",	qb_do_append_variable_S08_U16,	0,	0	},
+{	"qb_do_append_variable_S08_U32",	qb_do_append_variable_S08_U32,	0,	0	},
+{	"qb_do_append_variable_S16_U08",	qb_do_append_variable_S16_U08,	0,	0	},
+{	"qb_do_append_variable_S16_U16",	qb_do_append_variable_S16_U16,	0,	0	},
+{	"qb_do_append_variable_S16_U32",	qb_do_append_variable_S16_U32,	0,	0	},
+{	"qb_do_append_variable_S32_U08",	qb_do_append_variable_S32_U08,	0,	0	},
+{	"qb_do_append_variable_S32_U16",	qb_do_append_variable_S32_U16,	0,	0	},
+{	"qb_do_append_variable_S32_U32",	qb_do_append_variable_S32_U32,	0,	0	},
+{	"qb_do_append_variable_S64_U08",	qb_do_append_variable_S64_U08,	0,	0	},
+{	"qb_do_append_variable_S64_U16",	qb_do_append_variable_S64_U16,	0,	0	},
+{	"qb_do_append_variable_S64_U32",	qb_do_append_variable_S64_U32,	0,	0	},
+{	"qb_do_append_variable_U08_U08",	qb_do_append_variable_U08_U08,	0,	0	},
+{	"qb_do_append_variable_U08_U16",	qb_do_append_variable_U08_U16,	0,	0	},
+{	"qb_do_append_variable_U08_U32",	qb_do_append_variable_U08_U32,	0,	0	},
+{	"qb_do_append_variable_U16_U08",	qb_do_append_variable_U16_U08,	0,	0	},
+{	"qb_do_append_variable_U16_U16",	qb_do_append_variable_U16_U16,	0,	0	},
+{	"qb_do_append_variable_U16_U32",	qb_do_append_variable_U16_U32,	0,	0	},
+{	"qb_do_append_variable_U32_U08",	qb_do_append_variable_U32_U08,	0,	0	},
+{	"qb_do_append_variable_U32_U16",	qb_do_append_variable_U32_U16,	0,	0	},
+{	"qb_do_append_variable_U32_U32",	qb_do_append_variable_U32_U32,	0,	0	},
+{	"qb_do_append_variable_U64_U08",	qb_do_append_variable_U64_U08,	0,	0	},
+{	"qb_do_append_variable_U64_U16",	qb_do_append_variable_U64_U16,	0,	0	},
+{	"qb_do_append_variable_U64_U32",	qb_do_append_variable_U64_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F32_U08",	qb_do_append_variable_multiple_times_F32_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F32_U16",	qb_do_append_variable_multiple_times_F32_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F32_U32",	qb_do_append_variable_multiple_times_F32_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F64_U08",	qb_do_append_variable_multiple_times_F64_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F64_U16",	qb_do_append_variable_multiple_times_F64_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_F64_U32",	qb_do_append_variable_multiple_times_F64_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S08_U08",	qb_do_append_variable_multiple_times_S08_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S08_U16",	qb_do_append_variable_multiple_times_S08_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S08_U32",	qb_do_append_variable_multiple_times_S08_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S16_U08",	qb_do_append_variable_multiple_times_S16_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S16_U16",	qb_do_append_variable_multiple_times_S16_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S16_U32",	qb_do_append_variable_multiple_times_S16_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S32_U08",	qb_do_append_variable_multiple_times_S32_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S32_U16",	qb_do_append_variable_multiple_times_S32_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S32_U32",	qb_do_append_variable_multiple_times_S32_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S64_U08",	qb_do_append_variable_multiple_times_S64_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S64_U16",	qb_do_append_variable_multiple_times_S64_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_S64_U32",	qb_do_append_variable_multiple_times_S64_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U08_U08",	qb_do_append_variable_multiple_times_U08_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U08_U16",	qb_do_append_variable_multiple_times_U08_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U08_U32",	qb_do_append_variable_multiple_times_U08_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U16_U08",	qb_do_append_variable_multiple_times_U16_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U16_U16",	qb_do_append_variable_multiple_times_U16_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U16_U32",	qb_do_append_variable_multiple_times_U16_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U32_U08",	qb_do_append_variable_multiple_times_U32_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U32_U16",	qb_do_append_variable_multiple_times_U32_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U32_U32",	qb_do_append_variable_multiple_times_U32_U32,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U64_U08",	qb_do_append_variable_multiple_times_U64_U08,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U64_U16",	qb_do_append_variable_multiple_times_U64_U16,	0,	0	},
+{	"qb_do_append_variable_multiple_times_U64_U32",	qb_do_append_variable_multiple_times_U64_U32,	0,	0	},
 {	"qb_do_apply_premultiplication_4x_F32",	qb_do_apply_premultiplication_4x_F32,	0,	0	},
 {	"qb_do_apply_premultiplication_4x_F64",	qb_do_apply_premultiplication_4x_F64,	0,	0	},
 {	"qb_do_apply_premultiplication_4x_multiple_times_F32",	qb_do_apply_premultiplication_4x_multiple_times_F32,	0,	0	},
@@ -34633,6 +36999,8 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_do_print_multidimensional_variable_U32",	qb_do_print_multidimensional_variable_U32,	0,	0	},
 {	"qb_do_print_multidimensional_variable_U64",	qb_do_print_multidimensional_variable_U64,	0,	0	},
 {	"qb_do_print_string_U08",	qb_do_print_string_U08,	0,	0	},
+{	"qb_do_print_string_U16",	qb_do_print_string_U16,	0,	0	},
+{	"qb_do_print_string_U32",	qb_do_print_string_U32,	0,	0	},
 {	"qb_do_print_variable_F32",	qb_do_print_variable_F32,	0,	0	},
 {	"qb_do_print_variable_F64",	qb_do_print_variable_F64,	0,	0	},
 {	"qb_do_print_variable_S08",	qb_do_print_variable_S08,	0,	0	},
@@ -35329,6 +37697,7 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_multiply_multiple_times_U64",	qb_redirect_multiply_multiple_times_U64,	0,	0	},
 {	"qb_redirect_shift_left_multiple_times_U64",	qb_redirect_shift_left_multiple_times_U64,	0,	0	},
 {	"qb_redirect_shift_right_multiple_times_U64",	qb_redirect_shift_right_multiple_times_U64,	0,	0	},
+{	"qb_redirect_print_string_U32",	qb_redirect_print_string_U32,	0,	0	},
 {	"qb_redirect_print_variable_U32",	qb_redirect_print_variable_U32,	0,	0	},
 {	"qb_redirect_print_variable_array_element_U32",	qb_redirect_print_variable_array_element_U32,	0,	0	},
 {	"qb_redirect_print_variable_multiple_times_U32",	qb_redirect_print_variable_multiple_times_U32,	0,	0	},
@@ -35359,6 +37728,7 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_print_variable_array_element_S16",	qb_redirect_print_variable_array_element_S16,	0,	0	},
 {	"qb_redirect_print_variable_multiple_times_S16",	qb_redirect_print_variable_multiple_times_S16,	0,	0	},
 {	"qb_redirect_print_multidimensional_variable_S16",	qb_redirect_print_multidimensional_variable_S16,	0,	0	},
+{	"qb_redirect_print_string_U16",	qb_redirect_print_string_U16,	0,	0	},
 {	"qb_redirect_print_variable_U16",	qb_redirect_print_variable_U16,	0,	0	},
 {	"qb_redirect_print_variable_array_element_U16",	qb_redirect_print_variable_array_element_U16,	0,	0	},
 {	"qb_redirect_print_variable_multiple_times_U16",	qb_redirect_print_variable_multiple_times_U16,	0,	0	},

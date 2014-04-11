@@ -7,11 +7,12 @@ class AppendMultidimensionalVariable extends Handler {
 	}
 	
 	public function getOperandType($i) {
+		list($srcType, $dstType) = explode('_', $this->operandType);
 		switch($i) {
-			case 1: return $this->operandType;
+			case 1: return $srcType;
 			case 2: return "U32";
 			case 3: return "U32";
-			case 4: return "U08";
+			case 4: return $dstType;
 		}
 	}
 	
@@ -35,10 +36,11 @@ class AppendMultidimensionalVariable extends Handler {
 
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("*op1_ptr");
-		$cType = $this->getOperandCType(1);
+		$srcCType = $this->getOperandCType(1);
+		$dstCType = $this->getOperandCType(4);
 		$lines = array();
-		$lines[] = "$cType *op1_start = op1_ptr;";
-		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
+		$lines[] = "$srcCType *op1_start = op1_ptr;";
+		$lines[] = "$srcCType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "uint32_t *op2_start = op2_ptr;";
 		$lines[] = "uint32_t *op2_end = op2_ptr + op2_count;";
 		$lines[] = "uint32_t depth = 0, pos = res_count;";
@@ -58,7 +60,7 @@ class AppendMultidimensionalVariable extends Handler {
 		$lines[] = "if(total == 0) {";
 		$lines[] = 		"total = 2;";
 		$lines[] = "}";
-		$lines[] = "res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op3], res_count + total);";
+		$lines[] = "res_ptr = ($dstCType *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op3], sizeof($dstCType) * (res_count + total)));";
 		$lines[] = "memset(counts, 0, sizeof(uint32_t) * op2_count);";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "op1_ptr = op1_start;";
@@ -71,8 +73,11 @@ class AppendMultidimensionalVariable extends Handler {
 		$lines[] = 			"}";
 		$lines[] = 			"if(depth + 1 == op2_count) {";
 		$lines[] = 				"char sprintf_buffer[64];";
-		$lines[] = 				"uint32_t len = $sprintf;";
-		$lines[] = 				"memcpy(res_ptr + pos, sprintf_buffer, len);";
+		$lines[] = 				"uint32_t len = $sprintf, i;";
+		$lines[] = 				"$dstCType *res_end = res_ptr + pos;";
+		$lines[] =				"for(i = 0; i < len; i++) {";
+		$lines[] =					"res_end[i] = sprintf_buffer[i];";
+		$lines[] =				"}";
 		$lines[] = 				"pos += len;";
 		$lines[] = 				"op1_ptr++;";
 		$lines[] = 				"counts[depth]++;";
