@@ -748,10 +748,10 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_break,					&factory_jump,								},	// ZEND_BRK
 	{	qb_process_continue,				&factory_jump,								},	// ZEND_CONT
 	{	qb_process_basic_op,				&factory_boolean_cast,						},	// ZEND_BOOL
-	{	qb_process_basic_op,				&factory_empty_string,						},	// ZEND_INIT_STRING
-	{	qb_process_basic_op,				&factory_add_string,						},	// ZEND_ADD_CHAR
-	{	qb_process_basic_op,				&factory_add_string,						},	// ZEND_ADD_STRING
-	{	qb_process_basic_op,				&factory_add_variable,						},	// ZEND_ADD_VAR
+	{	qb_process_basic_op,				&factory_nop,								},	// ZEND_INIT_STRING
+	{	qb_process_basic_op,				&factory_append_char,						},	// ZEND_ADD_CHAR
+	{	qb_process_basic_op,				&factory_append_string,						},	// ZEND_ADD_STRING
+	{	qb_process_basic_op,				&factory_append_string,						},	// ZEND_ADD_VAR
 	{	qb_process_begin_silence,			NULL,										},	// ZEND_BEGIN_SILENCE
 	{	qb_process_end_silence,				NULL,										},	// ZEND_END_SILENCE
 	{	qb_process_init_function_call,		NULL,										},	// ZEND_INIT_FCALL_BY_NAME

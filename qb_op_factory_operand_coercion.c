@@ -147,14 +147,36 @@ static int32_t qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
-static int32_t qb_coerce_operands_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *addend = &operands[1];
-	return qb_perform_type_coercion(cxt, addend, QB_TYPE_ANY, f->coercion_flags);
+static int32_t qb_coerce_operands_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *string = &operands[0], *addend = &operands[1];
+	qb_primitive_type addend_type;
+	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
+		addend_type = expr_type;
+	} else {
+		addend_type = QB_TYPE_ANY;
+	}
+	if(string->type != QB_OPERAND_NONE) {
+		if(!qb_perform_type_coercion(cxt, string, expr_type, f->coercion_flags)) {
+			return FALSE;
+		}
+	}
+	if(!qb_perform_type_coercion(cxt, addend, addend_type, f->coercion_flags)) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
-static int32_t qb_coerce_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *addend = &operands[1];
-	return qb_perform_type_coercion(cxt, addend, expr_type, f->coercion_flags);
+static int32_t qb_coerce_operands_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *string = &operands[0], *addend = &operands[1];
+	if(string->type != QB_OPERAND_NONE) {
+		if(!qb_perform_type_coercion(cxt, string, expr_type, f->coercion_flags)) {
+			return FALSE;
+		}
+	}
+	if(!qb_perform_type_coercion(cxt, addend, expr_type, f->coercion_flags)) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static int32_t qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {

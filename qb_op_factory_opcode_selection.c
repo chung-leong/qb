@@ -371,7 +371,7 @@ static int32_t qb_select_opcode_copy_dimension(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_append_op_factory *sf = (qb_append_op_factory *) f;
 	qb_address *src_address = operands[1].address;
 	qb_address *dst_address = result->address;
@@ -387,6 +387,15 @@ static int32_t qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_fac
 			return qb_select_type_dependent_opcode(cxt, sf->opcodes[QB_STRING_UTF32 - stype], src_address->type, p_opcode);
 		}
 	}
+}
+
+static int32_t qb_select_opcode_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_append_op_factory *sf = (qb_append_op_factory *) df->parent;
+	qb_address *dst_address = result->address;
+	qb_string_type stype = qb_select_get_string_type(cxt, dst_address->type);
+	*p_opcode = sf->text_opcodes[QB_STRING_UTF32 - stype];
+	return TRUE;
 }
 
 static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {

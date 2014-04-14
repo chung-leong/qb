@@ -197,7 +197,7 @@ static int32_t qb_transfer_operands_empty_string(qb_compiler_context *cxt, qb_op
 	return TRUE;
 }
 
-static int32_t qb_transfer_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static int32_t qb_transfer_operands_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *addend = &operands[1];
 	dest[0] = *addend;
 	if(addend->address->dimension_count > 1) {

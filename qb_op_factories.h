@@ -464,9 +464,8 @@ extern qb_fork_decomposer factory_fork;
 extern qb_simple_op_factory factory_fork_count;
 extern qb_simple_op_factory factory_spoon;
 
-extern qb_simple_op_factory factory_empty_string;
-extern qb_append_op_factory factory_add_variable;
-extern qb_simple_op_factory factory_add_string;
+extern qb_append_op_factory factory_append_string;
+extern qb_derived_op_factory factory_append_char;
 extern qb_derived_op_factory factory_concat;
 extern qb_derived_op_factory factory_concat_assign;
 extern qb_print_op_factory factory_print;

@@ -251,6 +251,55 @@ static int32_t qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op
 	return TRUE;
 }
 
+static int32_t qb_resolve_expression_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+	qb_operand *string = &operands[0], *addend = &operands[1];
+	qb_primitive_type string_type, addend_type;
+	if(string->type != QB_OPERAND_NONE) {
+		string_type = qb_get_operand_type(cxt, string, 0);
+	} else {
+		string_type = QB_TYPE_U08;
+	}
+	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
+		addend_type = addend->address->type;
+	} else {
+		addend_type = QB_TYPE_U08;
+	}
+	*p_type = (addend_type > string_type) ? addend_type : string_type;
+	*p_flags = f->address_flags;
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+	qb_operand *string = &operands[0], *addend = &operands[1];
+	qb_primitive_type string_type;
+	if(string->type != QB_OPERAND_NONE) {
+		string_type = qb_get_operand_type(cxt, string, 0);
+	} else {
+		string_type = QB_TYPE_U08;
+	}
+	*p_type = string_type;
+	*p_flags = f->address_flags;
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_type_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+	qb_operand *augend = &operands[0], *addend = &operands[1];
+	qb_primitive_type augend_type, addend_type;
+	if(augend->type == QB_OPERAND_ADDRESS && augend->address->flags & QB_ADDRESS_STRING) {
+		augend_type = augend->address->type;
+	} else {
+		augend_type = QB_TYPE_U08;
+	}
+	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
+		addend_type = addend->address->type;
+	} else {
+		addend_type = QB_TYPE_U08;
+	}
+	*p_type = (addend_type > augend_type) ? addend_type : augend_type;
+	*p_flags = f->address_flags;
+	return TRUE;
+}
+
 static int32_t qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
 	USE_TSRM
 	qb_operand *func = &operands[0];

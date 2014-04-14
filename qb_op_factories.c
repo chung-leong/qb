@@ -2531,35 +2531,17 @@ qb_simple_op_factory factory_any = {
 	QB_ANY_I32_I32,
 };
 
-qb_simple_op_factory factory_empty_string = {
+qb_append_op_factory factory_append_string = {
 	NULL,
-	qb_resolve_expression_type_string,
+	qb_resolve_expression_append_string,
 	NULL,
-	NULL,
+	qb_coerce_operands_append_string,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_empty_string,
+	qb_set_result_append_string,
 	NULL,
-	qb_select_opcode_simple,
-	qb_transfer_operands_empty_string,
-	NULL,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
-	QB_CLR_ARR_RSZ_U32_I08,
-};
-
-qb_append_op_factory factory_add_variable = {
-	NULL,
-	qb_resolve_expression_type_string,
-	NULL,
-	qb_coerce_operands_add_variable,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_add_string,
-	NULL,
-	qb_select_opcode_add_variable,
-	qb_transfer_operands_add_string,
+	qb_select_opcode_append_string,
+	qb_transfer_operands_append_string,
 	NULL,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -2577,27 +2559,27 @@ qb_append_op_factory factory_add_variable = {
 	{	QB_APP_STR_U32_U32_U32,	QB_APP_STR_U16_U32_U16,	QB_APP_STR_U08_U32_U08,	},
 };
 
-qb_simple_op_factory factory_add_string = {
+qb_derived_op_factory factory_append_char = {
 	NULL,
-	qb_resolve_expression_type_string,
+	qb_resolve_expression_append_char,
 	NULL,
-	qb_coerce_operands_add_string,
+	qb_coerce_operands_append_char,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_add_string,
+	qb_set_result_append_string,
 	NULL,
-	qb_select_opcode_simple,
-	qb_transfer_operands_add_string,
+	qb_select_opcode_append_char,
+	qb_transfer_operands_append_string,
 	NULL,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
-	QB_APP_STR_U08_U32_U08,
+	&factory_append_string
 };
 
 qb_derived_op_factory factory_concat = {
 	NULL,
-	qb_resolve_expression_type_string,
+	qb_resolve_expression_type_concat,
 	NULL,
 	qb_coerce_operands_concat,
 	qb_set_result_prototype,
@@ -2610,14 +2592,14 @@ qb_derived_op_factory factory_concat = {
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
-	&factory_add_variable,
+	&factory_append_string,
 };
 
 qb_derived_op_factory factory_concat_assign = {
 	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
-	qb_coerce_operands_add_variable,
+	qb_coerce_operands_append_string,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_first_operand,
@@ -2628,7 +2610,7 @@ qb_derived_op_factory factory_concat_assign = {
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
-	&factory_add_variable,
+	&factory_append_string,
 };
 
 qb_print_op_factory factory_print = {
