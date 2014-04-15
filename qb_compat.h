@@ -345,7 +345,7 @@ float log2f(float x);
 #	endif
 #endif
 
-#if defined(_Complex_I)
+#if defined(HAVE_COMPLEX_H)
 #	define cmult(x, y)						((x) * (y))
 #	define cmultf(x, y)						((x) * (y))
 #	define cdiv(x, y)						((x) / (y))
@@ -536,7 +536,8 @@ void _allshr(void);
 void _allshl(void);
 #endif
 
-#if _MSC_VER <= 1700
+#ifdef _MSC_VER
+#	if _MSC_VER <= 1700
 union ieee_bits_64 {
 	int64_t i;
 	float64_t f;
@@ -572,6 +573,7 @@ static inline float copysignf(float m, float s) {
 	a.i = (a.i & ~0x80000000) | (b.i & 0x80000000);
 	return a.f;
 }
+#	endif
 #endif
 
 #ifdef __GNUC__

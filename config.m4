@@ -125,6 +125,8 @@ if test "$PHP_QB" != "no"; then
 	qb_op.c\
 	qb_op_factories.c\
 	qb_parser.c\
+	qb_parser_bison.c\
+	qb_parser_re2c.c\
 	qb_printer.c\
 	qb_storage.c\
 	qb_thread.c\

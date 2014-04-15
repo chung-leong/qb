@@ -37,9 +37,9 @@ typedef struct qb_thread_parameters			qb_thread_parameters;
 
 typedef enum qb_primitive_type				qb_primitive_type;
 
-#if defined(_Complex_I)
-typedef float complex						cfloat32_t;
-typedef double complex						cfloat64_t;
+#if defined(HAVE_COMPLEX_H)
+typedef float _Complex						cfloat32_t;
+typedef double _Complex						cfloat64_t;
 
 #	define cmult(x, y)						((x) * (y))
 #	define cmultf(x, y)						((x) * (y))
