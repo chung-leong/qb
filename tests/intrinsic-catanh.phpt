@@ -7,20 +7,22 @@ Complex number inverse hyperbolic tangent test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	complex<float32>	$b
+ * @local	float32[3][2]		$c
  *
  * @return	void
  *
  */
 function test_function() {
-	$a = array(1.0047, 0.036423);
+	$a = $b = array(1.0047, 0.036423);
 	$c[0] = array(0, 0);
 	$c[1] = array(0, NAN);
 	$c[2] = array(3.5231, +INF);
 	
 	$c = catanh($c);
 	echo catanh($a), "\n";
+	echo atanh($b), "\n";
 	echo "$c\n";
 	echo catanh(array(0.4, 0.8)), "\n";
 	echo catanh(array(4.5, NAN)), "\n";
@@ -38,6 +40,7 @@ test_function();
 
 ?>
 --EXPECT--
+[2, 0.85865]
 [2, 0.85865]
 [[0, 0], [0, NAN], [0, 1.5708]]
 [0.2388778613, 0.7232206661]

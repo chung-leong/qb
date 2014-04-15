@@ -453,3 +453,21 @@ static int32_t qb_decompose_round(qb_compiler_context *cxt, void *factory, qb_op
 	factory = (operand_count == 1) ? d->simple_factory : d->precision_factory;
 	return qb_produce_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
 }
+
+static int32_t qb_produce_trig_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_trig_op_factory_selector *d = factory;
+	int32_t is_complex = FALSE;
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_COMPLEX) {
+			is_complex = TRUE;
+		}
+	}
+	factory = (is_complex) ? d->complex_factory : d->real_factory;
+	return qb_produce_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
+}
+
+static int32_t qb_produce_arith_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	return FALSE;
+}

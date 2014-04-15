@@ -7,20 +7,22 @@ Complex number inverse tangent test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	complex<float32>	$b
+ * @local	float32[3][2]		$c
  *
  * @return	void
  *
  */
 function test_function() {
-	$a = array(-0.00050798, 1.0004);
+	$a = $b = array(-0.00050798, 1.0004);
 	$c[0] = array(0, 0);
 	$c[1] = array(0, NAN);
 	$c[2] = array(3.5231, +INF);
 	
 	$c = catan($c);
 	echo catan($a), "\n";
+	echo atan($b), "\n";
 	echo "$c\n";
 	echo catan(array(0.4, 0.8)), "\n";
 	echo catan(array(4.5, NAN)), "\n";
@@ -37,6 +39,7 @@ test_function();
 
 ?>
 --EXPECT--
+[-1.119, 4.0186]
 [-1.119, 4.0186]
 [[0, 0], [NAN, NAN], [1.5708, 0]]
 [0.6629088318, 0.708303336]

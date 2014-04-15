@@ -81,6 +81,8 @@ typedef struct qb_set_op_chooser				qb_set_op_chooser;
 typedef struct qb_fork_decomposer				qb_fork_decomposer;
 typedef struct qb_round_decomposer				qb_round_decomposer;
 
+typedef struct qb_trig_op_factory_selector		qb_trig_op_factory_selector;
+
 typedef int32_t (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
 typedef int32_t (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags);
@@ -291,6 +293,22 @@ struct qb_round_decomposer {
 	void *precision_factory;
 };
 
+struct qb_arith_op_factory_selector {
+	qb_produce_composite_proc produce_composite;
+	void *real_factory;
+	void *complex_factory;
+	void *vector_factory;
+	void *matrix_matrix_factory;
+	void *matrix_vector_factory;
+	void *vector_matrix_factory;
+};
+
+struct qb_trig_op_factory_selector {
+	qb_produce_composite_proc produce_composite;
+	void *real_factory;
+	void *complex_factory;
+};
+
 extern qb_op_factory factory_nop;
 
 extern qb_copy_op_factory factory_assign;
@@ -472,20 +490,20 @@ extern qb_print_op_factory factory_print;
 extern qb_simple_op_factory factory_flush;
 extern qb_derived_op_factory factory_echo;
 
-extern qb_basic_op_factory factory_abs;
-extern qb_float_op_factory factory_acos;
-extern qb_float_op_factory factory_acosh;
-extern qb_float_op_factory factory_asin;
-extern qb_float_op_factory factory_asinh;
-extern qb_float_op_factory factory_atan;
+extern qb_basic_op_factory factory_real_abs;
+extern qb_float_op_factory factory_real_acos;
+extern qb_float_op_factory factory_real_acosh;
+extern qb_float_op_factory factory_real_asin;
+extern qb_float_op_factory factory_real_asinh;
+extern qb_float_op_factory factory_real_atan;
 extern qb_float_op_factory factory_atan2;
-extern qb_float_op_factory factory_atanh;
+extern qb_float_op_factory factory_real_atanh;
 extern qb_float_op_factory factory_ceil;
 extern qb_float_op_factory factory_clamp;
-extern qb_float_op_factory factory_cos;
-extern qb_float_op_factory factory_cosh;
+extern qb_float_op_factory factory_real_cos;
+extern qb_float_op_factory factory_real_cosh;
 extern qb_float_op_factory factory_deg2rad;
-extern qb_float_op_factory factory_exp;
+extern qb_float_op_factory factory_real_exp;
 extern qb_float_op_factory factory_exp2;
 extern qb_float_op_factory factory_expm1;
 extern qb_float_op_factory factory_floor;
@@ -494,24 +512,42 @@ extern qb_float_op_factory factory_hypot;
 extern qb_float_op_factory factory_is_finite;
 extern qb_float_op_factory factory_is_infinite;
 extern qb_float_op_factory factory_is_nan;
-extern qb_float_op_factory factory_log;
+extern qb_float_op_factory factory_real_log;
 extern qb_float_op_factory factory_log10;
 extern qb_float_op_factory factory_log1p;
 extern qb_float_op_factory factory_log2;
 extern qb_float_op_factory factory_mix;
-extern qb_float_op_factory factory_pow;
+extern qb_float_op_factory factory_real_pow;
 extern qb_float_op_factory factory_rad2deg;
 extern qb_float_op_factory factory_rint;
 extern qb_round_decomposer factory_round;
 extern qb_float_op_factory factory_rsqrt;
 extern qb_float_op_factory factory_sign;
-extern qb_float_op_factory factory_sin;
-extern qb_float_op_factory factory_sinh;
+extern qb_float_op_factory factory_real_sin;
+extern qb_float_op_factory factory_real_sinh;
 extern qb_float_op_factory factory_smooth_step;
-extern qb_float_op_factory factory_sqrt;
+extern qb_float_op_factory factory_real_sqrt;
 extern qb_float_op_factory factory_step;
-extern qb_float_op_factory factory_tan;
-extern qb_float_op_factory factory_tanh;
+extern qb_float_op_factory factory_real_tan;
+extern qb_float_op_factory factory_real_tanh;
+
+extern qb_trig_op_factory_selector factory_abs;
+extern qb_trig_op_factory_selector factory_acos;
+extern qb_trig_op_factory_selector factory_acosh;
+extern qb_trig_op_factory_selector factory_asin;
+extern qb_trig_op_factory_selector factory_asinh;
+extern qb_trig_op_factory_selector factory_atan;
+extern qb_trig_op_factory_selector factory_atanh;
+extern qb_trig_op_factory_selector factory_cos;
+extern qb_trig_op_factory_selector factory_cosh;
+extern qb_trig_op_factory_selector factory_exp;
+extern qb_trig_op_factory_selector factory_log;
+extern qb_trig_op_factory_selector factory_pow;
+extern qb_trig_op_factory_selector factory_sin;
+extern qb_trig_op_factory_selector factory_sinh;
+extern qb_trig_op_factory_selector factory_sqrt;
+extern qb_trig_op_factory_selector factory_tan;
+extern qb_trig_op_factory_selector factory_tanh;
 
 extern qb_minmax_decomposer factory_max;
 extern qb_minmax_decomposer factory_min;

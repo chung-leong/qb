@@ -7,20 +7,22 @@ Complex number inverse hyperbolic sine test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	complex<float32>	$b
+ * @local	float32[3][2]		$c
  *
  * @return	void
  *
  */
 function test_function() {
-	$a = array(-2.3707, -2.8472);
+	$a = $b = array(-2.3707, -2.8472);
 	$c[0] = array(0, 0);
 	$c[1] = array(0, NAN);
 	$c[2] = array(3.5231, +INF);
 	
 	$c = casinh($c);
 	echo casinh($a), "\n";
+	echo asinh($b), "\n";
 	echo "$c\n";
 	echo casinh(array(4, 8)), "\n";
 	echo casinh(array(4.5, NAN)), "\n";
@@ -37,6 +39,7 @@ test_function();
 
 ?>
 --EXPECT--
+[-2, -0.8584]
 [-2, -0.8584]
 [[0, 0], [NAN, NAN], [INF, 1.571]]
 [2.8822897, 1.1046346]

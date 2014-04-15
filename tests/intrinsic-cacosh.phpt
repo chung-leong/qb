@@ -7,20 +7,22 @@ Complex number inverse hyperbolic cosine test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	complex<float32>	$b
+ * @local	float32[3][2]		$c
  *
  * @return	void
  *
  */
 function test_function() {
-	$a = array(119518.5, -186139);
+	$a = $b = array(119518.5, -186139);
 	$c[0] = array(0, 0);
 	$c[1] = array(-13, +INF);
 	$c[2] = array(3.5, NAN);
 	
 	$c = cacosh($c);
 	echo cacosh($a), "\n";
+	echo acosh($b), "\n";
 	echo "$c\n";
 	echo casinh(array(0.4, 0.8)), "\n";
 	echo cacosh(array(0, 0)), "\n";
@@ -39,6 +41,7 @@ test_function();
 
 ?>
 --EXPECT--
+[13, -0.9999999]
 [13, -0.9999999]
 [[0, 1.570796], [INF, 1.570796], [NAN, NAN]]
 [0.53321829058411, 0.7730863567195]

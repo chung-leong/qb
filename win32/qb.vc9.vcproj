@@ -1273,6 +1273,7 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1282,6 +1283,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1291,6 +1293,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1300,6 +1303,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS_VC6|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1309,6 +1313,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1326,6 +1331,7 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1336,6 +1342,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1345,6 +1352,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1354,6 +1362,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS_VC6|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1363,6 +1372,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"

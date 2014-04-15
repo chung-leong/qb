@@ -7,9 +7,11 @@ Complex number division test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[2]		$b
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	float32[2]			$b
+ * @local	float32[3][2]		$c
+ * @local	complex<float32>	$e
+ * @local	complex<float32>	$f
  *
  * @return	void
  *

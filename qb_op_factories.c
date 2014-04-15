@@ -2997,7 +2997,7 @@ qb_op_decomposer factory_branch_on_true_set = {
 	&factory_branch_on_true,
 };
 
-qb_float_op_factory factory_sin = {
+qb_float_op_factory factory_real_sin = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3015,7 +3015,13 @@ qb_float_op_factory factory_sin = {
 	{	QB_SIN_F64_F64,			QB_SIN_F32_F32,	},
 };
 
-qb_float_op_factory factory_asin = {
+qb_trig_op_factory_selector factory_sin = {
+	qb_produce_trig_op,
+	&factory_real_sin,
+	&factory_complex_sin,
+};
+
+qb_float_op_factory factory_real_asin = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3033,7 +3039,13 @@ qb_float_op_factory factory_asin = {
 	{	QB_ASIN_F64_F64,		QB_ASIN_F32_F32,	},
 };
 
-qb_float_op_factory factory_cos = {
+qb_trig_op_factory_selector factory_asin = {
+	qb_produce_trig_op,
+	&factory_real_asin,
+	&factory_complex_asin,
+};
+
+qb_float_op_factory factory_real_cos = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3051,7 +3063,13 @@ qb_float_op_factory factory_cos = {
 	{	QB_COS_F64_F64,			QB_COS_F32_F32,	},
 };
 
-qb_float_op_factory factory_acos = {
+qb_trig_op_factory_selector factory_cos = {
+	qb_produce_trig_op,
+	&factory_real_cos,
+	&factory_complex_cos,
+};
+
+qb_float_op_factory factory_real_acos = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3069,7 +3087,13 @@ qb_float_op_factory factory_acos = {
 	{	QB_ACOS_F64_F64,		QB_ACOS_F32_F32,	},
 };
 
-qb_float_op_factory factory_tan = {
+qb_trig_op_factory_selector factory_acos = {
+	qb_produce_trig_op,
+	&factory_real_acos,
+	&factory_complex_acos,
+};
+
+qb_float_op_factory factory_real_tan = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3087,7 +3111,13 @@ qb_float_op_factory factory_tan = {
 	{	QB_TAN_F64_F64,			QB_TAN_F32_F32,	},
 };
 
-qb_float_op_factory factory_atan = {
+qb_trig_op_factory_selector factory_tan = {
+	qb_produce_trig_op,
+	&factory_real_tan,
+	&factory_complex_tan,
+};
+
+qb_float_op_factory factory_real_atan = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3103,6 +3133,12 @@ qb_float_op_factory factory_atan = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_ATAN_F64_F64,		QB_ATAN_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_atan = {
+	qb_produce_trig_op,
+	&factory_real_atan,
+	&factory_complex_atan,
 };
 
 qb_float_op_factory factory_atan2 = {
@@ -3123,7 +3159,7 @@ qb_float_op_factory factory_atan2 = {
 	{	QB_ATAN2_F64_F64_F64,	QB_ATAN2_F32_F32_F32,	},
 };
 
-qb_float_op_factory factory_sinh = {
+qb_float_op_factory factory_real_sinh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3141,7 +3177,13 @@ qb_float_op_factory factory_sinh = {
 	{	QB_SINH_F64_F64,		QB_SINH_F32_F32,	},
 };
 
-qb_float_op_factory factory_asinh = {
+qb_trig_op_factory_selector factory_sinh = {
+	qb_produce_trig_op,
+	&factory_real_sinh,
+	&factory_complex_sinh,
+};
+
+qb_float_op_factory factory_real_asinh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3159,7 +3201,13 @@ qb_float_op_factory factory_asinh = {
 	{	QB_ASINH_F64_F64,		QB_ASINH_F32_F32,	},
 };
 
-qb_float_op_factory factory_cosh = {
+qb_trig_op_factory_selector factory_asinh = {
+	qb_produce_trig_op,
+	&factory_real_asinh,
+	&factory_complex_asinh,
+};
+
+qb_float_op_factory factory_real_cosh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3177,7 +3225,13 @@ qb_float_op_factory factory_cosh = {
 	{	QB_COSH_F64_F64,		QB_COSH_F32_F32,	},
 };
 
-qb_float_op_factory factory_acosh = {
+qb_trig_op_factory_selector factory_cosh = {
+	qb_produce_trig_op,
+	&factory_real_cosh,
+	&factory_complex_cosh,
+};
+
+qb_float_op_factory factory_real_acosh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3195,7 +3249,13 @@ qb_float_op_factory factory_acosh = {
 	{	QB_ACOSH_F64_F64,		QB_ACOSH_F32_F32,	},
 };
 
-qb_float_op_factory factory_tanh = {
+qb_trig_op_factory_selector factory_acosh = {
+	qb_produce_trig_op,
+	&factory_real_acosh,
+	&factory_complex_acosh,
+};
+
+qb_float_op_factory factory_real_tanh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3213,7 +3273,13 @@ qb_float_op_factory factory_tanh = {
 	{	QB_TANH_F64_F64,		QB_TANH_F32_F32,	},
 };
 
-qb_float_op_factory factory_atanh = {
+qb_trig_op_factory_selector factory_tanh = {
+	qb_produce_trig_op,
+	&factory_real_tanh,
+	&factory_complex_tanh,
+};
+
+qb_float_op_factory factory_real_atanh = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3229,6 +3295,12 @@ qb_float_op_factory factory_atanh = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_ATANH_F64_F64,		QB_ATANH_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_atanh = {
+	qb_produce_trig_op,
+	&factory_real_atanh,
+	&factory_complex_atanh,
 };
 
 qb_float_op_factory factory_ceil = {
@@ -3345,7 +3417,7 @@ qb_round_decomposer factory_round = {
 	&factory_round_to_precision,
 };
 
-qb_float_op_factory factory_log = {
+qb_float_op_factory factory_real_log = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3361,6 +3433,12 @@ qb_float_op_factory factory_log = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_LOG_F64_F64,			QB_LOG_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_log = {
+	qb_produce_trig_op,
+	&factory_real_log,
+	&factory_complex_log,
 };
 
 qb_float_op_factory factory_log1p = {
@@ -3417,7 +3495,7 @@ qb_float_op_factory factory_log2 = {
 	{	QB_LOG2_F64_F64,		QB_LOG2_F32_F32,	},
 };
 
-qb_float_op_factory factory_exp = {
+qb_float_op_factory factory_real_exp = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3433,6 +3511,12 @@ qb_float_op_factory factory_exp = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_EXP_F64_F64,			QB_EXP_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_exp = {
+	qb_produce_trig_op,
+	&factory_real_exp,
+	&factory_complex_exp,
 };
 
 qb_float_op_factory factory_exp2 = {
@@ -3471,7 +3555,7 @@ qb_float_op_factory factory_expm1 = {
 	{	QB_EXPM1_F64_F64,		QB_EXPM1_F32_F32,	},
 };
 
-qb_float_op_factory factory_sqrt = {
+qb_float_op_factory factory_real_sqrt = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -3487,6 +3571,12 @@ qb_float_op_factory factory_sqrt = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_SQRT_F64_F64,		QB_SQRT_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_sqrt = {
+	qb_produce_trig_op,
+	&factory_real_sqrt,
+	&factory_complex_sqrt,
 };
 
 qb_float_op_factory factory_rsqrt = {
@@ -3507,7 +3597,7 @@ qb_float_op_factory factory_rsqrt = {
 	{	QB_RSQRT_F64_F64,		QB_RSQRT_F32_F32,	},
 };
 
-qb_float_op_factory factory_pow = {
+qb_float_op_factory factory_real_pow = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -3523,6 +3613,12 @@ qb_float_op_factory factory_pow = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_POW_F64_F64_F64,		QB_POW_F32_F32_F32,	},
+};
+
+qb_trig_op_factory_selector factory_pow = {
+	qb_produce_trig_op,
+	&factory_real_pow,
+	&factory_complex_pow,
 };
 
 qb_derived_op_factory factory_pow_assign = {
@@ -3755,7 +3851,7 @@ qb_float_op_factory factory_is_nan = {
 	{	QB_NAN_F64_I32,		QB_NAN_F32_I32,	},
 };	
 
-qb_basic_op_factory factory_abs = {
+qb_basic_op_factory factory_real_abs = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
@@ -3771,6 +3867,12 @@ qb_basic_op_factory factory_abs = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_ABS_F64_F64,	QB_ABS_F32_F32,	QB_NOP,	QB_ABS_S64_S64,	QB_NOP,	QB_ABS_S32_S32,	QB_NOP,	QB_ABS_S16_S16,	QB_NOP,	QB_ABS_S08_S08,	},
+};
+
+qb_trig_op_factory_selector factory_abs = {
+	qb_produce_trig_op,
+	&factory_real_abs,
+	&factory_complex_abs,
 };
 
 qb_basic_op_factory factory_min_two = {

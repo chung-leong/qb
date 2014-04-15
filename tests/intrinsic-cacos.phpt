@@ -7,20 +7,22 @@ Complex number inverse cosine test
  * A test function
  *
  * @engine	qb 
- * @local	float32[2]		$a
- * @local	float32[3][2]	$c
+ * @local	float32[2]			$a
+ * @local	complex<float32>	$b
+ * @local	float32[3][2]		$c
  *
  * @return	void
  *
  */
 function test_function() {
-	$a = array(-11.364, -24.815);
+	$a = $b = array(-11.364, -24.815);
 	$c[0] = array(0, 0);
 	$c[1] = array(0, NAN);
 	$c[2] = array(3.5231, +INF);
 	
 	$c = cacos($c);
 	echo cacos($a), "\n";
+	echo acos($b), "\n";
 	echo "$c\n";
 	echo cacos(array(4.5, NAN)), "\n";
 	echo cacos(array(-INF, 8)), "\n";
@@ -37,6 +39,7 @@ test_function();
 
 ?>
 --EXPECT--
+[2, 4]
 [2, 4]
 [[1.5708, -0], [1.5708, NAN], [1.5708, -INF]]
 [NAN, NAN]

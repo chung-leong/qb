@@ -2008,6 +2008,12 @@ int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				address->flags |= QB_ADDRESS_BOOLEAN;
 			} else if(decl->flags & QB_TYPE_DECL_IMAGE) {
 				address->flags |= QB_ADDRESS_IMAGE;
+			} else if(decl->flags & QB_TYPE_DECL_COMPLEX) {
+				address->flags |= QB_ADDRESS_COMPLEX;
+			} else if(decl->flags & QB_TYPE_DECL_VECTOR) {
+				address->flags |= QB_ADDRESS_VECTOR;
+			} else if(decl->flags & QB_TYPE_DECL_MATRIX) {
+				address->flags |= QB_ADDRESS_MATRIX;
 			}
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;
