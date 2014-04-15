@@ -2510,6 +2510,31 @@ qb_address * qb_obtain_result_destination_address(qb_compiler_context *cxt, qb_r
 	return NULL;
 }
 
+qb_primitive_type qb_get_operand_default_type(qb_compiler_context *cxt, qb_operand *operand) {
+	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		qb_result_prototype *p = operand->result_prototype;
+		do {
+			// look at the coercion flag
+			if(p->coercion_flags & QB_COERCE_TO_FLOATING_POINT) {
+				if(p->coercion_flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
+					return QB_TYPE_F64;
+				} else {
+					return QB_TYPE_F32;
+				}
+			} else if(p->coercion_flags & QB_COERCE_TO_INTEGER) {
+				if(p->coercion_flags & QB_COERCE_TO_UNSIGNED) {
+					return QB_TYPE_U32;
+				} else {
+					return QB_TYPE_S32;
+				}
+			}
+			p = p->parent;
+		} while(p);
+	}
+	// default to S32
+	return QB_TYPE_S32;
+}
+
 qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags) {
 	qb_primitive_type type1, type2;
 	qb_primitive_type definite_type;
@@ -2557,8 +2582,14 @@ qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand 
 				type1 = QB_TYPE_U32;
 			}
 		} else {
-			// default to S32
-			type1 = QB_TYPE_S32;
+			// use the coercion flags of the operands
+			for(i = 0; i < count; i++) {
+				qb_operand *operand = &operands[i];
+				type2 = qb_get_operand_default_type(cxt, operand);
+				if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
+					type1 = type2;
+				}
+			}
 		}
 	}
 	return type1;
