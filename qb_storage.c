@@ -344,8 +344,36 @@ static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dim
 	return TRUE;
 }
 
+static int32_t qb_capture_dimensions_from_utf8_string(const char *text, uint32_t byte_count, qb_dimension_mappings *m, uint32_t dimension_index) {
+	const unsigned char *bytes = (const unsigned char *) text;
+	uint32_t element_count = 0;
+	uint32_t codepoint, state = 0, i;
+
+	if(dimension_index + 1 > MAX_DIMENSION) {
+		qb_report_too_man_dimension_exception(0);
+		return FALSE;
+	}
+	
+	for(i = 0; i < byte_count; i++) {
+		if(!decode(&state, &codepoint, bytes[i])) {
+			element_count++;
+		}
+	}
+
+	if(m->src_dimensions[dimension_index] < element_count) {
+		m->src_dimensions[dimension_index] = element_count;
+	}
+	m->src_dimension_count = dimension_index + 1;
+	return TRUE;
+}
+
+
 static int32_t qb_capture_dimensions_from_string(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index) {
-	return qb_capture_dimensions_from_byte_count(Z_STRLEN_P(zvalue), m, dimension_index);
+	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+		return qb_capture_dimensions_from_utf8_string(Z_STRVAL_P(zvalue), Z_STRLEN_P(zvalue), m, dimension_index);
+	} else {
+		return qb_capture_dimensions_from_byte_count(Z_STRLEN_P(zvalue), m, dimension_index);
+	}
 }
 
 static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index);
@@ -714,7 +742,32 @@ static int32_t qb_copy_elements_from_string(zval *zstring, int8_t *dst_memory, q
 	uint32_t src_byte_count = Z_STRLEN_P(zstring);
 	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
 	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
-	memcpy(dst_memory, src_memory, src_byte_count);
+	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+		const unsigned char *bytes = (const unsigned char *) src_memory;
+		uint32_t codepoint, state = 0, i, j;
+
+		if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I16)) {
+			uint16_t *dst_elements = (uint16_t *) dst_memory;
+			for(i = 0, j = 0; j < dst_element_count && i < src_byte_count; i++) {
+				if(!decode(&state, &codepoint, bytes[i])) {
+					dst_elements[j] = codepoint;
+					j++;
+				}
+			}
+			src_byte_count = j * sizeof(uint16_t);
+		} else if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
+			uint32_t *dst_elements = (uint32_t *) dst_memory;
+			for(i = 0, j = 0; j < dst_element_count && i < src_byte_count; i++) {
+				if(!decode(&state, &codepoint, bytes[i])) {
+					dst_elements[j] = codepoint;
+					j++;
+				}
+			}
+			src_byte_count = j * sizeof(uint32_t);
+		}
+	} else {
+		memcpy(dst_memory, src_memory, src_byte_count);
+	}
 	if(src_byte_count < dst_byte_count) {
 		if(dimension_index == 0) {
 			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
@@ -1422,30 +1475,38 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 
 		// use memory from the source if possible
 		if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
-			if(Z_TYPE_P(zvalue) == IS_STRING) {
-				int32_t can_modify_zval = TRUE;
-				if(IS_INTERNED(Z_STRVAL_P(zvalue))) {
-					// the zval is a constant
-					can_modify_zval = FALSE;
-				} else if(!Z_ISREF_P(zvalue) && Z_REFCOUNT_P(zvalue) > 1) {
-					// the zval is copy-on-write
-					can_modify_zval = FALSE;
+			int32_t need_utf8_decode = FALSE;
+			if(m->dst_address_flags & QB_ADDRESS_STRING) {
+				if(m->dst_element_type >= QB_TYPE_I16) {
+					need_utf8_decode = TRUE;
 				}
-				if(can_modify_zval) {
-					int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
-					uint32_t src_bytes_available = Z_STRLEN_P(zvalue) + 1;
-					if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
-						if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
-							ZVAL_NULL(zvalue);
-						}
-						return TRUE;
+			}
+			if(!need_utf8_decode) {
+				if(Z_TYPE_P(zvalue) == IS_STRING) {
+					int32_t can_modify_zval = TRUE;
+					if(IS_INTERNED(Z_STRVAL_P(zvalue))) {
+						// the zval is a constant
+						can_modify_zval = FALSE;
+					} else if(!Z_ISREF_P(zvalue) && Z_REFCOUNT_P(zvalue) > 1) {
+						// the zval is copy-on-write
+						can_modify_zval = FALSE;
 					}
-				}
-			} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
-				php_stream *stream = qb_get_file_stream(zvalue);
-				if(stream) {
-					if(qb_connect_segment_to_file(dst_segment, stream, dst_byte_count, !IS_READ_ONLY(address))) {
-						return TRUE;
+					if(can_modify_zval) {
+						int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
+						uint32_t src_bytes_available = Z_STRLEN_P(zvalue) + 1;
+						if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+							if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
+								ZVAL_NULL(zvalue);
+							}
+							return TRUE;
+						}
+					}
+				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
+					php_stream *stream = qb_get_file_stream(zvalue);
+					if(stream) {
+						if(qb_connect_segment_to_file(dst_segment, stream, dst_byte_count, !IS_READ_ONLY(address))) {
+							return TRUE;
+						}
 					}
 				}
 			}
