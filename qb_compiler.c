@@ -3659,7 +3659,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				}
 			}	break;
 			case QB_STAGE_CONSTANT_EXPRESSION_EVALUATION: {
-				if(result_prototype && (result_prototype->address_flags & QB_ADDRESS_CONSTANT)) {
+				if(result_prototype && (result_prototype->address_flags & QB_ADDRESS_CONSTANT) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT)) {
 					qb_finalize_result_prototype(cxt, result_prototype);
 					expr_type = result_prototype->final_type;
 					address_flags = result_prototype->address_flags;

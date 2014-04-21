@@ -2029,7 +2029,7 @@ qb_derived_op_factory factory_reciprocal = {
 	NULL,
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
-	&factory_divide,
+	&factory_real_divide,
 };
 
 qb_derived_op_factory factory_add_assign = {
