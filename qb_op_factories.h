@@ -47,11 +47,14 @@
 #define QB_OP_FACTORY_INLINE							2
 #define QB_OP_FACTORY_ZEND								3
 
+// special address flags 
 enum {
 	QB_ADDRESS_MM_RESULT								= 0x08000000,
 	QB_ADDRESS_MV_RESULT								= 0x04000000,
 	QB_ADDRESS_VM_RESULT								= 0x02000000,
 	QB_ADDRESS_VV_RESULT								= 0x01000000,
+	QB_ADDRESS_LITERAL_ARRAY							= 0x00800000,
+	QB_ADDRESS_MULTIDIMENSIONAL_LITERAL_ARRAY			= 0x00400000,
 };
 
 typedef struct qb_op_factory							qb_op_factory; 

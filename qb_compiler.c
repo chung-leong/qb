@@ -1091,7 +1091,7 @@ qb_address * qb_obtain_constant_indices(qb_compiler_context *cxt, uint32_t *indi
 	return address;
 }
 
-static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type element_type) {
+uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue) {
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
 		USE_TSRM
 		HashTable *ht = Z_ARRVAL_P(zvalue);
@@ -1099,7 +1099,7 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 		uint32_t overall_sub_array_dimension_count = 0;
 		for(p = ht->pListHead; p; p = p->pNext) {
 			zval **p_element = p->pData;
-			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
+			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element);
 			if(overall_sub_array_dimension_count) {
 				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
 					qb_report_illegal_array_structure_exception(cxt->line_id);
@@ -1417,7 +1417,7 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 
 		// figure out the dimensions of the array first
 		uint32_t dimensions[MAX_DIMENSION] = { 0 };
-		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, zvalue, desired_type);
+		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, zvalue);
 		qb_get_zend_array_dimensions(cxt, zvalue, desired_type, dimensions, dimension_count);
 
 		// create a local array for it
@@ -1743,7 +1743,7 @@ qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_init
 	}
 }
 
-static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_primitive_type element_type) {
+uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer) {
 	uint32_t overall_sub_array_dimension_count = 0, i;
 
 	for(i = 0; i < initializer->element_count; i++) {
@@ -1751,9 +1751,9 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 		uint32_t sub_array_dimension_count;
 
 		if(element->type == QB_OPERAND_ARRAY_INITIALIZER) {
-			sub_array_dimension_count = qb_get_array_initializer_dimension_count(cxt, element->array_initializer, element_type);
+			sub_array_dimension_count = qb_get_array_initializer_dimension_count(cxt, element->array_initializer);
 		} else if(element->type == QB_OPERAND_ZVAL) {
-			sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, element->constant, element_type);
+			sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, element->constant);
 		} else if(element->type == QB_OPERAND_ADDRESS && !IS_SCALAR(element->address)) {
 			sub_array_dimension_count = element->address->dimension_count;
 		} else {
@@ -1881,7 +1881,7 @@ static qb_address * qb_retrieve_array_from_initializer(qb_compiler_context *cxt,
 	uint32_t dimension_count;
 	
 	// figure out the dimensions of the array first
-	dimension_count = qb_get_array_initializer_dimension_count(cxt, initializer, element_type);
+	dimension_count = qb_get_array_initializer_dimension_count(cxt, initializer);
 	qb_get_array_initializer_dimensions(cxt, initializer, element_type, dimensions, dimension_count);
 
 	if(initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
@@ -2058,7 +2058,7 @@ int32_t qb_perform_static_initialization(qb_compiler_context *cxt, qb_variable *
 		if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
 			// initializing 64-bit integer might require special handling
 			qb_primitive_type desired_type = qvar->address->type;
-			uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, initial_value, desired_type);
+			uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, initial_value);
 			if(qvar->address->dimension_count + 1 == dimension_count) {
 				// the array has one less dimension than the variable
 				uint32_t dimensions[MAX_DIMENSION] = { 0 };

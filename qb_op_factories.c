@@ -571,7 +571,7 @@ qb_derived_op_factory factory_assign_temporary = {
 
 qb_op_factory factory_array_init = {
 	NULL,
-	NULL,
+	qb_resolve_expression_flags_array_init,
 	qb_resolve_expression_type_lvalue,
 	qb_link_results_array_init,
 	NULL,
@@ -588,8 +588,8 @@ qb_op_factory factory_array_init = {
 
 qb_op_factory factory_array_append = {
 	NULL,
-	NULL,
-	NULL,
+	qb_resolve_expression_flags_array_append,
+	qb_resolve_expression_type_array_append,
 	qb_link_results_array_append,
 	NULL,
 	qb_set_result_prototype,

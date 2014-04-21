@@ -410,6 +410,8 @@ int32_t qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operan
 void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags);
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
 int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count);
+uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue);
+uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer);
 
 int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_index);
 uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index, uint32_t line_number);

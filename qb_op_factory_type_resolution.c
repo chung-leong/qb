@@ -122,14 +122,54 @@ static int32_t qb_resolve_expression_flags_constant_boolean(qb_compiler_context 
 
 static void qb_get_address_flags(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count, int32_t *flags) {
 	uint32_t i;
+	uint32_t flags_set = 0;
+	int32_t unresolved = FALSE;
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {
 			flags[i] = operand->address->flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX);
 		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 			flags[i] = operand->result_prototype->address_flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX); 
+			if(!flags[i]) {
+				if(operand->result_prototype->address_flags & QB_ADDRESS_LITERAL_ARRAY) {
+					unresolved = TRUE;
+				}
+			}
 		} else {
 			flags[i] = 0;
+			unresolved = TRUE;
+		}
+		flags_set |= flags[i];
+	}
+	if(unresolved && flags_set) {
+		// try to figure out what literal values ought to be
+		for(i = 0; i < operand_count; i++) {
+			qb_operand *operand = &operands[i];
+
+			// see how many dimension there are
+			uint32_t dimension_count = 0;
+			if(operand->type == QB_OPERAND_ZVAL) {
+				dimension_count = qb_get_zend_array_dimension_count(cxt, operand->constant);
+			} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+				dimension_count = qb_get_array_initializer_dimension_count(cxt, operand->array_initializer);
+			} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				if(operand->result_prototype->address_flags & QB_ADDRESS_LITERAL_ARRAY) {
+					dimension_count = (operand->result_prototype->address_flags & QB_ADDRESS_MULTIDIMENSIONAL_LITERAL_ARRAY) ? 2 : 1;
+				}
+			}
+			if(dimension_count > 0) {
+				if(dimension_count > 1 && flags_set & QB_ADDRESS_MATRIX) {
+					// there's more than one dimension and the other operand is a matrix,
+					// treat the literal array as a matrix
+					flags[i] = QB_ADDRESS_MATRIX;
+				} else if(flags_set & QB_ADDRESS_VECTOR) {
+					// the other operand is a vector--treat it as a vector
+					flags[i] = QB_ADDRESS_VECTOR;
+				} else if(flags_set & QB_ADDRESS_COMPLEX) {
+					// the other operand is a complex number--treat it as a complex number
+					flags[i] = QB_ADDRESS_COMPLEX;
+				}
+			}
 		}
 	}
 }
@@ -362,6 +402,33 @@ static int32_t qb_resolve_expression_type_fetch_class(qb_compiler_context *cxt, 
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_flags_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags = QB_ADDRESS_LITERAL_ARRAY;
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_flags_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	qb_operand *value = &operands[0];
+	*p_flags = QB_ADDRESS_LITERAL_ARRAY;
+	if(value->type == QB_OPERAND_ADDRESS) {
+		if(value->address->dimension_count > 0) {
+			*p_flags |= QB_ADDRESS_MULTIDIMENSIONAL_LITERAL_ARRAY;
+		}
+		*p_flags |= value->address->flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX);
+	} else if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		if(value->result_prototype->address_flags & QB_ADDRESS_LITERAL_ARRAY) {
+			*p_flags |= QB_ADDRESS_MULTIDIMENSIONAL_LITERAL_ARRAY;
+		}
+		*p_flags |= value->result_prototype->address_flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX);
+	}
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_type_array_append(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
+	*p_type = QB_TYPE_ANY;
 	return TRUE;
 }
 
