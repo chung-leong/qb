@@ -236,6 +236,18 @@ static int32_t qb_resolve_expression_type_assign(qb_compiler_context *cxt, qb_op
 	return TRUE;
 }
 
+static int32_t qb_resolve_expression_flags_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	qb_operand *value = &operands[0];
+	if(value->type == QB_OPERAND_ADDRESS) {
+		*p_flags = value->address->flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_STRING | QB_ADDRESS_BOOLEAN);
+	} else if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		*p_flags = value->result_prototype->address_flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_STRING | QB_ADDRESS_BOOLEAN); 
+	} else {
+		*p_flags = 0;
+	}
+	return TRUE;
+}
+
 static int32_t qb_resolve_expression_type_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *value = &operands[0];
 	uint32_t retrival_flags = 0;
