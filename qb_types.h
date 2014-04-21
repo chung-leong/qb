@@ -374,16 +374,23 @@ decode(uint32_t* state, uint32_t* codep, uint32_t byte) {
 static uint32_t inline
 encode(uint32_t c, uint8_t *bytes) {
 	if (c < 0x80) {
-		*bytes = c;
+		bytes[0] = c;
 		return 1;
+	} else if(c < 0x800) {
+		bytes[0] = (-1 << 6) | (c >> 6);
+		bytes[1] = (((c >> 0) & 0x3f) | 0x80);
+		return 2;
+	} else if(c < 0x10000) {
+		bytes[0] = (-1 << 5) | (c >> 12);
+		bytes[1] = (((c >> 6) & 0x3f) | 0x80);
+		bytes[2] = (((c >> 0) & 0x3f) | 0x80);
+		return 3;
 	} else {
-		int32_t i;
-		uint32_t len = c < 0x800 ? 1 : c < 0x10000 ? 2 : 3;
-		*bytes++ = (-1 << (7 - len)) | (c >> len * 6);
-		for (i = len; i > 0; --i, c >>= 6) {
-			*bytes++ = ((c & 0x3f) | 0x80);
-		}
-		return len + 1;
+		bytes[0] = (-1 << 4) | (c >> 18);
+		bytes[1] = (((c >> 12) & 0x3f) | 0x80);
+		bytes[2] = (((c >> 6) & 0x3f) | 0x80);
+		bytes[3] = (((c >> 0) & 0x3f) | 0x80);
+		return 4;
 	}
 }
 

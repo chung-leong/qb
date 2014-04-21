@@ -369,7 +369,13 @@ static int32_t qb_capture_dimensions_from_utf8_string(const char *text, uint32_t
 
 
 static int32_t qb_capture_dimensions_from_string(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index) {
-	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+	int32_t need_utf8_decoding = FALSE;
+	if(m->dst_address_flags & QB_ADDRESS_STRING) {
+		if(m->dst_element_type >= QB_TYPE_I16) {
+			need_utf8_decoding = TRUE;
+		}
+	}
+	if(need_utf8_decoding) {
 		return qb_capture_dimensions_from_utf8_string(Z_STRVAL_P(zvalue), Z_STRLEN_P(zvalue), m, dimension_index);
 	} else {
 		return qb_capture_dimensions_from_byte_count(Z_STRLEN_P(zvalue), m, dimension_index);
@@ -742,7 +748,13 @@ static int32_t qb_copy_elements_from_string(zval *zstring, int8_t *dst_memory, q
 	uint32_t src_byte_count = Z_STRLEN_P(zstring);
 	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
 	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
-	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+	int32_t need_utf8_decoding = FALSE;
+	if(m->dst_address_flags & QB_ADDRESS_STRING) {
+		if(m->dst_element_type >= QB_TYPE_I16) {
+			need_utf8_decoding = TRUE;
+		}
+	}
+	if(need_utf8_decoding) {
 		const unsigned char *bytes = (const unsigned char *) src_memory;
 		uint32_t codepoint, state = 0, i, j;
 
@@ -1077,8 +1089,33 @@ static int32_t qb_copy_elements_to_object(int8_t *src_memory, zval *zobject, qb_
 static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_dimension_mappings *m, uint32_t dimension_index) {
 	// make sure the string is the right size
 	uint32_t src_element_count = m->src_array_sizes[dimension_index];
-	uint32_t src_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
+	uint32_t src_byte_count;
 	int8_t *dst_memory;
+	int32_t need_utf8_encoding = FALSE;
+
+	if(m->src_address_flags & QB_ADDRESS_STRING) {
+		if(m->src_element_type >= QB_TYPE_I16) {
+			need_utf8_encoding = TRUE;
+		}
+	}
+	if(need_utf8_encoding) {
+		int8_t buffer[4];
+		uint32_t i;
+		src_byte_count = 0;
+		if(STORAGE_TYPE_MATCH(m->src_element_type, QB_TYPE_I16)) {
+			uint16_t *src_elements = (uint16_t *) src_memory;
+			for(i = 0; i < src_element_count; i++) {
+				src_byte_count += encode(src_elements[i], buffer);
+			}
+		} else if(STORAGE_TYPE_MATCH(m->src_element_type, QB_TYPE_I32)) {
+			uint32_t *src_elements = (uint32_t *) src_memory;
+			for(i = 0; i < src_element_count; i++) {
+				src_byte_count += encode(src_elements[i], buffer);
+			}
+		}
+	} else {
+		src_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
+	}
 	if(Z_STRLEN_P(zstring) == src_byte_count) {
 		dst_memory = (int8_t *) Z_STRVAL_P(zstring);
 	} else {
@@ -1090,7 +1127,23 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 		Z_STRVAL_P(zstring) = (char *) dst_memory;
 		Z_STRLEN_P(zstring) = src_byte_count;
 	}
-	memcpy(dst_memory, src_memory, src_byte_count);
+	if(need_utf8_encoding) {
+		uint32_t i, j;
+		if(STORAGE_TYPE_MATCH(m->src_element_type, QB_TYPE_I16)) {
+			uint16_t *src_elements = (uint16_t *) src_memory;
+			for(i = 0, j = 0; i < src_element_count; i++) {
+				j += encode(src_elements[i], dst_memory + j);
+			}
+		} else if(STORAGE_TYPE_MATCH(m->src_element_type, QB_TYPE_I32)) {
+			uint32_t *src_elements = (uint32_t *) src_memory;
+			for(i = 0, j = 0; i < src_element_count; i++) {
+				j += encode(src_elements[i], dst_memory + j);
+			}
+		}
+
+	} else {
+		memcpy(dst_memory, src_memory, src_byte_count);
+	}
 	return TRUE;
 }
 
