@@ -37,40 +37,50 @@ static qb_string_type qb_select_get_string_type(qb_compiler_context *cxt, qb_pri
 	}
 }
 
-static int32_t qb_select_opcode_simple(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_real_or_complex(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+	f = qb_select_complex_op_factory(f, flags);
+	return f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
+}
+
+static int32_t qb_select_opcode_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+	f = qb_select_multiply_factory(f, flags);
+	return f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
+}
+
+static int32_t qb_select_opcode_simple(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_simple_op_factory *sf = (qb_simple_op_factory *) f;
 	*p_opcode = sf->opcode;
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_basic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_basic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_basic_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_basic_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_primitive_type operand_type = operands[0].address->type;
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	f = df->parent;
-	return f->select_opcode(cxt, f, expr_type, operands, operand_count, result, p_opcode);
+	return f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
 }
 
-static int32_t qb_select_opcode_derived_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_derived_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_operand *value = &operands[operand_count - 1];
 	qb_operand binary_operands[2];
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	binary_operands[0] = *result;
 	binary_operands[1] = *value;
 	f = df->parent;
-	return f->select_opcode(cxt, f, expr_type, binary_operands, 2, result, p_opcode);
+	return f->select_opcode(cxt, f, expr_type, flags, binary_operands, 2, result, p_opcode);
 }
 
-static int32_t qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *variable = &operands[0];
 	qb_primitive_type operand_type = variable->address->type;
@@ -83,7 +93,7 @@ static int32_t qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_fac
 	}
 }
 
-static int32_t qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0];
 	qb_primitive_type operand_type = container->address->type;
@@ -96,7 +106,7 @@ static int32_t qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb
 	}
 }
 
-static int32_t qb_select_opcode_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
@@ -110,7 +120,7 @@ static int32_t qb_select_opcode_object_property_isset(qb_compiler_context *cxt, 
 	}
 }
 
-static int32_t qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *variable = &operands[0];
 	qb_primitive_type operand_type = variable->address->type;
@@ -129,7 +139,7 @@ static int32_t qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
-static int32_t qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_unset_element_op_factory *uf = (qb_unset_element_op_factory *) f;
 	qb_operand *container = &operands[0];
 	qb_primitive_type operand_type = container->address->type;
@@ -144,7 +154,7 @@ static int32_t qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb
 	}
 }
 
-static int32_t qb_select_opcode_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
@@ -217,7 +227,7 @@ static int32_t qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, qb_
 	}
 }
 
-static int32_t qb_select_opcode_nullary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_nullary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
 	if(qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, &operands[0], p_opcode)) {
 		return TRUE;
@@ -252,7 +262,7 @@ static int32_t qb_select_vectorized_unary_opcode(qb_compiler_context *cxt, qb_op
 	}
 }
 
-static int32_t qb_select_opcode_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
 	return qb_select_type_dependent_opcode(cxt, af->regular_opcodes, expr_type, p_opcode);
@@ -286,7 +296,7 @@ static int32_t qb_select_vectorized_binary_opcode(qb_compiler_context *cxt, qb_o
 	}
 }
 
-static int32_t qb_select_opcode_binary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_binary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
 	if(qb_select_vectorized_binary_opcode(cxt, af->vector_opcodes, &operands[0], &operands[1], result, p_opcode)) {
 		return TRUE;
@@ -294,7 +304,7 @@ static int32_t qb_select_opcode_binary_arithmetic(qb_compiler_context *cxt, qb_o
 	return qb_select_type_dependent_opcode(cxt, af->regular_opcodes, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_operand *value = &operands[operand_count - 1];
 	qb_copy_op_factory *cf = (qb_copy_op_factory *) f;
 	qb_address *src_address = value->address;
@@ -321,25 +331,25 @@ static int32_t qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory *
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	if(cxt->return_variable->address) {
-		return qb_select_opcode_derived(cxt, f, expr_type, operands, operand_count, result, p_opcode);
+		return qb_select_opcode_derived(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
 	} else {
 		*p_opcode = QB_NOP;
 		return TRUE;
 	}
 }
 
-static int32_t qb_select_opcode_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	if(cxt->return_key_variable->address) {
-		return qb_select_opcode_derived(cxt, f, expr_type, operands, operand_count, result, p_opcode);
+		return qb_select_opcode_derived(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
 	} else {
 		*p_opcode = QB_NOP;
 		return TRUE;
 	}
 }
 
-static int32_t qb_select_opcode_increment_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_increment_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	if(cxt->return_key_variable->address) {
 		qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 		qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
@@ -350,28 +360,28 @@ static int32_t qb_select_opcode_increment_generator_key(qb_compiler_context *cxt
 	}
 }
 
-static int32_t qb_select_opcode_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_gather_op_factory *gf = (qb_gather_op_factory *) f;
 	qb_operand *dest = &operands[0];
 	uint32_t width = DIMENSION(dest->address, -1);
 	return qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], dest->address->type, p_opcode);
 }
 
-static int32_t qb_select_opcode_scatter(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_scatter(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_gather_op_factory *gf = (qb_gather_op_factory *) f;
 	qb_operand *source = &operands[1];
 	uint32_t width = DIMENSION(source->address, -1);
 	return qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], source->address->type, p_opcode);
 }
 
-static int32_t qb_select_opcode_copy_dimension(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_copy_dimension(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	uint32_t dimension_count = (operand_count - 2) / 4;
 	*p_opcode = bf->opcodes[dimension_count - 2];
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_append_op_factory *sf = (qb_append_op_factory *) f;
 	qb_address *src_address = operands[1].address;
 	qb_address *dst_address = result->address;
@@ -389,7 +399,7 @@ static int32_t qb_select_opcode_append_string(qb_compiler_context *cxt, qb_op_fa
 	}
 }
 
-static int32_t qb_select_opcode_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_append_op_factory *sf = (qb_append_op_factory *) df->parent;
 	qb_address *dst_address = result->address;
@@ -398,7 +408,7 @@ static int32_t qb_select_opcode_append_char(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_print_op_factory *sf = (qb_print_op_factory *) f;
 	qb_address *address = operands[0].address;
 
@@ -415,7 +425,7 @@ static int32_t qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
-static int32_t qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) f;
 	qb_address *image_address = operands[0].address;
 	qb_address *address_x = operands[1].address;
@@ -435,7 +445,7 @@ static int32_t qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) df->parent;
 	qb_address *image_address = operands[0].address;
@@ -443,13 +453,13 @@ static int32_t qb_select_opcode_sampling_vector(qb_compiler_context *cxt, qb_op_
 	return qb_select_type_dependent_opcode(cxt, pf->opcodes[channel_count - 1], image_address->type, p_opcode);
 }
 
-static int32_t qb_select_opcode_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_array_resize_op_factory *af = (qb_array_resize_op_factory *) f;
 	qb_address *address = operands[0].address;
 	return qb_select_type_dependent_opcode(cxt, af->opcodes[address->dimension_count - 1], address->type, p_opcode);
 }
 
-static int32_t qb_select_opcode_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) f;
 	qb_address *address = operands[0].address;
 	uint32_t channel_count = DIMENSION(address, -1);
@@ -465,7 +475,7 @@ static int32_t qb_select_opcode_pixel(qb_compiler_context *cxt, qb_op_factory *f
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address = operands[0].address;
 	uint32_t dimension = 0;
@@ -488,7 +498,7 @@ static int32_t qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_facto
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -514,7 +524,7 @@ static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	if(operand_count == 3) {
 		qb_address *address1 = operands[0].address;
@@ -586,7 +596,7 @@ static int32_t qb_select_matrix_opcode(qb_compiler_context *cxt, qb_matrix_op_fa
 	}
 }
 
-static int32_t qb_select_opcode_mm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_mm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -599,7 +609,7 @@ static int32_t qb_select_opcode_mm_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_mv_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_mv_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -612,7 +622,7 @@ static int32_t qb_select_opcode_mv_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_vm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_vm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -625,16 +635,16 @@ static int32_t qb_select_opcode_vm_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_operand reversed_operands[2];
 	reversed_operands[0] = operands[1];
 	reversed_operands[1] = operands[0];
 	f = df->parent;
-	return f->select_opcode(cxt, f, expr_type, reversed_operands, operand_count, result, p_opcode);
+	return f->select_opcode(cxt, f, expr_type, flags, reversed_operands, operand_count, result, p_opcode);
 }
 
-static int32_t qb_select_opcode_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	USE_TSRM
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
 	if(QB_G(column_major_matrix)) {
@@ -642,10 +652,10 @@ static int32_t qb_select_opcode_matrix_current_mode(qb_compiler_context *cxt, qb
 	} else {
 		f = s->rm_factory;
 	}
-	return f->select_opcode(cxt, f, expr_type, operands, operand_count, result, p_opcode);
+	return f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode);
 }
 
-static int32_t qb_select_opcode_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address = operands[0].address;
 	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address, -2) ? DIMENSION(address, -2) : INVALID_INDEX;
@@ -657,7 +667,7 @@ static int32_t qb_select_opcode_matrix_unary(qb_compiler_context *cxt, qb_op_fac
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_transform_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_transform_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -670,7 +680,7 @@ static int32_t qb_select_opcode_transform_cm(qb_compiler_context *cxt, qb_op_fac
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_transform_rm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_transform_rm(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
@@ -683,9 +693,9 @@ static int32_t qb_select_opcode_transform_rm(qb_compiler_context *cxt, qb_op_fac
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_complex_number(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_complex_number(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	uint32_t i;
-	if(!qb_select_opcode_basic(cxt, f, expr_type, operands, operand_count, result, p_opcode)) {
+	if(!qb_select_opcode_basic(cxt, f, expr_type, flags, operands, operand_count, result, p_opcode)) {
 		return FALSE;
 	}
 
@@ -699,7 +709,7 @@ static int32_t qb_select_opcode_complex_number(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_utf8_op_factory *uf = (qb_utf8_op_factory *) f;
 	if(result->address->type == QB_TYPE_U32) {
 		*p_opcode = uf->ucs32_opcode;
@@ -709,7 +719,7 @@ static int32_t qb_select_opcode_utf8_decode(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_operand *codepoints = &operands[0];
 	qb_utf8_op_factory *uf = (qb_utf8_op_factory *) f;
 	if(codepoints->address->type == QB_TYPE_U32) {
@@ -720,12 +730,12 @@ static int32_t qb_select_opcode_utf8_encode(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_select_opcode_expression_type(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_expression_type(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type, p_opcode);
 }
 
-static int32_t qb_select_opcode_ext(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
+static int32_t qb_select_opcode_ext(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	USE_TSRM
 	if(QB_G(allow_debugger_inspection)) {
 		qb_simple_op_factory *sf = (qb_simple_op_factory *) f;

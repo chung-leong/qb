@@ -407,12 +407,22 @@ static int32_t qb_append_address_dimensions(qb_compiler_context *cxt, qb_address
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_real_or_complex(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	f = qb_select_complex_op_factory(f, flags);
+	return (f->set_dimensions) ? f->set_dimensions(cxt, f, flags, operands, operand_count, dim) : TRUE;
+}
+
+static int32_t qb_set_result_dimensions_multiply(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	f = qb_select_multiply_factory(f, flags);
+	return (f->set_dimensions) ? f->set_dimensions(cxt, f, flags, operands, operand_count, dim) : TRUE;
+}
+
+static int32_t qb_set_result_dimensions_first_operand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	return qb_copy_address_dimensions(cxt, first->address, 0, dim);
 }
 
-static int32_t qb_set_result_dimensions_larger_of_two(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_larger_of_two(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1];
 	return qb_choose_dimensions_from_two_addresses(cxt, first->address, 0, second->address, 0, dim);
 }
@@ -435,26 +445,26 @@ static qb_address * qb_get_vector_width_address(qb_compiler_context *cxt, qb_ope
 	return DIMENSION_ADDRESS(from_address, -1);
 }
 
-static int32_t qb_set_result_dimensions_larger_of_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_larger_of_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1];
 	qb_address *vector_width_address = qb_get_vector_width_address(cxt, operands, operand_count);
 	return qb_choose_dimensions_from_two_vector_addresses(cxt, first->address, second->address, vector_width_address, dim);
 }
 
-static int32_t qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
 	return qb_choose_dimensions_from_three_addresses(cxt, first->address, 0, second->address, 0, third->address, 0, dim);
 }
 
-static int32_t qb_set_result_dimensions_larger_of_three_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_larger_of_three_vectors(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
 	qb_address *vector_width_address = qb_get_vector_width_address(cxt, operands, operand_count);
 	return qb_choose_dimensions_from_three_vector_addresses(cxt, first->address, second->address, third->address, vector_width_address, dim);
 }
 
-static int32_t qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	if(operand_count == 2) {
-		return qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);
+		return qb_set_result_dimensions_larger_of_two(cxt, f, flags, operands, operand_count, dim);
 	} else {
 		dim->array_size_address = cxt->one_address;
 		dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;		
@@ -463,30 +473,30 @@ static int32_t qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_fac
 	}
 }
 
-static int32_t qb_set_result_dimensions_round_to_precision(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_round_to_precision(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	switch(operand_count) {
-		case 1: return qb_set_result_dimensions_first_operand(cxt, f, operands, operand_count, dim); 
-		case 2: return qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);
-		case 3: return qb_set_result_dimensions_largest_of_three(cxt, f, operands, operand_count, dim);
+		case 1: return qb_set_result_dimensions_first_operand(cxt, f, flags, operands, operand_count, dim); 
+		case 2: return qb_set_result_dimensions_larger_of_two(cxt, f, flags, operands, operand_count, dim);
+		case 3: return qb_set_result_dimensions_largest_of_three(cxt, f, flags, operands, operand_count, dim);
 	}
 	return FALSE;
 }
 
-static int32_t qb_set_result_dimensions_length(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_length(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *vector_address = operands[0].address;
 	return qb_copy_address_dimensions(cxt, vector_address, -1, dim);
 }
 
-static int32_t qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1];
 	return qb_choose_dimensions_from_two_addresses(cxt, first->address, -1, second->address, -1, dim);
 }
 
-static int32_t qb_set_result_dimensions_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_cross_product(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	if(operand_count == 3) {
-		return qb_set_result_dimensions_larger_of_three_vectors(cxt, f, operands, operand_count, dim);
+		return qb_set_result_dimensions_larger_of_three_vectors(cxt, f, flags, operands, operand_count, dim);
 	} else {
-		return qb_set_result_dimensions_larger_of_two_vectors(cxt, f, operands, operand_count, dim);
+		return qb_set_result_dimensions_larger_of_two_vectors(cxt, f, flags, operands, operand_count, dim);
 	}
 }
 
@@ -529,7 +539,7 @@ static int32_t qb_copy_matrix_multiplication_result_dimensions(qb_compiler_conte
 }
 
 
-static int32_t qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
@@ -549,7 +559,7 @@ static int32_t qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
@@ -566,7 +576,7 @@ static int32_t qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_
 	}
 }
 
-static int32_t qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m2_col_address = qb_obtain_matrix_column_address(cxt, matrix2->address, order);
@@ -584,16 +594,16 @@ static int32_t qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_
 }
 
 // make use of the fact that A' * B' = (B * A)' 
-static int32_t qb_set_result_dimensions_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_operand reversed_operands[2];
 	reversed_operands[0] = operands[1];
 	reversed_operands[1] = operands[0];
 	f = df->parent;
-	return f->set_dimensions(cxt, f, reversed_operands, 2, dim);
+	return f->set_dimensions(cxt, f, flags, reversed_operands, 2, dim);
 }
 
-static int32_t qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	USE_TSRM
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
 	if(QB_G(column_major_matrix)) {
@@ -601,10 +611,10 @@ static int32_t qb_set_result_dimensions_matrix_current_mode(qb_compiler_context 
 	} else {
 		f = s->rm_factory;
 	}
-	return f->set_dimensions(cxt, f, operands, operand_count, dim);
+	return f->set_dimensions(cxt, f, flags, operands, operand_count, dim);
 }
 
-static int32_t qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address, *temp;
 	if(!qb_copy_address_dimensions(cxt, matrix_address, 0, dim)) {
 		return FALSE;
@@ -617,12 +627,12 @@ static int32_t qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address;
 	return qb_copy_address_dimensions(cxt, matrix_address, -2, dim);
 }
 
-static int32_t qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *image_address = operands[0].address;
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
@@ -644,12 +654,12 @@ static int32_t qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op
 	}
 }
 
-static int32_t qb_set_result_dimensions_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *image_address = operands[0].address;
 	return qb_copy_address_dimensions(cxt, image_address, 2, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	uint32_t i;
 	uint32_t result_dimension_count = 1;
 	qb_address **result_element_dimension_addresses = NULL;
@@ -677,7 +687,7 @@ static int32_t qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *index_address = operands[0].address;
 	qb_address *number_address = operands[1].address;
 	qb_address *value_address = operands[2].address;
@@ -696,7 +706,7 @@ static int32_t qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_
 	return qb_append_address_dimensions(cxt, first_dimension_address, value_address, 0, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *container_address = operands[0].address;
 	qb_address *dimension_address = container_address->dimension_addresses[0];
 	qb_address *min_dimension_address = operands[1].address;
@@ -705,20 +715,20 @@ static int32_t qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_o
 	return qb_append_address_dimensions(cxt, first_dimension_address, container_address, 1, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *address = operands[0].address;
 	// copy the first dimension then the rest, skipping over the second
 	return qb_merge_address_dimensions(cxt, address, -((int32_t) address->dimension_count - 1), address, +2, dim);
 }
 
-static int32_t qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	dim->array_size_address = qb_obtain_on_demand_value(cxt, &factory_range_count, operands, operand_count);
 	dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
 	dim->dimension_count = 1;
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	if(operands[1].type == QB_OPERAND_ADDRESS) {
 		qb_address *count_address = operands[1].address;
 		dim->array_size_address = count_address;
@@ -732,45 +742,45 @@ static int32_t qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_diff(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_diff_count, operands, operand_count);
 	return qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_intersect(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_intersect(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_intersect_count, operands, operand_count);
 	return qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_slice(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_slice_count, operands, operand_count);
 	return qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
-static int32_t qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_unique_count, operands, operand_count);
 	return qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
-static int32_t qb_set_result_dimensions_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *decoded_length_address = qb_obtain_on_demand_value(cxt, &factory_utf8_decode_count, operands, operand_count);
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *decoded_length_address = qb_obtain_on_demand_value(cxt, &factory_utf8_encode_count, operands, operand_count);
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;
 	return TRUE;
 }
 
-static int32_t qb_set_result_dimensions_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static int32_t qb_set_result_dimensions_pack(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *value = &operands[0];
 	uint32_t byte_count = BYTE_COUNT(1, value->address->type);
 	qb_address *byte_count_address = qb_obtain_constant_U32(cxt, byte_count);

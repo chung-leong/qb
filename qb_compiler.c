@@ -384,7 +384,7 @@ qb_address * qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_address *m
 		return multiplicand_address;
 	} else {
 		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { multiplicand_address } }, { QB_OPERAND_ADDRESS, { multiplier_address } } };
-		return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
+		return qb_obtain_on_demand_value(cxt, &factory_real_multiply, operands, 2);
 	}
 }
 
@@ -2829,8 +2829,9 @@ qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *factory, 
 		qb_primitive_type expr_type;
 		uint32_t address_flags;
 		// ask the factory to set the result and return that 
-		f->resolve_type(cxt, f, expr->operands, expr->operand_count, &expr_type, &address_flags);
-		f->set_final_result(cxt, f, expr_type, expr->operands, expr->operand_count, expr->result, NULL);
+		f->resolve_flags(cxt, f, expr->operands, expr->operand_count, &address_flags);
+		f->resolve_type(cxt, f, address_flags, expr->operands, expr->operand_count, &expr_type);
+		f->set_final_result(cxt, f, expr_type, address_flags, expr->operands, expr->operand_count, expr->result, NULL);
 		result_address = expr->result->address;
 		qb_mark_as_tagged(cxt, result_address);
 		result_address->expression = expr;
@@ -2916,7 +2917,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 		} else {
 			if(array_offset_address == cxt->zero_address) {
 				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } } };
-				return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
+				return qb_obtain_on_demand_value(cxt, &factory_real_multiply, operands, 2);
 			} else {
 				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } }, { QB_OPERAND_ADDRESS, { array_offset_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 3);
@@ -3295,7 +3296,7 @@ static void qb_finalize_result_prototype(qb_compiler_context *cxt, qb_result_pro
 
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_op *qop, uint32_t flags);
 
-int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
+int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
 	qb_op_factory *f = factory;
 	qb_opcode opcode = QB_NOP;
 	qb_op *qop;
@@ -3305,7 +3306,7 @@ int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type 
 	// get the opcode for the operands 
 	// at this point, the operands should have the correct type
 	if(f->select_opcode) {
-		if(!f->select_opcode(cxt, f, expr_type, operands, operand_count, result, &opcode)) {
+		if(!f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, &opcode)) {
 			return FALSE;
 		}
 	}
@@ -3329,7 +3330,7 @@ int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type 
 		// move the operands into the op
 		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
 		if(f->transfer_operands) {
-			if(!f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count)) {
+			if(!f->transfer_operands(cxt, f, flags, operands, operand_count, result, qop->operands, qop->operand_count)) {
 				return FALSE;
 			}
 		}
@@ -3376,7 +3377,7 @@ int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type 
 									qb_operand operand;
 									operand.address = qb_obtain_constant_U32(cxt, variable_index);
 									operand.type = QB_OPERAND_ADDRESS;
-									qb_create_op(cxt, &factory_synchronize_debug_variable, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+									qb_create_op(cxt, &factory_synchronize_debug_variable, QB_TYPE_VOID, 0, &operand, 1, NULL, NULL, 0, FALSE);
 								}
 							}
 						}
@@ -3398,7 +3399,7 @@ int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type 
 	return TRUE;
 }
 
-int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	USE_TSRM
 	int8_t instructions[256];
 	qb_op *ops[2], target_op, ret_op;
@@ -3410,7 +3411,7 @@ int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type
 	qb_op_factory *f = factory;
 	ALLOCA_FLAG(use_heap);
 
-	if(!f->select_opcode(cxt, f, expr_type, operands, operand_count, result, &opcode)) {
+	if(!f->select_opcode(cxt, f, expr_type, flags, operands, operand_count, result, &opcode)) {
 		return FALSE;
 	}
 
@@ -3424,7 +3425,7 @@ int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type
 	target_op.line_id = 0;
 
 	if(f->transfer_operands) {
-		if(!f->transfer_operands(cxt, f, operands, operand_count, result, target_op.operands, target_op.operand_count)) {
+		if(!f->transfer_operands(cxt, f, flags, operands, operand_count, result, target_op.operands, target_op.operand_count)) {
 			return FALSE;
 		}
 	}
@@ -3466,10 +3467,11 @@ static void qb_update_on_demand_result_no_recursion(qb_compiler_context *cxt, qb
 		qb_expression *expr = address->expression;
 		if(expr->flags & flags) {
 			qb_primitive_type expr_type = (expr->result->type == QB_OPERAND_ADDRESS) ? expr->result->address->type : QB_TYPE_VOID;
+			uint32_t flags = (expr->result->type == QB_OPERAND_ADDRESS) ? expr->result->address->flags : 0;
 			address->expression = NULL;
 			// set the flag first, in case the op invalidates itself
 			expr->flags |= QB_EXPR_RESULT_IS_STILL_VALID;
-			qb_create_op(cxt, expr->op_factory, expr_type, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
+			qb_create_op(cxt, expr->op_factory, expr_type, flags, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
 		}
 	}
 }
@@ -3573,33 +3575,43 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 
 		switch(cxt->stage) {
 			case QB_STAGE_VARIABLE_INITIALIZATION: {
+				if(f->resolve_flags) {
+					if(!f->resolve_flags(cxt, f, operands, operand_count, &address_flags)) {
+						return FALSE;
+					}
+				}
 				if(f->resolve_type) {
-					if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+					if(!f->resolve_type(cxt, f, address_flags, operands, operand_count, &expr_type)) {
 						return FALSE;
 					}
 				}
 
 				if(f->coerce_operands) {
-					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+					if(!f->coerce_operands(cxt, f, expr_type, address_flags, operands, operand_count)) {
 						return FALSE;
 					}
 				}
 
 				if(f->set_final_result) {
-					if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+					if(!f->set_final_result(cxt, f, expr_type, address_flags, operands, operand_count, result, result_prototype)) {
 						return FALSE;
 					}
 				}
 
-				qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
+				qb_create_op(cxt, factory, expr_type, address_flags, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
 			}	break;
 			case QB_STAGE_RESULT_TYPE_RESOLUTION: {
-				// determine the expression type
-				if(f->resolve_type) {
-					if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+				if(f->resolve_flags) {
+					if(!f->resolve_flags(cxt, f, operands, operand_count, &address_flags)) {
 						return FALSE;
 					}
+				}
 
+				// determine the expression type
+				if(f->resolve_type) {
+					if(!f->resolve_type(cxt, f, address_flags, operands, operand_count, &expr_type)) {
+						return FALSE;
+					}
 					if(result_prototype) {
 						// indicate in the prototype that the expression has this type
 						result_prototype->preliminary_type = expr_type;
@@ -3614,19 +3626,19 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				}
 
 				if(f->coerce_operands) {
-					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+					if(!f->coerce_operands(cxt, f, expr_type, address_flags, operands, operand_count)) {
 						return FALSE;
 					}
 				}
 
 				if(f->link_results) {
-					if(!f->link_results(cxt, f, operands, operand_count, result_prototype)) {
+					if(!f->link_results(cxt, f, address_flags, operands, operand_count, result_prototype)) {
 						return FALSE;
 					}
 				}
 
 				if(f->set_preliminary_result) {
-					if(!f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+					if(!f->set_preliminary_result(cxt, f, expr_type, address_flags, operands, operand_count, result, result_prototype)) {
 						return FALSE;
 					}
 				}
@@ -3650,28 +3662,29 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				if(result_prototype && (result_prototype->address_flags & QB_ADDRESS_CONSTANT)) {
 					qb_finalize_result_prototype(cxt, result_prototype);
 					expr_type = result_prototype->final_type;
+					address_flags = result_prototype->address_flags;
 					
 					if(f->coerce_operands) {
-						if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+						if(!f->coerce_operands(cxt, f, expr_type, address_flags, operands, operand_count)) {
 							return FALSE;
 						}
 					}
 
 					if(f->validate_operands) {
-						if(!f->validate_operands(cxt, f, expr_type, operands, operand_count, result_prototype->destination)) {
+						if(!f->validate_operands(cxt, f, expr_type, address_flags, operands, operand_count, result_prototype->destination)) {
 							return FALSE;
 						}
 					}
 
 					if(f->set_final_result) {
-						if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+						if(!f->set_final_result(cxt, f, expr_type, address_flags, operands, operand_count, result, result_prototype)) {
 							return FALSE;
 						}
 					}
 
 					if(result->type == QB_OPERAND_ADDRESS) {
 						if(f->select_opcode) {
-							qb_execute_op(cxt, f, expr_type, operands, operand_count, result);
+							qb_execute_op(cxt, f, expr_type, address_flags, operands, operand_count, result);
 						}
 						result_prototype->constant_result_address = result->address;
 					}
@@ -3688,10 +3701,16 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					} else {
 						qb_finalize_result_prototype(cxt, result_prototype);
 						expr_type = result_prototype->final_type;
+						address_flags = result_prototype->address_flags;
 					}
 				} else {
+					if(f->resolve_flags) {
+						if(!f->resolve_flags(cxt, f, operands, operand_count, &address_flags)) {
+							return FALSE;
+						}
+					}
 					if(f->resolve_type) {
-						if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+						if(!f->resolve_type(cxt, f, address_flags, operands, operand_count, &expr_type)) {
 							return FALSE;
 						}
 					}
@@ -3700,14 +3719,14 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				// perform type coercion on operands
 				if(f->coerce_operands) {
 					// note that the handler might not necessarily convert all the operands to expr_type
-					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+					if(!f->coerce_operands(cxt, f, expr_type, address_flags, operands, operand_count)) {
 						return FALSE;
 					}
 				}
 
 				// perform validation
 				if(f->validate_operands) {
-					if(!f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL)) {
+					if(!f->validate_operands(cxt, f, expr_type, address_flags, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL)) {
 						return FALSE;
 					}
 				}
@@ -3718,12 +3737,12 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 						// couldn't figure it out the first time around
 						// after type coercion, we should know what the expresion is
 						if(f->resolve_type) {
-							if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+							if(!f->resolve_type(cxt, f, address_flags, operands, operand_count, &expr_type)) {
 								return FALSE;
 							}
 						}
 					}
-					if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+					if(!f->set_final_result(cxt, f, expr_type, address_flags, operands, operand_count, result, result_prototype)) {
 						return FALSE;
 					}
 
@@ -3737,7 +3756,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				}
 
 				// create the op
-				qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
+				qb_create_op(cxt, factory, expr_type, address_flags, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
 
 				// unlock the operands after the op is created
 				for(i = 0; i < operand_count; i++) {
@@ -4109,8 +4128,8 @@ void qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	jump_target_indices[0] = JUMP_TARGET_INDEX(0, 0);
 	jump_target_indices[1] = JUMP_TARGET_INDEX(0, cxt->op_count + 1);
 
-	qb_create_op(cxt, &factory_loop, QB_TYPE_VOID, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
-	qb_create_op(cxt, &factory_leave, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
+	qb_create_op(cxt, &factory_loop, QB_TYPE_VOID, 0, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
+	qb_create_op(cxt, &factory_leave, QB_TYPE_VOID, 0, NULL, 0, NULL, NULL, 0, FALSE);
 }
 
 void qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagnostic_type test_type) {

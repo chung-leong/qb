@@ -21,85 +21,95 @@
 #ifndef QB_OP_FACTORIES_H_
 #define QB_OP_FACTORIES_H_
 
-#define QB_OP_FACTORY_VAR			0
-#define QB_OP_FACTORY_DIM			1
-#define QB_OP_FACTORY_OBJ			2
+#define QB_OP_FACTORY_VAR								0
+#define QB_OP_FACTORY_DIM								1
+#define QB_OP_FACTORY_OBJ								2
 
-#define QB_OP_FACTORY_INT32			0
-#define QB_OP_FACTORY_INT64			1
-#define QB_OP_FACTORY_DOUBLE		2
-#define QB_OP_FACTORY_BOOLEAN		3
-#define QB_OP_FACTORY_ARRAY			4
-#define QB_OP_FACTORY_STRING		5
+#define QB_OP_FACTORY_INT32								0
+#define QB_OP_FACTORY_INT64								1
+#define QB_OP_FACTORY_DOUBLE							2
+#define QB_OP_FACTORY_BOOLEAN							3
+#define QB_OP_FACTORY_ARRAY								4
+#define QB_OP_FACTORY_STRING							5
 
-#define QB_OP_FACTORY_SELF			0
-#define QB_OP_FACTORY_GLOBAL		1
-#define QB_OP_FACTORY_STATIC		2
-#define QB_OP_FACTORY_PARENT		3
+#define QB_OP_FACTORY_SELF								0
+#define QB_OP_FACTORY_GLOBAL							1
+#define QB_OP_FACTORY_STATIC							2
+#define QB_OP_FACTORY_PARENT							3
 
-#define QB_OP_FACTORY_LOCAL			0
-#define QB_OP_FACTORY_GLOBAL		1
-#define QB_OP_FACTORY_STATIC		2
-#define QB_OP_FACTORY_STATIC_MEMBER	3
+#define QB_OP_FACTORY_LOCAL								0
+#define QB_OP_FACTORY_GLOBAL							1
+#define QB_OP_FACTORY_STATIC							2
+#define QB_OP_FACTORY_STATIC_MEMBER						3
 
-#define QB_OP_FACTORY_INTRINSIC		0
-#define QB_OP_FACTORY_NORMAL		1
-#define QB_OP_FACTORY_INLINE		2
-#define QB_OP_FACTORY_ZEND			3	
+#define QB_OP_FACTORY_INTRINSIC							0
+#define QB_OP_FACTORY_NORMAL							1
+#define QB_OP_FACTORY_INLINE							2
+#define QB_OP_FACTORY_ZEND								3
 
-typedef struct qb_op_factory					qb_op_factory; 
-typedef struct qb_derived_op_factory			qb_derived_op_factory; 
-typedef struct qb_basic_op_factory				qb_basic_op_factory; 
-typedef struct qb_float_op_factory				qb_float_op_factory; 
-typedef struct qb_simple_op_factory				qb_simple_op_factory;
-typedef struct qb_fetch_op_factory				qb_fetch_op_factory;
-typedef struct qb_copy_op_factory				qb_copy_op_factory;
-typedef struct qb_unset_op_factory				qb_unset_op_factory;
-typedef struct qb_unset_element_op_factory		qb_unset_element_op_factory;
-typedef struct qb_cast_op_factory				qb_cast_op_factory;
-typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
-typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
-typedef struct qb_arithmetic_op_factory			qb_arithmetic_op_factory;
-typedef struct qb_append_op_factory				qb_append_op_factory;
-typedef struct qb_print_op_factory				qb_print_op_factory;
-typedef struct qb_fcall_op_factory				qb_fcall_op_factory;
-typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
-typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
-typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
-typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
-typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
-typedef struct qb_gather_op_factory				qb_gather_op_factory;
-typedef struct qb_array_resize_op_factory		qb_array_resize_op_factory;
-typedef struct qb_php_function_result_factory	qb_php_function_result_factory;
+enum {
+	QB_ADDRESS_MM_RESULT								= 0x08000000,
+	QB_ADDRESS_MV_RESULT								= 0x04000000,
+	QB_ADDRESS_VM_RESULT								= 0x02000000,
+	QB_ADDRESS_VV_RESULT								= 0x01000000,
+};
 
-typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
+typedef struct qb_op_factory							qb_op_factory; 
+typedef struct qb_derived_op_factory					qb_derived_op_factory; 
+typedef struct qb_basic_op_factory						qb_basic_op_factory; 
+typedef struct qb_float_op_factory						qb_float_op_factory; 
+typedef struct qb_simple_op_factory						qb_simple_op_factory;
+typedef struct qb_fetch_op_factory						qb_fetch_op_factory;
+typedef struct qb_copy_op_factory						qb_copy_op_factory;
+typedef struct qb_unset_op_factory						qb_unset_op_factory;
+typedef struct qb_unset_element_op_factory				qb_unset_element_op_factory;
+typedef struct qb_cast_op_factory						qb_cast_op_factory;
+typedef struct qb_comparison_op_factory					qb_comparison_op_factory;
+typedef struct qb_comparison_branch_op_factory			qb_comparison_branch_op_factory;
+typedef struct qb_arithmetic_op_factory					qb_arithmetic_op_factory;
+typedef struct qb_append_op_factory						qb_append_op_factory;
+typedef struct qb_print_op_factory						qb_print_op_factory;
+typedef struct qb_fcall_op_factory						qb_fcall_op_factory;
+typedef struct qb_matrix_op_factory						qb_matrix_op_factory;
+typedef struct qb_equivalent_matrix_op_factory			qb_equivalent_matrix_op_factory;
+typedef struct qb_matrix_op_factory_selector			qb_matrix_op_factory_selector;
+typedef struct qb_pixel_op_factory						qb_pixel_op_factory;
+typedef struct qb_utf8_op_factory						qb_utf8_op_factory;
+typedef struct qb_gather_op_factory						qb_gather_op_factory;
+typedef struct qb_array_resize_op_factory				qb_array_resize_op_factory;
+typedef struct qb_php_function_result_factory			qb_php_function_result_factory;
 
-typedef struct qb_op_decomposer					qb_op_decomposer;
-typedef struct qb_minmax_decomposer				qb_minmax_decomposer;
-typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
-typedef struct qb_set_op_chooser				qb_set_op_chooser;
-typedef struct qb_fork_decomposer				qb_fork_decomposer;
-typedef struct qb_round_decomposer				qb_round_decomposer;
+typedef struct qb_intrinsic_op_factory					qb_intrinsic_op_factory;
 
-typedef struct qb_trig_op_factory_selector		qb_trig_op_factory_selector;
+typedef struct qb_op_decomposer							qb_op_decomposer;
+typedef struct qb_minmax_decomposer						qb_minmax_decomposer;
+typedef struct qb_fetch_do_op_decomposer				qb_fetch_do_op_decomposer;
+typedef struct qb_set_op_chooser						qb_set_op_chooser;
+typedef struct qb_fork_decomposer						qb_fork_decomposer;
+typedef struct qb_round_decomposer						qb_round_decomposer;
+
+typedef struct qb_multiply_factory_selector				qb_multiply_factory_selector;
+typedef struct qb_complex_op_factory_selector			qb_complex_op_factory_selector;
 
 typedef int32_t (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
-typedef int32_t (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags);
+typedef int32_t (*qb_resolve_address_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags);
 
-typedef int32_t (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type);
 
-typedef int32_t (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
+typedef int32_t (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
-typedef int32_t (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
+typedef int32_t (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
 
-typedef int32_t (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count);
 
-typedef int32_t (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
+typedef int32_t (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
-typedef int32_t (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *opcode);
+typedef int32_t (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
 
-typedef int32_t (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
+typedef int32_t (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *opcode);
+
+typedef int32_t (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
 typedef int32_t (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
@@ -107,6 +117,7 @@ typedef enum qb_string_type						qb_string_type;
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_produce_composite_proc produce_composite;	\
+	qb_resolve_address_flags_proc resolve_flags;	\
 	qb_resolve_expression_type_proc resolve_type;	\
 	qb_link_results_proc link_results;	\
 	qb_coerce_operands_proc coerce_operands;	\
@@ -119,7 +130,6 @@ typedef enum qb_string_type						qb_string_type;
 	qb_set_function_flags_proc set_function_flags;	\
 	uint32_t coercion_flags;	\
 	uint32_t result_flags;	\
-	uint32_t address_flags;	\
 
 enum qb_string_type {
 	QB_STRING_UTF8,
@@ -253,6 +263,50 @@ struct qb_php_function_result_factory {
 	int32_t argument_types[4];
 };
 
+struct qb_complex_op_factory_selector {
+	OP_FACTORY_COMMON_ELEMENTS
+	void *real_factory;
+	void *complex_factory;
+};
+
+static zend_always_inline qb_op_factory * qb_select_complex_op_factory(qb_op_factory *f, uint32_t flags) {
+	qb_complex_op_factory_selector *s = (qb_complex_op_factory_selector *) f;
+	if(flags & QB_ADDRESS_COMPLEX) {
+		f = s->complex_factory;
+	} else {
+		f = s->real_factory;
+	}
+	return f;
+}
+
+struct qb_multiply_factory_selector {
+	OP_FACTORY_COMMON_ELEMENTS
+	void *real_factory;
+	void *complex_factory;
+	void *vector_vector_factory;
+	void *matrix_matrix_factory;
+	void *matrix_vector_factory;
+	void *vector_matrix_factory;
+};
+
+static zend_always_inline qb_op_factory * qb_select_multiply_factory(qb_op_factory *f, uint32_t flags) {
+	qb_multiply_factory_selector *s = (qb_multiply_factory_selector *) f;
+	if(flags & QB_ADDRESS_MM_RESULT) {
+		f = s->matrix_matrix_factory;
+	} else if(flags & QB_ADDRESS_MV_RESULT) {
+		f = s->matrix_vector_factory;
+	} else if(flags & QB_ADDRESS_VM_RESULT) {
+		f = s->vector_matrix_factory;
+	} else if(flags & QB_ADDRESS_VV_RESULT) {
+		f = s->vector_vector_factory;
+	} else if(flags & QB_ADDRESS_COMPLEX) {
+		f = s->complex_factory;
+	} else {
+		f = s->real_factory;
+	}
+	return f;
+}
+
 struct qb_intrinsic_op_factory {
 	qb_produce_composite_proc produce_composite;
 };
@@ -291,22 +345,6 @@ struct qb_round_decomposer {
 	qb_produce_composite_proc produce_composite;
 	void *simple_factory;
 	void *precision_factory;
-};
-
-struct qb_arith_op_factory_selector {
-	qb_produce_composite_proc produce_composite;
-	void *real_factory;
-	void *complex_factory;
-	void *vector_factory;
-	void *matrix_matrix_factory;
-	void *matrix_vector_factory;
-	void *vector_matrix_factory;
-};
-
-struct qb_trig_op_factory_selector {
-	qb_produce_composite_proc produce_composite;
-	void *real_factory;
-	void *complex_factory;
 };
 
 extern qb_op_factory factory_nop;
@@ -420,12 +458,15 @@ extern qb_basic_op_factory factory_logical_xor;
 
 extern qb_arithmetic_op_factory factory_add;
 extern qb_arithmetic_op_factory factory_subtract;
-extern qb_arithmetic_op_factory factory_multiply;
-extern qb_arithmetic_op_factory factory_divide;
+extern qb_arithmetic_op_factory factory_real_multiply;
+extern qb_arithmetic_op_factory factory_real_divide;
 extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
 extern qb_arithmetic_op_factory factory_multiply_add;
 extern qb_derived_op_factory factory_reciprocal;
+
+extern qb_multiply_factory_selector factory_multiply;
+extern qb_complex_op_factory_selector factory_divide;
 
 extern void *factories_add_assign[3];
 extern void *factories_subtract_assign[3];
@@ -531,23 +572,23 @@ extern qb_float_op_factory factory_step;
 extern qb_float_op_factory factory_real_tan;
 extern qb_float_op_factory factory_real_tanh;
 
-extern qb_trig_op_factory_selector factory_abs;
-extern qb_trig_op_factory_selector factory_acos;
-extern qb_trig_op_factory_selector factory_acosh;
-extern qb_trig_op_factory_selector factory_asin;
-extern qb_trig_op_factory_selector factory_asinh;
-extern qb_trig_op_factory_selector factory_atan;
-extern qb_trig_op_factory_selector factory_atanh;
-extern qb_trig_op_factory_selector factory_cos;
-extern qb_trig_op_factory_selector factory_cosh;
-extern qb_trig_op_factory_selector factory_exp;
-extern qb_trig_op_factory_selector factory_log;
-extern qb_trig_op_factory_selector factory_pow;
-extern qb_trig_op_factory_selector factory_sin;
-extern qb_trig_op_factory_selector factory_sinh;
-extern qb_trig_op_factory_selector factory_sqrt;
-extern qb_trig_op_factory_selector factory_tan;
-extern qb_trig_op_factory_selector factory_tanh;
+extern qb_complex_op_factory_selector factory_abs;
+extern qb_complex_op_factory_selector factory_acos;
+extern qb_complex_op_factory_selector factory_acosh;
+extern qb_complex_op_factory_selector factory_asin;
+extern qb_complex_op_factory_selector factory_asinh;
+extern qb_complex_op_factory_selector factory_atan;
+extern qb_complex_op_factory_selector factory_atanh;
+extern qb_complex_op_factory_selector factory_cos;
+extern qb_complex_op_factory_selector factory_cosh;
+extern qb_complex_op_factory_selector factory_exp;
+extern qb_complex_op_factory_selector factory_log;
+extern qb_complex_op_factory_selector factory_pow;
+extern qb_complex_op_factory_selector factory_sin;
+extern qb_complex_op_factory_selector factory_sinh;
+extern qb_complex_op_factory_selector factory_sqrt;
+extern qb_complex_op_factory_selector factory_tan;
+extern qb_complex_op_factory_selector factory_tanh;
 
 extern qb_minmax_decomposer factory_max;
 extern qb_minmax_decomposer factory_min;
@@ -557,6 +598,11 @@ extern qb_basic_op_factory factory_max_two;
 extern qb_basic_op_factory factory_mt_rand;
 extern qb_basic_op_factory factory_rand;
 extern qb_float_op_factory factory_lcg;
+
+extern qb_float_op_factory factory_complex_add;
+extern qb_float_op_factory factory_complex_subtract;
+extern qb_float_op_factory factory_complex_divide;
+extern qb_float_op_factory factory_complex_multiply;
 
 extern qb_float_op_factory factory_complex_abs;
 extern qb_float_op_factory factory_complex_acos;
@@ -568,10 +614,8 @@ extern qb_float_op_factory factory_complex_atan;
 extern qb_float_op_factory factory_complex_atanh;
 extern qb_float_op_factory factory_complex_cos;
 extern qb_float_op_factory factory_complex_cosh;
-extern qb_float_op_factory factory_complex_divide;
 extern qb_float_op_factory factory_complex_exp;
 extern qb_float_op_factory factory_complex_log;
-extern qb_float_op_factory factory_complex_multiply;
 extern qb_float_op_factory factory_complex_pow;
 extern qb_float_op_factory factory_complex_sin;
 extern qb_float_op_factory factory_complex_sinh;

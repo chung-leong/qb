@@ -18,7 +18,17 @@
 
 /* $Id$ */
 
-static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_real_or_complex(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	f = qb_select_complex_op_factory(f, flags);
+	return (f->validate_operands) ? f->validate_operands(cxt, f, expr_type, flags, operands, operand_count, result_destination) : TRUE;
+}
+
+static int32_t qb_validate_operands_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	f = qb_select_multiply_factory(f, flags);
+	return (f->validate_operands) ? f->validate_operands(cxt, f, expr_type, flags, operands, operand_count, result_destination) : TRUE;
+}
+
+static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
@@ -48,7 +58,7 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 
@@ -87,7 +97,7 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
 	for(i = 1; i < operand_count; i++) {
 		if(operands[0].address->type != operands[i].address->type) {
@@ -98,7 +108,7 @@ static int32_t qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		if(value->type != QB_OPERAND_NONE && !(value->type == QB_OPERAND_ZVAL && value->constant->type == IS_NULL)) {
@@ -109,7 +119,7 @@ static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(!cxt->sent_variable->address) {
 		if(result_destination && result_destination->type != QB_RESULT_DESTINATION_FREE) {
 			qb_report_missing_send_declaration_exception(cxt->line_id);
@@ -119,7 +129,7 @@ static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(operand_count != 0 && operand_count != 2) {
 		qb_report_incorrect_argument_count_exception(cxt->line_id, cxt->intrinsic_function, operand_count);
 		return FALSE;
@@ -127,7 +137,7 @@ static int32_t qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0];
 
 	if(operand_count == 1) {
@@ -139,7 +149,7 @@ static int32_t qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op
 	return TRUE;
 }
 
-static int32_t qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *index = &operands[1];
 
 	if(index->type == QB_OPERAND_ZVAL) {
@@ -155,9 +165,9 @@ static int32_t qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory 
 	return TRUE;
 }
 
-static int32_t qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(operand_count > 0) {
-		return qb_validate_array_append(cxt, f, expr_type, operands, operand_count, result_destination);
+		return qb_validate_array_append(cxt, f, expr_type, flags, operands, operand_count, result_destination);
 	}
 	return TRUE;
 }
@@ -184,7 +194,7 @@ static zval * qb_get_special_constant(qb_compiler_context *cxt, const char *name
 	return NULL;
 }
 
-static int32_t qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_report_missing_scope_exception(cxt->line_id, "self");
@@ -193,7 +203,7 @@ static int32_t qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, q
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_report_missing_scope_exception(cxt->line_id, "parent");
@@ -206,7 +216,7 @@ static int32_t qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt,
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_report_missing_scope_exception(cxt->line_id, "static");
@@ -215,7 +225,7 @@ static int32_t qb_validate_operands_fetch_class_static(qb_compiler_context *cxt,
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_fetch_class_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_fetch_class_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_operand *name = &operands[1];
 	zend_class_entry *ce = zend_fetch_class_by_name(Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant), NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC);
@@ -226,7 +236,7 @@ static int32_t qb_validate_operands_fetch_class_global(qb_compiler_context *cxt,
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
 	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
@@ -259,7 +269,7 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	// global and static assign ref to bring variables into the local scope
 	if(variable->address != value->address) {
@@ -269,7 +279,7 @@ static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 
 	if(IS_SCALAR(operand->address)) {
@@ -279,7 +289,7 @@ static int32_t qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_fa
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 
 	if(operand->type != QB_OPERAND_ADDRESS) {
@@ -288,17 +298,17 @@ static int32_t qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	if(!qb_validate_operands_referenceable(cxt, f, expr_type, operands, operand_count, result_destination)) {
+static int32_t qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	if(!qb_validate_operands_referenceable(cxt, f, expr_type, flags, operands, operand_count, result_destination)) {
 		return FALSE;
 	}
-	if(!qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count, result_destination)) {
+	if(!qb_validate_operands_one_array(cxt, f, expr_type, flags, operands, operand_count, result_destination)) {
 		return FALSE;
 	}
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(IS_SCALAR(operand1->address)) {
@@ -312,12 +322,12 @@ static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 	qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
 	qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
 
-	if(!qb_validate_operands_two_arrays(cxt, f, expr_type, operands, operand_count, result_destination)) {
+	if(!qb_validate_operands_two_arrays(cxt, f, expr_type, flags, operands, operand_count, result_destination)) {
 		return FALSE;
 	}
 
@@ -335,10 +345,10 @@ static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *c
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand3 = &operands[2];
 
-	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count, result_destination);
+	qb_validate_operands_matching_vector_width(cxt, f, expr_type, flags, operands, operand_count, result_destination);
 
 	if(!IS_SCALAR(operand3->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 2, "scalar");
@@ -347,7 +357,7 @@ static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
 
 	for(i = 0; i < operand_count; i++) {
@@ -407,7 +417,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
 	if(operand1->address->dimension_count < 2) {
@@ -442,13 +452,13 @@ static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_
 	return address->dimension_addresses[address->dimension_count + col_offset];
 }
 
-static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix = &operands[0];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m_col_address = qb_obtain_matrix_column_address(cxt, matrix->address, order);
 	qb_address *m_row_address = qb_obtain_matrix_row_address(cxt, matrix->address, order);
 
-	qb_validate_operands_one_matrix(cxt, f, expr_type, operands, operand_count, result_destination);
+	qb_validate_operands_one_matrix(cxt, f, expr_type, flags, operands, operand_count, result_destination);
 
 	if(IS_IMMUTABLE(m_col_address) && IS_IMMUTABLE(m_row_address)) {
 		uint32_t row = VALUE(U32, m_col_address);
@@ -464,7 +474,7 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
 	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
@@ -480,7 +490,7 @@ static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factor
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
 	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
@@ -496,7 +506,7 @@ static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
 	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
@@ -512,7 +522,7 @@ static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factor
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *image = &operands[0];
 	uint32_t channel_count = 0;
 
@@ -533,7 +543,7 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *column_index = &operands[1];
 	if(container->address->dimension_count < 2) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "multidimensional array");
@@ -546,7 +556,7 @@ static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
@@ -580,7 +590,7 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
@@ -614,7 +624,7 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
 	qb_address *m1_col_address = DIMENSION_ADDRESS(matrix1->address, -1);
@@ -648,7 +658,7 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
 	if(QB_G(column_major_matrix)) {
@@ -656,10 +666,10 @@ static int32_t qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt
 	} else {
 		f = s->rm_factory;
 	}
-	return f->validate_operands(cxt, f, expr_type, operands, operand_count, result_destination);
+	return f->validate_operands(cxt, f, expr_type, flags, operands, operand_count, result_destination);
 }
 
-static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 
 	if(matrix1->address->dimension_count < 2) {
@@ -690,7 +700,7 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0];
 	qb_address *container_element_size_address;
 	uint32_t i;
@@ -737,7 +747,7 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
 	uint32_t result_dimension_count = 1;
 	qb_address *result_element_size_address = cxt->one_address;
@@ -781,7 +791,7 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0];
 	if(cxt->argument_offset == 0) {
 		if(IS_SCALAR(value->address)) {
@@ -792,7 +802,7 @@ static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *start_index = &operands[0], *number = &operands[1];
 	if(!IS_SCALAR(start_index->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
@@ -805,7 +815,7 @@ static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *input = &operands[0], *size = &operands[1], *value = &operands[2];
 
 	if(IS_SCALAR(input->address)) {
@@ -841,7 +851,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 
 	if(IS_SCALAR(operand->address)) {
@@ -851,7 +861,7 @@ static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_fa
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *count = &operands[1];
 
 	if(IS_SCALAR(container->address)) {
@@ -867,11 +877,11 @@ static int32_t qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 
 	if(IS_SCALAR(container->address)) {
@@ -891,7 +901,7 @@ static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *start = &operands[0], *end = &operands[1], *interval = &operands[2];
 
 	if(!IS_SCALAR(start->address)) {
@@ -909,17 +919,17 @@ static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factor
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count, result_destination);
+static int32_t qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_validate_operands_one_array(cxt, f, expr_type, flags, operands, operand_count, result_destination);
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	// nothing
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0], *index = &operands[1];
 	if(value->type != QB_OPERAND_ADDRESS) {
 		// type coercion had failed earlier
@@ -937,7 +947,7 @@ static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0], *index = &operands[1], *type = &operands[2];
 	if(IS_SCALAR(value->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array of bytes");
@@ -961,7 +971,7 @@ static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
@@ -1012,7 +1022,7 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(result_destination) {
 		switch(result_destination->type) {
 			case QB_RESULT_DESTINATION_RETURN:
@@ -1028,7 +1038,7 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_compile_time_function(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_compile_time_function(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
 	qb_php_function_result_factory *pf = (qb_php_function_result_factory *) f;
 	for(i = 0; i < operand_count; i++) {
@@ -1061,7 +1071,7 @@ static int32_t qb_validate_operands_compile_time_function(qb_compiler_context *c
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *name = &operands[0], *value = &operands[1];
 
 	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {

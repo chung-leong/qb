@@ -301,9 +301,9 @@ static int32_t qb_decompose_array_push(qb_compiler_context *cxt, void *factory, 
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_primitive_type arg_type = (container->type == QB_OPERAND_ADDRESS) ? container->address->type : QB_TYPE_ANY;
-		qb_coerce_operands_all(cxt, factory, arg_type, operands, operand_count);
+		qb_coerce_operands_all(cxt, factory, arg_type, 0, operands, operand_count);
 
-		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, operands, operand_count, NULL)) {
+		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, 0, operands, operand_count, NULL)) {
 			for(i = 1; i < operand_count; i++) {
 				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
 				replace_operands[0].address = container->address;
@@ -336,9 +336,9 @@ static int32_t qb_decompose_array_unshift(qb_compiler_context *cxt, void *factor
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_primitive_type arg_type = (container->type == QB_OPERAND_ADDRESS) ? container->address->type : QB_TYPE_ANY;
-		qb_coerce_operands_all(cxt, factory, arg_type, operands, operand_count);
+		qb_coerce_operands_all(cxt, factory, arg_type, 0, operands, operand_count);
 
-		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, operands, operand_count, NULL)) {
+		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, 0, operands, operand_count, NULL)) {
 			for(i = operand_count - 1; i >= 1; i--) {
 				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
 				replace_operands[0].address = container->address;
@@ -371,14 +371,14 @@ static int32_t qb_decompose_array_merge(qb_compiler_context *cxt, void *factory,
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_primitive_type expr_type = qb_get_highest_rank_type(cxt, operands, operand_count, 0);
 		qb_address *dest_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
-		qb_coerce_operands_all(cxt, factory, expr_type, operands, operand_count);
+		qb_coerce_operands_all(cxt, factory, expr_type, 0, operands, operand_count);
 
-		if(qb_validate_operands_array_merge(cxt, factory, expr_type, operands, operand_count, NULL)) {
+		if(qb_validate_operands_array_merge(cxt, factory, expr_type, 0, operands, operand_count, NULL)) {
 			qb_operand unset_operands[1];
 			qb_operand unset_result = { QB_OPERAND_EMPTY, { NULL } };
 			qb_variable_dimensions dim;
 
-			qb_set_result_dimensions_array_merge(cxt, factory, operands, operand_count, &dim);
+			qb_set_result_dimensions_array_merge(cxt, factory, 0, operands, operand_count, &dim);
 			result->address = qb_obtain_temporary_variable(cxt, result_prototype->final_type, &dim);
 			result->type = QB_OPERAND_ADDRESS;
 
@@ -452,22 +452,4 @@ static int32_t qb_decompose_round(qb_compiler_context *cxt, void *factory, qb_op
 	qb_round_decomposer *d = factory;
 	factory = (operand_count == 1) ? d->simple_factory : d->precision_factory;
 	return qb_produce_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
-}
-
-static int32_t qb_produce_trig_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
-	qb_trig_op_factory_selector *d = factory;
-	int32_t is_complex = FALSE;
-	uint32_t i;
-	for(i = 0; i < operand_count; i++) {
-		qb_operand *operand = &operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_COMPLEX) {
-			is_complex = TRUE;
-		}
-	}
-	factory = (is_complex) ? d->complex_factory : d->real_factory;
-	return qb_produce_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
-}
-
-static int32_t qb_produce_arith_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
-	return FALSE;
 }

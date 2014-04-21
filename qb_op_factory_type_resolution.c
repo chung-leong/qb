@@ -18,70 +18,213 @@
 
 /* $Id$ */
 
+// the expression yields a temporary variable
+static int32_t qb_resolve_expression_flags_temporary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY;
+	return TRUE;
+}
+
+// the expression yields a temporary variable (keeping flags of operands)
+static int32_t qb_resolve_expression_flags_temporary_pass_thru(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			special_flags &= operand->address->flags;
+		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			special_flags &= operand->result_prototype->address_flags;
+		} else {
+			special_flags = 0;
+		}
+	}
+	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
+	return TRUE;
+}
+
+// the expression yields a temporary variable (keeping flags of first operand)
+static int32_t qb_resolve_expression_flags_temporary_pass_thru_first(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	qb_operand *operand = &operands[0];
+	if(operand->type == QB_OPERAND_ADDRESS) {
+		special_flags &= operand->address->flags;
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		special_flags &= operand->result_prototype->address_flags;
+	} else {
+		special_flags = 0;
+	}
+	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
+	return TRUE;
+}
+
+// the expression yields a temporary variable (keeping flags of second operand)
+static int32_t qb_resolve_expression_flags_temporary_pass_thru_second(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	qb_operand *operand = &operands[1];
+	if(operand->type == QB_OPERAND_ADDRESS) {
+		special_flags &= operand->address->flags;
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		special_flags &= operand->result_prototype->address_flags;
+	} else {
+		special_flags = 0;
+	}
+	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
+	return TRUE;
+}
+
+// the expression yields a temporary boolean variable
+static int32_t qb_resolve_expression_flags_temporary_boolean(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN;
+	return TRUE;
+}
+
+// the expression yields a temporary string variable
+static int32_t qb_resolve_expression_flags_temporary_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING;
+	return TRUE;
+}
+
+// the expression yields a temporary complex variable
+static int32_t qb_resolve_expression_flags_temporary_complex(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_COMPLEX;
+	return TRUE;
+}
+
+// the expression yields a temporary vector variable
+static int32_t qb_resolve_expression_flags_temporary_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_VECTOR;
+	return TRUE;
+}
+
+// the expression yields a temporary matrix variable
+static int32_t qb_resolve_expression_flags_temporary_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_MATRIX;
+	return TRUE;
+}
+
+// the expression always yields a constant
+static int32_t qb_resolve_expression_flags_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_CONSTANT;
+	return TRUE;
+}
+
+// the expression always yields a string constant
+static int32_t qb_resolve_expression_flags_constant_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING;
+	return TRUE;
+}
+
+// the expression always yields a boolean constant
+static int32_t qb_resolve_expression_flags_constant_boolean(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	*p_flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_BOOLEAN;
+	return TRUE;
+}
+
+static void qb_get_address_flags(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count, int32_t *flags) {
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			flags[i] = operand->address->flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX);
+		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			flags[i] = operand->result_prototype->address_flags & (QB_ADDRESS_COMPLEX |  QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX); 
+		} else {
+			flags[i] = 0;
+		}
+	}
+}
+
+static int32_t qb_resolve_expression_flags_real_or_complex(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	int32_t flags[2];
+	qb_get_address_flags(cxt, operands, operand_count, flags);
+	if(((flags[0] & QB_ADDRESS_COMPLEX) && (flags[1] & QB_ADDRESS_COMPLEX) && (operand_count == 2))	|| ((flags[0] & QB_ADDRESS_COMPLEX) && (operand_count == 1))) {
+		*p_flags |= QB_ADDRESS_COMPLEX;
+	}
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_flags_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	int32_t flags[2];
+	qb_get_address_flags(cxt, operands, operand_count, flags);
+	if((flags[0] & QB_ADDRESS_MATRIX) && (flags[1] & QB_ADDRESS_MATRIX)) {
+		*p_flags |= QB_ADDRESS_MATRIX | QB_ADDRESS_MM_RESULT;
+	} else if((flags[0] & QB_ADDRESS_MATRIX) && (flags[1] & QB_ADDRESS_VECTOR)) {
+		*p_flags |= QB_ADDRESS_VECTOR | QB_ADDRESS_MV_RESULT;
+	} else if((flags[0] & QB_ADDRESS_VECTOR) && (flags[1] & QB_ADDRESS_MATRIX)) {
+		*p_flags |= QB_ADDRESS_VECTOR | QB_ADDRESS_VM_RESULT;
+	} else if((flags[0] & QB_ADDRESS_VECTOR) && (flags[1] & QB_ADDRESS_VECTOR)) {
+		*p_flags |= QB_ADDRESS_VV_RESULT;
+	} else if((flags[0] & QB_ADDRESS_COMPLEX) && (flags[1] & QB_ADDRESS_COMPLEX)) {
+		*p_flags |= QB_ADDRESS_COMPLEX;
+	}
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_type_real_or_complex(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
+	f = qb_select_complex_op_factory(f, flags);
+	return (f->resolve_type) ? f->resolve_type(cxt, f, flags, operands, operand_count, p_type) : TRUE;
+}
+
+static int32_t qb_resolve_expression_type_multiply(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
+	f = qb_select_multiply_factory(f, flags);
+	return (f->resolve_type) ? f->resolve_type(cxt, f, flags, operands, operand_count, p_type) : TRUE;
+}
+
 // the expression is always a boolean
-static int32_t qb_resolve_expression_type_boolean(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_boolean(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_I32;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expresion is always an index (uint32_t currently)
-static int32_t qb_resolve_expression_type_index(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_index(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_U32;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expresion is always an signed index (int32_t currently)
-static int32_t qb_resolve_expression_type_search_index(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_search_index(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_S32;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expression is always a U08
-static int32_t qb_resolve_expression_type_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_string(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_U08;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expression is always a F64
-static int32_t  qb_resolve_expression_type_double(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t  qb_resolve_expression_type_double(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_F64;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expresion has the same type as the highest-rank operand
-static int32_t qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expression will have the same type as the l-value
-static int32_t qb_resolve_expression_type_lvalue(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_lvalue(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_ANY;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expression has the same type as the first operand
-static int32_t qb_resolve_expression_type_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_first_operand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
 // the expression has the same type as the third operand
-static int32_t qb_resolve_expression_type_third_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_third_operand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = qb_get_operand_type(cxt, &operands[2], f->coercion_flags);
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_assign(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	if(variable->type == QB_OPERAND_EMPTY) {
 		// the variable doesn't necessarily have to exist
@@ -90,62 +233,55 @@ static int32_t qb_resolve_expression_type_assign(qb_compiler_context *cxt, qb_op
 	} else {
 		*p_type = qb_get_operand_type(cxt, variable, f->coercion_flags);
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *value = &operands[0];
-	uint32_t flags = 0;
+	uint32_t retrival_flags = 0;
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		// use the type of the value only when it's definite
-		flags = QB_RETRIEVE_DEFINITE_TYPE_ONLY;
+		retrival_flags = QB_RETRIEVE_DEFINITE_TYPE_ONLY;
 	}
-	*p_type = qb_get_operand_type(cxt, value, flags);
-	*p_flags = f->address_flags;
+	*p_type = qb_get_operand_type(cxt, value, retrival_flags);
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	if(cxt->return_variable->address) {
 		*p_type = cxt->return_variable->address->type;
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	if(cxt->return_key_variable->address) {
 		*p_type = cxt->return_key_variable->address->type;
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_sent_value(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	if(cxt->sent_variable->address) {
 		*p_type = cxt->sent_variable->address->type;
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_cast(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_cast_op_factory *cf = (qb_cast_op_factory *) f;
 	*p_type = cf->type;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_array_size(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_flags_array_size(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
 	qb_operand *container = &operands[0], *recursive = &operands[1];
-	*p_type = QB_TYPE_U32;
 	*p_flags = 0;
 	if(qb_is_constant_expression(cxt, recursive, 1)) {
 		if(container->type == QB_OPERAND_ADDRESS && IS_FIXED_LENGTH(container->address)) {
@@ -157,7 +293,7 @@ static int32_t qb_resolve_expression_type_array_size(qb_compiler_context *cxt, q
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *container = &operands[0], *name = &operands[1];
 	if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		*p_type = container->result_prototype->preliminary_type;
@@ -170,11 +306,10 @@ static int32_t qb_resolve_expression_type_object_property(qb_compiler_context *c
 			*p_type = QB_TYPE_I32;
 		}
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *name = &operands[0];
 	qb_variable *qvar = qb_get_local_variable(cxt, name->constant);
 	if(qvar && qvar->address) {
@@ -182,11 +317,10 @@ static int32_t qb_resolve_expression_type_fetch_local(qb_compiler_context *cxt, 
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *name = &operands[0];
 	qb_variable *qvar = qb_get_global_variable(cxt, name->constant);
 	if(qvar && qvar->address) {
@@ -194,11 +328,10 @@ static int32_t qb_resolve_expression_type_fetch_global(qb_compiler_context *cxt,
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_fetch_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_fetch_static(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *name = &operands[0];
 	qb_variable *qvar = qb_get_static_variable(cxt, name->constant);
 	if(qvar && qvar->address) {
@@ -206,11 +339,10 @@ static int32_t qb_resolve_expression_type_fetch_static(qb_compiler_context *cxt,
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *name = &operands[0], *scope = &operands[1];
 	qb_variable *qvar = qb_get_class_variable(cxt, scope->zend_class, name->constant);
 	if(qvar && qvar->address) {
@@ -218,27 +350,23 @@ static int32_t qb_resolve_expression_type_fetch_class(qb_compiler_context *cxt, 
 	} else {
 		*p_type = QB_TYPE_VOID;
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_rand(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	if(operand_count == 2) {
-		qb_resolve_expression_type_highest_rank(cxt, f, operands, operand_count, p_type, p_flags);
+		return qb_resolve_expression_type_highest_rank(cxt, f, flags, operands, operand_count, p_type);
 	} else {
-		qb_resolve_expression_type_lvalue(cxt, f, operands, operand_count, p_type, p_flags);
+		return qb_resolve_expression_type_lvalue(cxt, f, flags, operands, operand_count, p_type);
 	}
-	*p_flags = f->address_flags;
-	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	*p_type = QB_TYPE_U16;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *type = &operands[2];
 	*p_type = QB_TYPE_ANY;
 	if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
@@ -247,11 +375,10 @@ static int32_t qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op
 			*p_type = value;
 		}
 	}
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_append_string(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
 	qb_primitive_type string_type, addend_type;
 	if(string->type != QB_OPERAND_NONE) {
@@ -265,11 +392,10 @@ static int32_t qb_resolve_expression_append_string(qb_compiler_context *cxt, qb_
 		addend_type = QB_TYPE_U08;
 	}
 	*p_type = (addend_type > string_type) ? addend_type : string_type;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_append_char(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_append_char(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
 	qb_primitive_type string_type;
 	if(string->type != QB_OPERAND_NONE) {
@@ -278,11 +404,10 @@ static int32_t qb_resolve_expression_append_char(qb_compiler_context *cxt, qb_op
 		string_type = QB_TYPE_U08;
 	}
 	*p_type = string_type;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_type_concat(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *augend = &operands[0], *addend = &operands[1];
 	qb_primitive_type augend_type, addend_type;
 	if(augend->type == QB_OPERAND_ADDRESS && augend->address->flags & QB_ADDRESS_STRING) {
@@ -296,36 +421,43 @@ static int32_t qb_resolve_expression_type_concat(qb_compiler_context *cxt, qb_op
 		addend_type = QB_TYPE_U08;
 	}
 	*p_type = (addend_type > augend_type) ? addend_type : augend_type;
-	*p_flags = f->address_flags;
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+static int32_t qb_resolve_expression_flags_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
 	USE_TSRM
 	qb_operand *func = &operands[0];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 	if(qfunc->return_variable->address) {
-		*p_type = qfunc->return_variable->address->type;
-		*p_flags = qfunc->return_variable->address->flags & (QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING);
+		*p_flags = qfunc->return_variable->address->flags & (QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING | QB_ADDRESS_MATRIX | QB_ADDRESS_VECTOR | QB_ADDRESS_COMPLEX | QB_ADDRESS_IMAGE);
 	} else {
-		*p_type = QB_TYPE_VOID;
 		*p_flags = 0;
 	}
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
-	*p_type = QB_TYPE_ANY;
-	*p_flags = 0;
+static int32_t qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
+	USE_TSRM
+	qb_operand *func = &operands[0];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
+	if(qfunc->return_variable->address) {
+		*p_type = qfunc->return_variable->address->type;
+	} else {
+		*p_type = QB_TYPE_VOID;
+	}
 	return TRUE;
 }
 
-static int32_t qb_resolve_expression_version_compare(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
-	*p_type = QB_TYPE_I32;
+static int32_t qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
+	*p_type = QB_TYPE_ANY;
+	return TRUE;
+}
+
+static int32_t qb_resolve_expression_flags_version_compare(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
 	if(operand_count == 3) {
-		*p_flags = QB_ADDRESS_BOOLEAN;
+		*p_flags = QB_ADDRESS_CONSTANT | QB_ADDRESS_BOOLEAN;
 	} else {
-		*p_flags = 0;
+		*p_flags = QB_ADDRESS_CONSTANT;
 	}
 	return TRUE;
 }
