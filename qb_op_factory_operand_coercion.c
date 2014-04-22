@@ -117,12 +117,16 @@ static int32_t qb_coerce_operands_all_to_first(qb_compiler_context *cxt, qb_op_f
 }
 
 static int32_t qb_coerce_operands_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *value = &operands[1];
+	qb_operand *variable = &operands[0], *value = &operands[1];
 	if(value->type != QB_OPERAND_EMPTY) {
+		// since there're instructions for copying from one type to another, 
+		// don't perform casting on when there's an address
 		if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign) {
-			// since there're instructions for copying from one type to another, 
-			// don't perform casting on when there's an address
-			if(!qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags)) {
+			uint32_t coercion_flags = f->coercion_flags;
+			if(variable->address->flags & QB_ADDRESS_STRING) {
+				coercion_flags |= QB_DECODE_LITERAL_STRING;
+			}
+			if(!qb_perform_type_coercion(cxt, value, expr_type, coercion_flags)) {
 				return FALSE;
 			}
 		}
