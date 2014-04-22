@@ -1285,11 +1285,13 @@ static int32_t qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *
 			}
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
-		uint32_t byte_count = Z_STRLEN_P(zvalue);
-		uint32_t space_available = dimension * element_size;
-		int8_t *memory = ARRAY(I08, address);
-		memcpy(memory, Z_STRVAL_P(zvalue), byte_count);
-		memset(memory + byte_count, 0, space_available - byte_count);
+		uint32_t src_element_count = ELEMENT_COUNT(Z_STRLEN_P(zvalue), element_type);
+		uint32_t src_byte_count = BYTE_COUNT(src_element_count, element_type);
+		uint32_t dst_byte_count = dimension * element_size;
+		int8_t *src_memory = Z_STRVAL_P(zvalue);
+		int8_t *dst_memory = ARRAY(I08, address);
+		memcpy(dst_memory, src_memory, src_byte_count);
+		memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
 	}
 	return TRUE;
 }
@@ -2714,6 +2716,10 @@ int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, 
 			}
 		}	break;
 		case QB_OPERAND_ZVAL: {
+			if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				// don't need to do anything yet
+				return TRUE;
+			}
 			if(desired_type != QB_TYPE_VOID) {
 				if(desired_type == QB_TYPE_ANY) {
 					desired_type = qb_get_zval_type(cxt, operand->constant, coercion_flags);
