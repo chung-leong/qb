@@ -2650,7 +2650,7 @@ qb_derived_op_factory factory_concat = {
 	qb_select_opcode_derived,
 	qb_transfer_operands_derived,
 	NULL,
-	0,
+	QB_DECODE_LITERAL_STRING,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	&factory_append_string,
 };

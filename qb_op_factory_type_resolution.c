@@ -486,19 +486,30 @@ static int32_t qb_resolve_expression_type_append_char(qb_compiler_context *cxt, 
 	return TRUE;
 }
 
+static int32_t qb_get_string_append_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type expr_type) {
+	if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_STRING) {
+		return expr_type;
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE && operand->result_prototype->address_flags & QB_ADDRESS_STRING) {
+		return expr_type;
+	} else if(operand->type == QB_OPERAND_ZVAL && Z_TYPE_P(operand->constant) == IS_STRING) {
+		return expr_type;
+	}
+	return QB_TYPE_ANY;
+}
+
+static int32_t qb_get_string_concat_type(qb_compiler_context *cxt, qb_operand *operand) {
+	if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_STRING) {
+		return operand->address->type;
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE && operand->result_prototype->address_flags & QB_ADDRESS_STRING) {
+		return operand->result_prototype->final_type;
+	}
+	return QB_TYPE_U08;
+}
+
 static int32_t qb_resolve_expression_type_concat(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *augend = &operands[0], *addend = &operands[1];
-	qb_primitive_type augend_type, addend_type;
-	if(augend->type == QB_OPERAND_ADDRESS && augend->address->flags & QB_ADDRESS_STRING) {
-		augend_type = augend->address->type;
-	} else {
-		augend_type = QB_TYPE_U08;
-	}
-	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
-		addend_type = addend->address->type;
-	} else {
-		addend_type = QB_TYPE_U08;
-	}
+	qb_primitive_type augend_type = qb_get_string_concat_type(cxt, augend);
+	qb_primitive_type addend_type = qb_get_string_concat_type(cxt, addend);
 	*p_type = (addend_type > augend_type) ? addend_type : augend_type;
 	return TRUE;
 }
