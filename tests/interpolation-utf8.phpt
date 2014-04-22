@@ -15,7 +15,7 @@ Variable interpolation test (utf8)
 function test_function() {
 	$a = "梁頌榮";
 	$b = "ПИВО";
-	echo "Strings: $a, $b";
+	echo "Strings: $a, $b\n";
 }
 
 test_function();

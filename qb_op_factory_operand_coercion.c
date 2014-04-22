@@ -95,6 +95,31 @@ static int32_t qb_coerce_operands_no_cast(qb_compiler_context *cxt, qb_op_factor
 	return TRUE;
 }
 
+static int32_t qb_coerce_operands_comparison(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
+	qb_primitive_type operand_type;
+	uint32_t i;
+	uint32_t coercion_flags = f->coercion_flags;
+
+	// see if any of the operand contains a string
+	// if so, decode any literal string as utf-8
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_STRING) {
+			coercion_flags |= QB_DECODE_LITERAL_STRING;
+		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE && operand->result_prototype->address_flags & QB_ADDRESS_STRING) {
+			coercion_flags |= QB_DECODE_LITERAL_STRING;
+		}
+	}
+
+	operand_type = qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
+	for(i = 0; i < operand_count; i++) {
+		if(!qb_perform_type_coercion(cxt, &operands[i], operand_type, coercion_flags)) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_coerce_operands_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 	if(operand->type != QB_OPERAND_ADDRESS) {

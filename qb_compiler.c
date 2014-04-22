@@ -2715,6 +2715,9 @@ int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, 
 				// don't need to do anything yet
 				return TRUE;
 			}
+			if(coercion_flags & QB_NO_COERCION_OF_VARIABLE) {
+				return TRUE;
+			}
 			if(desired_type != QB_TYPE_VOID) {
 				qb_address *new_address = NULL;
 				if(operand->address->type != desired_type && desired_type != QB_TYPE_ANY) {
