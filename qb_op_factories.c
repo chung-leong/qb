@@ -2595,7 +2595,7 @@ qb_append_op_factory factory_append_string = {
 	NULL,
 	qb_resolve_expression_flags_temporary_string,
 	qb_resolve_expression_type_append_string,
-	NULL,
+	qb_link_results_all_operands,
 	qb_coerce_operands_append_string,
 	qb_set_result_prototype,
 	NULL,
@@ -2604,7 +2604,7 @@ qb_append_op_factory factory_append_string = {
 	qb_select_opcode_append_string,
 	qb_transfer_operands_append_string,
 	NULL,
-	0,
+	QB_COERCE_TO_LVALUE_TYPE | QB_DECODE_LITERAL_STRING,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	{
 		{	QB_APP_VAR_F64_U32_U32,	QB_APP_VAR_F32_U32_U32,	QB_APP_VAR_U64_U32_U32,	QB_APP_VAR_S64_U32_U32,	QB_APP_VAR_U32_U32_U32,	QB_APP_VAR_S32_U32_U32,	QB_APP_VAR_U16_U32_U32,	QB_APP_VAR_S16_U32_U32,	QB_APP_VAR_U08_U32_U32,	QB_APP_VAR_S08_U32_U32,	},
@@ -2623,7 +2623,7 @@ qb_derived_op_factory factory_append_char = {
 	NULL,
 	qb_resolve_expression_flags_temporary_string,
 	qb_resolve_expression_type_append_char,
-	NULL,
+	qb_link_results_all_operands,
 	qb_coerce_operands_append_char,
 	qb_set_result_prototype,
 	NULL,
@@ -2632,7 +2632,7 @@ qb_derived_op_factory factory_append_char = {
 	qb_select_opcode_append_char,
 	qb_transfer_operands_append_string,
 	NULL,
-	0,
+	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	&factory_append_string
 };

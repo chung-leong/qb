@@ -463,14 +463,20 @@ static int32_t qb_resolve_expression_type_append_string(qb_compiler_context *cxt
 	if(string->type != QB_OPERAND_NONE) {
 		string_type = qb_get_operand_type(cxt, string, 0);
 	} else {
-		string_type = QB_TYPE_U08;
+		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+			// allow the string to get promoted to the type of the lvalue
+			string_type = QB_TYPE_ANY;
+		} else {
+			// at this point the string needs to have a type
+			string_type = QB_TYPE_U08;
+		}
 	}
 	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
 		addend_type = addend->address->type;
 	} else {
-		addend_type = QB_TYPE_U08;
+		addend_type = QB_TYPE_ANY;
 	}
-	*p_type = (addend_type > string_type) ? addend_type : string_type;
+	*p_type = (addend_type != QB_TYPE_ANY && addend_type > string_type) ? addend_type : string_type;
 	return TRUE;
 }
 

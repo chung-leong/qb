@@ -30,7 +30,7 @@ class AppendString extends Handler {
 
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
-		$lines[] = "res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof($cType) * (res_count + op1_count) );";
+		$lines[] = "res_ptr = ($cType *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof($cType) * (res_count + op1_count)));";
 		$lines[] = "memcpy(res_ptr + res_count, op1_ptr, sizeof($cType) * op1_count);";
 		$lines[] = "res_count += op1_count;";
 		return $lines;

@@ -146,12 +146,25 @@ static int32_t qb_coerce_operands_assign_array_element(qb_compiler_context *cxt,
 	return TRUE;
 }
 
+static int32_t qb_get_string_append_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type expr_type) {
+	if(operand->type == QB_OPERAND_ADDRESS && operand->address->flags & QB_ADDRESS_STRING) {
+		return expr_type;
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE && operand->result_prototype->address_flags & QB_ADDRESS_STRING) {
+		return expr_type;
+	} else if(operand->type == QB_OPERAND_ZVAL && Z_TYPE_P(operand->constant) == IS_STRING) {
+		return expr_type;
+	}
+	return QB_TYPE_ANY;
+}
+
 static int32_t qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *augend = &operands[0], *addend = &operands[1];
-	if(!qb_perform_type_coercion(cxt, augend, QB_TYPE_ANY, f->coercion_flags)) {
+	qb_primitive_type augend_type = qb_get_string_append_type(cxt, augend, expr_type);
+	qb_primitive_type addend_type = qb_get_string_append_type(cxt, addend, expr_type);
+	if(!qb_perform_type_coercion(cxt, augend, augend_type, f->coercion_flags)) {
 		return FALSE;
 	}
-	if(!qb_perform_type_coercion(cxt, addend, QB_TYPE_ANY, f->coercion_flags)) {
+	if(!qb_perform_type_coercion(cxt, addend, addend_type, f->coercion_flags)) {
 		return FALSE;
 	}
 	return TRUE;
@@ -159,12 +172,7 @@ static int32_t qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory
 
 static int32_t qb_coerce_operands_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
-	qb_primitive_type addend_type;
-	if(addend->type == QB_OPERAND_ADDRESS && addend->address->flags & QB_ADDRESS_STRING) {
-		addend_type = expr_type;
-	} else {
-		addend_type = QB_TYPE_ANY;
-	}
+	qb_primitive_type addend_type = qb_get_string_append_type(cxt, addend, expr_type);
 	if(string->type != QB_OPERAND_NONE) {
 		if(!qb_perform_type_coercion(cxt, string, expr_type, f->coercion_flags)) {
 			return FALSE;

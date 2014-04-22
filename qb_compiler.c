@@ -1452,6 +1452,48 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 	return NULL;
 }
 
+qb_address * qb_obtain_constant_zval_utf8(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
+	qb_address *address;
+	uint8_t *bytes = Z_STRVAL_P(zvalue);
+	uint32_t byte_count = Z_STRLEN_P(zvalue);
+	uint32_t element_count = 0;
+	uint32_t state = 0, codepoint, i, j;
+
+	// see how many codepoints there are
+	for(i = 0; i < byte_count; i++) {
+		if(!decode(&state, &codepoint, bytes[i])) {
+			element_count++;
+		}
+	}
+
+	// create the array
+	address = qb_create_constant_array(cxt, desired_type, &element_count, 1);
+
+	// decode the codepoints into it
+	state = 0;
+	if(STORAGE_TYPE_MATCH(desired_type, QB_TYPE_I16)) {
+		uint16_t *elements = ARRAY(U16, address);
+		for(i = 0, j = 0; i < byte_count; i++) {
+			if(!decode(&state, &codepoint, bytes[i])) {
+				elements[j] = codepoint;
+				j++;
+			}
+		}
+	} else if(STORAGE_TYPE_MATCH(desired_type, QB_TYPE_I32)) {
+		uint32_t *elements = ARRAY(U32, address);
+		for(i = 0, j = 0; i < byte_count; i++) {
+			if(!decode(&state, &codepoint, bytes[i])) {
+				elements[j] = codepoint;
+				j++;
+			}
+		}
+	}
+
+	// mark it as something that should print out as text
+	address->flags |= QB_ADDRESS_STRING;
+	return address;
+}
+
 qb_address * qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type element_type) {
 #if ZEND_DEBUG
 	if(element_type >= QB_TYPE_COUNT) {
@@ -2724,7 +2766,11 @@ int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, 
 				if(desired_type == QB_TYPE_ANY) {
 					desired_type = qb_get_zval_type(cxt, operand->constant, coercion_flags);
 				}
-				operand->address = qb_obtain_constant_zval(cxt, operand->constant, desired_type);
+				if((coercion_flags & QB_DECODE_LITERAL_STRING) && Z_TYPE_P(operand->constant) == IS_STRING && desired_type >= QB_TYPE_I16) {
+					operand->address = qb_obtain_constant_zval_utf8(cxt, operand->constant, desired_type);
+				} else {
+					operand->address = qb_obtain_constant_zval(cxt, operand->constant, desired_type);
+				}
 				operand->type = QB_OPERAND_ADDRESS;
 			} else {
 				operand->address = NULL;
@@ -3294,6 +3340,9 @@ static void qb_finalize_result_prototype(qb_compiler_context *cxt, qb_result_pro
 				expr_type = QB_TYPE_I32;
 			} else if(result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT) {
 				expr_type = QB_TYPE_F64;
+			} else if(result_prototype->address_flags & QB_ADDRESS_STRING) {
+				// we're probably echoing it
+				expr_type = QB_TYPE_U08;
 			}
 		}
 		result_prototype->final_type = expr_type;

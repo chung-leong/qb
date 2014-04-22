@@ -4931,19 +4931,19 @@ void qb_do_append_multidimensional_variable_U64_U32(qb_interpreter_context *__re
 }
 
 void qb_do_append_string_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint8_t *res_ptr, uint32_t *res_count_ptr) {
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + op1_count) );
+	res_ptr = (uint8_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint8_t) * ((*res_count_ptr) + op1_count)));
 	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint8_t) * op1_count);
 	(*res_count_ptr) += op1_count;
 }
 
 void qb_do_append_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint16_t *res_ptr, uint32_t *res_count_ptr) {
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + op1_count) );
+	res_ptr = (uint16_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint16_t) * ((*res_count_ptr) + op1_count)));
 	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint16_t) * op1_count);
 	(*res_count_ptr) += op1_count;
 }
 
 void qb_do_append_string_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t *res_count_ptr) {
-	res_ptr += qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + op1_count) );
+	res_ptr = (uint32_t *) (((char *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op2], sizeof(uint32_t) * ((*res_count_ptr) + op1_count)));
 	memcpy(res_ptr + (*res_count_ptr), op1_ptr, sizeof(uint32_t) * op1_count);
 	(*res_count_ptr) += op1_count;
 }
