@@ -360,7 +360,7 @@ qb_fetch_op_factory factory_fetch_array_element_isset = {
 
 qb_fetch_op_factory factory_fetch_object_property_read = {
 	NULL,
-	NULL,
+	qb_resolve_expression_flags_object_property,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -378,7 +378,7 @@ qb_fetch_op_factory factory_fetch_object_property_read = {
 
 qb_fetch_op_factory factory_fetch_object_property_write = {
 	NULL,
-	NULL,
+	qb_resolve_expression_flags_object_property,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,

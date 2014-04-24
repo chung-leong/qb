@@ -327,6 +327,19 @@ static int32_t qb_resolve_expression_flags_array_size(qb_compiler_context *cxt, 
 	return TRUE;
 }
 
+static int32_t qb_resolve_expression_flags_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		*p_flags = 0;
+	} else {
+		qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
+		if(address) {
+			*p_flags = address->flags;
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *container = &operands[0], *name = &operands[1];
 	if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {

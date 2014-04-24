@@ -135,6 +135,7 @@ class Droste {
      * @local float				$(sign|signTransparentOutside|alphaRemaining|theta|radius)
      * @local float				$(r1|r2|p1|p2|sc|ss)
      * @local float[min,max]	$[xy]Bounds
+	 * @local complex			$(z|f|I|beta|rotate|ratio|alpha)
      * @local float[x,y]		$.*				All other local variables are coordinate of some sort
      *
      */
@@ -166,8 +167,8 @@ class Droste {
 		}
 		
 		// Set rotation
-		$rotate->x = ($p1 > 0.0) ? -deg2rad($this->rotate) : deg2rad($this->rotate);
-		$rotate->y = 0;
+		$rotate->r = ($p1 > 0.0) ? -deg2rad($this->rotate) : deg2rad($this->rotate);
+		$rotate->i = 0;
 		
 		$sc = cos(deg2rad($this->rotateSpin));
 		$ss = sin(deg2rad($this->rotateSpin));
@@ -200,8 +201,8 @@ class Droste {
 				$alphaRemaining = 1.0;
 				$colorSoFar = 0;
 				
-				$z->x = $xBounds->min + ($xBounds->max - $xBounds->min) * ($x - $center->x + $width / 2.0) / $width;
-				$z->y = $yBounds->min + ($yBounds->max - $yBounds->min) * ($y - $center->y + $height / 2.0) / $height;
+				$z->r = $xBounds->min + ($xBounds->max - $xBounds->min) * ($x - $center->x + $width / 2.0) / $width;
+				$z->i = $yBounds->min + ($yBounds->max - $yBounds->min) * ($y - $center->y + $height / 2.0) / $height;
 				
 				// Only allow for procedural zooming/scaling in the standard coordinates
 				if($this->twist) {
@@ -211,23 +212,23 @@ class Droste {
 				if($this->rotatePolar != 0.0) {
 					$theta = deg2rad($this->rotatePolar);
 				
-					$div->x = (1.0 + pow($z->x, 2.0) + pow($z->y, 2.0) + ((1.0 - pow($z->x, 2.0) - pow($z->y, 2.0)) * cos($theta)) - (2.0 * $z->x * sin($theta))) / 2.0;
-					$z->x = $z->x * cos($theta) + ((1.0 - pow($z->x, 2.0) - pow($z->y, 2.0)) * sin($theta) / 2.0);
-					$z = cdiv($z, $div);
+					$div->x = (1.0 + pow($z->r, 2.0) + pow($z->i, 2.0) + ((1.0 - pow($z->r, 2.0) - pow($z->i, 2.0)) * cos($theta)) - (2.0 * $z->r * sin($theta))) / 2.0;
+					$z->r = $z->r * cos($theta) + ((1.0 - pow($z->r, 2.0) - pow($z->i, 2.0)) * sin($theta) / 2.0);
+					$z = $z / $div;
 				}
 				
 				$z = vm_mult($z, $imageSpin);
 				
 				if ($this->twist) {
-					$z = clog(cdiv($z, array($r1, 0.0)));
+					$z = log($z / array($r1, 0.0));
 				}
 				
 				// Start Droste-effect code
-				$alpha->x = atan(($p2/$p1) * (log($r2/$r1) / (2 * M_PI)));
-				$alpha->y = 0.0;
-				$f->x = cos($alpha->x);
-				$f->y = 0.0;
-				$beta = cmult($f, cexp(cmult($alpha, $I)));
+				$alpha->r = atan(($p2/$p1) * (log($r2/$r1) / (2 * M_PI)));
+				$alpha->i = 0.0;
+				$f->r = cos($alpha->r);
+				$f->i = 0.0;
+				$beta = $f * exp($alpha * $I);
 				
 				// The angle of rotation between adjacent annular levels
 				$angle->x = -2 * M_PI * $p1;
@@ -240,18 +241,18 @@ class Droste {
 					$angle /= $p2;
 				}
 				
-				$z = cdiv(cmult(array($p1, 0.0), $z), $beta);
-				$z = cmult(array($r1, 0.0), cexp($z));
+				$z = $z * array($p1, 0.0) / $beta;
+				$z = array($r1, 0.0) * exp($z);
 				// End Droste-effect code
 				
 				// Start drawing
 				if($tileBasedOnTransparency && $this->levelStart > 0) {
 					if($this->transparentOutside) {
-						$ratio = cmult(array($r2/$r1, 0.0), cexp(cmult($angle,  $I)));
+						$ratio = array($r2/$r1, 0.0) * exp($angle * $I);
 					} else {
-						$ratio = cmult(array($r1/$r2, 0.0), cexp(cmult($angle, -$I)));
+						$ratio = array($r1/$r2, 0.0) * exp($angle * -$I);
 					}
-					$z = cmult($z, cpow($ratio, array($this->levelStart, 0)));
+					$z = $z * pow($ratio, array($this->levelStart, 0));
 				}
 				
 				$iteration = 0;
@@ -278,16 +279,16 @@ class Droste {
 				$iteration++;
 				
 				if($sign < 0) {
-					$ratio = cmult(array($r2/$r1, 0.0), cexp(cmult($angle, $I)));
+					$ratio = array($r2/$r1, 0.0) * exp($angle * $I);
 				} else if($sign > 0) {
-					$ratio = cmult(array($r1/$r2, 0.0), cexp(cmult($angle, -$I)));
+					$ratio = array($r1/$r2, 0.0) * exp($angle * -$I);
 				}
 				
 				$iteration = $this->levelStart;
 				$maxIteration = $this->levels + $this->levelStart - 1;
 				
 				while($sign != 0 && $iteration < $maxIteration) {
-					$z = cmult($z, $ratio);
+					$z = $z * $ratio;
 					
 	        		$d = $minDimension * ($z + $shift);
 		        	$sign = 0;
