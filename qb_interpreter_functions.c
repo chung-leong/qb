@@ -21547,7 +21547,7 @@ void qb_do_print_string_U08(qb_interpreter_context *__restrict cxt, uint8_t *op1
 
 void qb_do_print_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op1_ptr, uint32_t op1_count) {
 	USE_TSRM
-	char buffer[256];
+	uint8_t buffer[256];
 	uint32_t length = 0, i;
 	for(i = 0; i < op1_count; i++) {
 		length += encode(op1_ptr[i], buffer + length);
@@ -21560,7 +21560,7 @@ void qb_do_print_string_U16(qb_interpreter_context *__restrict cxt, uint16_t *op
 
 void qb_do_print_string_U32(qb_interpreter_context *__restrict cxt, uint32_t *op1_ptr, uint32_t op1_count) {
 	USE_TSRM
-	char buffer[256];
+	uint8_t buffer[256];
 	uint32_t length = 0, i;
 	for(i = 0; i < op1_count; i++) {
 		length += encode(op1_ptr[i], buffer + length);

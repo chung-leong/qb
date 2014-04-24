@@ -56,10 +56,6 @@
 #	include <sys/param.h>
 #endif
 
-#ifdef HAVE_COMPLEX_H
-#	include <complex.h>
-#endif
-
 #ifdef _MSC_VER
 #	if _M_IX86_FP == 2
 #		define __SSE2__		1
@@ -166,10 +162,6 @@
 
 #define QB_EXTNAME	"qb"
 
-#ifdef HAVE_CONFIG_H
-#	include "config.h"
-#endif
-
 #include "qb_debug_interface.h"
 #include "qb_version.h"
 #include "qb_types.h"
@@ -193,6 +185,10 @@
 #include "qb_native_compiler.h"
 #include "qb_printer.h"
 #include "qb_extractor.h"
+
+#ifdef HAVE_COMPLEX_H
+#	include <complex.h>
+#endif
 
 enum {
 	QB_SCAN_FILE				= 0,

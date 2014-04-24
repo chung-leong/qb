@@ -84,24 +84,6 @@ static int32_t qb_resolve_expression_flags_temporary_string(qb_compiler_context 
 	return TRUE;
 }
 
-// the expression yields a temporary complex variable
-static int32_t qb_resolve_expression_flags_temporary_complex(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_COMPLEX;
-	return TRUE;
-}
-
-// the expression yields a temporary vector variable
-static int32_t qb_resolve_expression_flags_temporary_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_VECTOR;
-	return TRUE;
-}
-
-// the expression yields a temporary matrix variable
-static int32_t qb_resolve_expression_flags_temporary_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	*p_flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_MATRIX;
-	return TRUE;
-}
-
 // the expression always yields a constant
 static int32_t qb_resolve_expression_flags_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
 	*p_flags |= QB_ADDRESS_CONSTANT;
@@ -475,7 +457,7 @@ static int32_t qb_resolve_expression_type_append_string(qb_compiler_context *cxt
 }
 
 static int32_t qb_resolve_expression_type_append_char(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
-	qb_operand *string = &operands[0], *addend = &operands[1];
+	qb_operand *string = &operands[0];
 	qb_primitive_type string_type;
 	if(string->type != QB_OPERAND_NONE) {
 		string_type = qb_get_operand_type(cxt, string, 0);

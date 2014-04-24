@@ -63,7 +63,6 @@ static void qb_raise_missing_constant_exception(qb_parser_context *cxt, qb_token
 }
 
 int32_t qb_set_engine_flags(qb_parser_context *cxt, uint32_t flags, qb_token_position p) {
-	qb_function_declaration *f_decl = cxt->function_declaration;
 	cxt->function_declaration->flags |= flags;
 	return TRUE;
 }
@@ -132,7 +131,7 @@ int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags,
 		decl->dimensions = qb_reallocate_indices(cxt->pool, decl->dimensions, index, decl->dimension_count);
 		decl->dimensions[index] = count;
 		if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
-			decl->index_alias_schemes = qb_reallocate_pointers(cxt->pool, decl->index_alias_schemes, index, decl->dimension_count);
+			decl->index_alias_schemes = qb_reallocate_pointers(cxt->pool, (void **) decl->index_alias_schemes, index, decl->dimension_count);
 		}
 		decl->flags |= flags;
 		return TRUE;
@@ -145,11 +144,9 @@ int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags,
 int32_t qb_add_matrix_dimension(qb_parser_context *cxt, qb_matrix_dimension dim, qb_token_position p) {
 	USE_TSRM
 	if(QB_G(column_major_matrix)) {
-		qb_add_dimension(cxt, dim.column, 0, p);
-		qb_add_dimension(cxt, dim.row, 0, p);
+		return qb_add_dimension(cxt, dim.column, 0, p) && qb_add_dimension(cxt, dim.row, 0, p);
 	} else {
-		qb_add_dimension(cxt, dim.row, 0, p);
-		qb_add_dimension(cxt, dim.column, 0, p);
+		return qb_add_dimension(cxt, dim.row, 0, p) && qb_add_dimension(cxt, dim.column, 0, p);
 	}
 }
 
@@ -219,7 +216,7 @@ uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t 
 		s++;
 		len--;
 	}
-	if(len >= 0 && len < sizeof(buffer)) {
+	if(len < sizeof(buffer)) {
 		memcpy(buffer, s, len);
 		buffer[len] = '\0';
 		return strtoul(buffer, NULL, radix);
@@ -240,7 +237,7 @@ qb_matrix_dimension qb_parse_dimension(qb_parser_context *cxt, qb_token_position
 		s++;
 		len--;
 	}
-	if(len >= 0 && len < sizeof(buffer)) {
+	if(len < sizeof(buffer)) {
 		char *e;
 		memcpy(buffer, s, len);
 		buffer[len] = '\0';
@@ -268,7 +265,7 @@ qb_index_alias_scheme *qb_create_index_alias_scheme(qb_parser_context *cxt) {
 
 int32_t qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	uint32_t index = scheme->dimension++;
-	scheme->aliases = qb_reallocate_pointers(cxt->pool, scheme->aliases, index, scheme->dimension);
+	scheme->aliases = qb_reallocate_pointers(cxt->pool, (void **) scheme->aliases, index, scheme->dimension);
 	scheme->alias_lengths = qb_reallocate_indices(cxt->pool, scheme->alias_lengths, index, scheme->dimension);
 	scheme->aliases[index] = qb_allocate_string(cxt->pool, cxt->lexer_context->base + p.index, p.length);
 	scheme->alias_lengths[index] = p.length;
@@ -302,7 +299,7 @@ int32_t qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 
 			switch (Z_TYPE_P(constant)) {
 				case IS_NULL: {
-					expanded_len = spprintf(&expanded, 0, "[]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
+					expanded_len = spprintf(&expanded, 0, "[]");
 				}	break;
 				case IS_STRING: {
 					expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
@@ -408,7 +405,6 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_class_entry *ce) {
 	USE_TSRM
 	qb_class_declaration *class_decl;
-	uint32_t start_index = 0;
 	const char *doc_comment = Z_CLASS_INFO(ce, doc_comment);
 	Bucket *p;
 

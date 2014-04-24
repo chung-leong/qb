@@ -1877,7 +1877,7 @@ static uint32_t qb_pbj_get_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_a
 			case PBJ_CHANNEL_RGB: mask = 0x0001 | 0x0002 | 0x0004; break;
 			case PBJ_CHANNEL_GBA: mask = 0x0002 | 0x0004 | 0x0008; break;
 			case PBJ_CHANNEL_RGBA: mask = 0x0001 | 0x0002 | 0x0004 | 0x0008; break;
-			default: break;
+			default: mask = 0;
 		}
 	} else if(reg_address->dimension == 2) {
 		mask = 0x0000000F;	// 4 bits set
@@ -1885,6 +1885,8 @@ static uint32_t qb_pbj_get_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_a
 		mask = 0x00000FFF;	// 12 bits set
 	} else if(reg_address->dimension == 4) {
 		mask = 0x0000FFFF;	// 16 bits set
+	} else {
+		mask = 0;
 	}
 	return mask;
 }
@@ -2053,6 +2055,8 @@ static int32_t qb_check_value_reuse(qb_pbj_translator_context *cxt, uint32_t sta
 					}
 				} else if(effect & PBJ_AS_BOOL) {
 					modified_channel_mask = 0x000000001;
+				} else {
+					modified_channel_mask = 0;
 				}
 				mask &= ~modified_channel_mask;
 				if(!mask) {

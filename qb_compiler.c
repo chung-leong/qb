@@ -1288,7 +1288,7 @@ static int32_t qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *
 		uint32_t src_element_count = ELEMENT_COUNT(Z_STRLEN_P(zvalue), element_type);
 		uint32_t src_byte_count = BYTE_COUNT(src_element_count, element_type);
 		uint32_t dst_byte_count = dimension * element_size;
-		int8_t *src_memory = Z_STRVAL_P(zvalue);
+		int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
 		int8_t *dst_memory = ARRAY(I08, address);
 		memcpy(dst_memory, src_memory, src_byte_count);
 		memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
@@ -1454,7 +1454,7 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 
 qb_address * qb_obtain_constant_zval_utf8(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
 	qb_address *address;
-	uint8_t *bytes = Z_STRVAL_P(zvalue);
+	uint8_t *bytes = (uint8_t *) Z_STRVAL_P(zvalue);
 	uint32_t byte_count = Z_STRLEN_P(zvalue);
 	uint32_t element_count = 0;
 	uint32_t state = 0, codepoint, i, j;

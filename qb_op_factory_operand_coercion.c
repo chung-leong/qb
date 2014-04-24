@@ -81,20 +81,6 @@ static int32_t qb_coerce_operands_highest_rank(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
-// coerce operands that aren't addresses to the highest-rank type
-static int32_t qb_coerce_operands_no_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
-	qb_primitive_type operand_type = qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
-	uint32_t i;
-	for(i = 0; i < operand_count; i++) {
-		if(operands[i].type != QB_OPERAND_ADDRESS) {
-			if(!qb_perform_type_coercion(cxt, &operands[i], operand_type, f->coercion_flags)) {
-				return FALSE;
-			}
-		}
-	}
-	return TRUE;
-}
-
 static int32_t qb_coerce_operands_comparison(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
 	qb_primitive_type operand_type;
 	uint32_t i;

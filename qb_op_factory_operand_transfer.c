@@ -200,13 +200,6 @@ static int32_t qb_transfer_operands_reverse_binary(qb_compiler_context *cxt, qb_
 	return TRUE;
 }
 
-static int32_t qb_transfer_operands_empty_string(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	dest[0].address = result->address;
-	dest[0].type = QB_OPERAND_SEGMENT_SELECTOR;
-	dest[1] = *result;
-	return TRUE;
-}
-
 static int32_t qb_transfer_operands_append_string(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *addend = &operands[1];
 	dest[0] = *addend;

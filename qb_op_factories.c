@@ -4602,7 +4602,7 @@ qb_float_op_factory factory_lcg = {
 
 qb_matrix_op_factory factory_cross_product = {
 	NULL,
-	qb_resolve_expression_flags_temporary_vector,
+	qb_resolve_expression_flags_temporary_pass_thru,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,

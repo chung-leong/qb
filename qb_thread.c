@@ -869,6 +869,8 @@ void qb_terminate_associated_workers(qb_main_thread *main_thread) {
 					terminated = TRUE;
 				} else if(qb_terminate_worker_thread(worker)) {
 					terminated = TRUE;
+				} else {
+					terminated = FALSE;
 				}
 				if(terminated) {
 					// wait for it to exit

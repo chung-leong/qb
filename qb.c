@@ -380,6 +380,8 @@ qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zva
 		zend_op_array *op_array = EG(current_execute_data)->op_array;
 		scope_type = QB_IMPORT_SCOPE_LEXICAL;
 		associated_object = op_array->static_variables;
+	} else {
+		return NULL;
 	}
 	scope = qb_find_import_scope(scope_type, associated_object TSRMLS_CC);
 	if(!scope) {

@@ -274,7 +274,7 @@ void qb_report_doc_comment_syntax_exception(uint32_t line_id, uint32_t column_nu
 	if(token_len == 0) {
 		qb_report_exception(line_id, E_ERROR, "Syntax error encountered");
 	} else if(token[0] == '\r' || token[0] == '\n') {
-		qb_report_exception(line_id, E_ERROR, "Unexpected newline encountered", token_len, token, column_number);
+		qb_report_exception(line_id, E_ERROR, "Unexpected newline encountered");
 	} else if(column_number) {
 		qb_report_exception(line_id, E_ERROR, "Syntax error encountered near %.*s at column %u", token_len, token, column_number);
 	} else {

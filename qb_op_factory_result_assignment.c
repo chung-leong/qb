@@ -277,6 +277,8 @@ static int32_t qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_
 		result_address = qb_obtain_instance_variable(cxt, name->constant);
 	} else if(container->type == QB_OPERAND_ADDRESS) {
 		result_address = qb_obtain_named_element(cxt, container->address, name->constant, ff->bound_check_flags);
+	} else {
+		return FALSE;
 	}
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
@@ -376,16 +378,8 @@ static int32_t qb_set_result_array_init(qb_compiler_context *cxt, qb_op_factory 
 	}
 }
 
-static int32_t qb_set_result_empty_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_variable_dimensions dim = { 1, NULL };
-	qb_address *address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, &dim);
-	result->address = address;
-	result->type = QB_OPERAND_ADDRESS;
-	return TRUE;
-}
-
 static int32_t qb_set_result_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *string = &operands[0], *addend = &operands[1];
+	qb_operand *string = &operands[0];
 	if(string->type != QB_OPERAND_ADDRESS) {
 		qb_variable_dimensions dim = { 1, NULL };
 		qb_address *address = qb_obtain_temporary_variable(cxt, expr_type, &dim);
@@ -661,7 +655,7 @@ static int32_t qb_set_result_define(qb_compiler_context *cxt, qb_op_factory *f, 
 			switch(value->address->type) {
 				case QB_TYPE_F32: dval = VALUE(F32, value->address); break;
 				case QB_TYPE_F64: dval = VALUE(F64, value->address); break;
-				default: break;
+				default: return FALSE;
 			}
 			ZVAL_DOUBLE(&c.value, dval);
 		} else {
@@ -675,7 +669,7 @@ static int32_t qb_set_result_define(qb_compiler_context *cxt, qb_op_factory *f, 
 				case QB_TYPE_U32: lval = VALUE(U32, value->address); break;
 				case QB_TYPE_S64: lval = (long) VALUE(S64, value->address); break;
 				case QB_TYPE_U64: lval = (long) VALUE(U64, value->address); break;
-				default: break;
+				default: return FALSE;
 			}
 			ZVAL_LONG(&c.value, lval);
 		}

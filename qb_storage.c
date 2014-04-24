@@ -1090,7 +1090,7 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 	// make sure the string is the right size
 	uint32_t src_element_count = m->src_array_sizes[dimension_index];
 	uint32_t src_byte_count;
-	int8_t *dst_memory;
+	uint8_t *dst_memory;
 	int32_t need_utf8_encoding = FALSE;
 
 	if(m->src_address_flags & QB_ADDRESS_STRING) {
@@ -1099,7 +1099,7 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 		}
 	}
 	if(need_utf8_encoding) {
-		int8_t buffer[4];
+		uint8_t buffer[4];
 		uint32_t i;
 		src_byte_count = 0;
 		if(STORAGE_TYPE_MATCH(m->src_element_type, QB_TYPE_I16)) {
@@ -1117,7 +1117,7 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 		src_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
 	}
 	if(Z_STRLEN_P(zstring) == src_byte_count) {
-		dst_memory = (int8_t *) Z_STRVAL_P(zstring);
+		dst_memory = (uint8_t *) Z_STRVAL_P(zstring);
 	} else {
 		dst_memory = emalloc(src_byte_count + 1);
 		dst_memory[src_byte_count] = '\0';

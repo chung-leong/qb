@@ -210,6 +210,8 @@ static int32_t qb_process_fetch_class(qb_php_translator_context *cxt, void *op_f
 #endif
 	} else if(fetch_type == ZEND_FETCH_CLASS_GLOBAL) {
 		op_factory = list[QB_OP_FACTORY_GLOBAL];
+	} else {
+		op_factory = NULL;
 	}
 	return qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
@@ -226,6 +228,8 @@ static int32_t qb_process_fetch(qb_php_translator_context *cxt, void *op_factori
 		op_factory = list[QB_OP_FACTORY_STATIC];
 	} else if(fetch_type == ZEND_FETCH_STATIC_MEMBER) {
 		op_factory = list[QB_OP_FACTORY_STATIC_MEMBER];
+	} else {
+		op_factory = NULL;
 	}
 	return qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
