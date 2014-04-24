@@ -135,7 +135,7 @@ class Droste {
      * @local float				$(sign|signTransparentOutside|alphaRemaining|theta|radius)
      * @local float				$(r1|r2|p1|p2|sc|ss)
      * @local float[min,max]	$[xy]Bounds
-	 * @local complex			$(z|f|I|beta|rotate|ratio|alpha)
+	 * @local complex			$(z|f|I|beta|rotate|ratio|alpha|zoom|center)
      * @local float[x,y]		$.*				All other local variables are coordinate of some sort
      *
      */
@@ -154,8 +154,8 @@ class Droste {
 		$signTransparentOutside = ($this->transparentOutside) ? 1.0 : -1.0;
 		
 		$shift = 1.0 + $this->centerShift * 0.01;
-		$center->x = $width / 2 + $this->center->x * ($width / 2) / 100;
-		$center->y = $height / 2 + $this->center->y * ($height / 2) / 100;
+		$center->r = $width / 2 + $this->center->x * ($width / 2) / 100;
+		$center->i = $height / 2 + $this->center->y * ($height / 2) / 100;
 				
 		$minDimension = min($width, $height) / 2;
 				
@@ -175,8 +175,8 @@ class Droste {
 		$imageSpin = array($sc, $ss, -$ss, $sc);
 		
 		// Set zoom
-		$zoom->x = (exp($this->zoom) + $this->radiusInside - 1.0) * 0.01;
-		$zoom->y = 0.0;
+		$zoom->r = (exp($this->zoom) + $this->radiusInside - 1.0) * 0.01;
+		$zoom->i = 0.0;
 		
 		// Scale viewport pixels to complex plane
 		if($this->twist) {
@@ -201,8 +201,8 @@ class Droste {
 				$alphaRemaining = 1.0;
 				$colorSoFar = 0;
 				
-				$z->r = $xBounds->min + ($xBounds->max - $xBounds->min) * ($x - $center->x + $width / 2.0) / $width;
-				$z->i = $yBounds->min + ($yBounds->max - $yBounds->min) * ($y - $center->y + $height / 2.0) / $height;
+				$z->r = $xBounds->min + ($xBounds->max - $xBounds->min) * ($x - $center->r + $width / 2.0) / $width;
+				$z->i = $yBounds->min + ($yBounds->max - $yBounds->min) * ($y - $center->i + $height / 2.0) / $height;
 				
 				// Only allow for procedural zooming/scaling in the standard coordinates
 				if($this->twist) {
