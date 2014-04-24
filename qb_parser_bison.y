@@ -145,6 +145,7 @@ int qb_doc_comment_yyerror(YYLTYPE *locp, qb_parser_context *cxt, const char *ms
 %type <flags>			engine_type inline_type
 %type <primitive_type>	int_type float_type int_type_base float_type_base
 %type <count>			element_count image_type vector_type
+%type <matrix>			matrix_type
 %type <alias_scheme>	alias_scheme name_list
 
 %type <token>			T_LABEL T_REGEXP T_DECIMAL T_HEXADECIMAL T_TYPE_IMAGE T_TYPE_VECTOR T_TYPE_MATRIX
@@ -265,6 +266,7 @@ var_type
 	| boolean_type array_dimensions
 	| image_type array_dimensions		{ if(!qb_add_dimension(cxt, 0, 0, @1)) YYABORT; qb_add_dimension(cxt, 0, 0, @1); qb_add_dimension(cxt, $1, 0, @1); }
 	| vector_type array_dimensions		{ if(!qb_add_dimension(cxt, $1, 0, @1)) YYABORT; }
+	| matrix_type array_dimensions		{ if(!qb_add_matrix_dimension(cxt, $1, @1)) YYABORT; }
 	| complex_type array_dimensions		{ if(!qb_add_dimension(cxt, 2, 0, @1)) YYABORT; }
 	;
 	
@@ -303,6 +305,13 @@ vector_type
 	| T_TYPE_VECTOR						{ $$ = qb_parse_integer(cxt, $1, 10); if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, @1)) YYABORT; }
 	| T_TYPE_VECTOR3 float_type_base	{ $$ = 3; if(!qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR, @1)) YYABORT; }
 	| T_TYPE_VECTOR3					{ $$ = 3; if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR, @1)) YYABORT; }
+	;
+
+matrix_type
+	: T_TYPE_MATRIX float_type_base		{ $$ = qb_parse_dimension(cxt, $1); if(!qb_set_variable_type(cxt, $2, QB_TYPE_DECL_MATRIX, @1)) YYABORT; }
+	| T_TYPE_MATRIX						{ $$ = qb_parse_dimension(cxt, $1); if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_MATRIX, @1)) YYABORT; }
+	| T_TYPE_MATRIX3X3 float_type_base	{ $$.row = 3; $$.column = 3; if(!qb_set_variable_type(cxt, $2, QB_TYPE_DECL_MATRIX, @1)) YYABORT; }
+	| T_TYPE_MATRIX3X3					{ $$.row = 3; $$.column = 3; if(!qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_MATRIX, @1)) YYABORT; }
 	;
 
 complex_type

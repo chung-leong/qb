@@ -142,6 +142,17 @@ int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags,
 	}
 }
 
+int32_t qb_add_matrix_dimension(qb_parser_context *cxt, qb_matrix_dimension dim, qb_token_position p) {
+	USE_TSRM
+	if(QB_G(column_major_matrix)) {
+		qb_add_dimension(cxt, dim.column, 0, p);
+		qb_add_dimension(cxt, dim.row, 0, p);
+	} else {
+		qb_add_dimension(cxt, dim.row, 0, p);
+		qb_add_dimension(cxt, dim.column, 0, p);
+	}
+}
+
 int32_t qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	uint32_t index = decl->dimension_count;
@@ -215,6 +226,34 @@ uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t 
 	} else {
 		return 0;
 	}
+}
+
+qb_matrix_dimension qb_parse_dimension(qb_parser_context *cxt, qb_token_position p) {
+	const char *s = cxt->lexer_context->base + p.index;
+	char buffer[64]; 
+	size_t len = p.length, i;	
+	qb_matrix_dimension dim = { 0, 0 };
+	for(i = 0; i < p.length; i++) {
+		if(*s >= '0' && *s <= '9') {
+			break;
+		}
+		s++;
+		len--;
+	}
+	if(len >= 0 && len < sizeof(buffer)) {
+		char *e;
+		memcpy(buffer, s, len);
+		buffer[len] = '\0';
+		dim.row = strtoul(buffer, &e, 10);
+		while(*e) {
+			if(*e >= '0' && *e <= '9') {
+				break;
+			}
+			e++;
+		}
+		dim.column = strtoul(e, NULL, 10);
+	}
+	return dim;
 }
 
 int32_t qb_attach_index_alias_scheme_class(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p) {

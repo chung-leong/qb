@@ -94,7 +94,7 @@ class MultiplyMatrixByVector extends Handler {
 				$lines[] = "$cType *buffer = do_alloca(matrix1_rows * sizeof($cType), use_heap);";
 				$lines[] = "for(i = 0; i < matrix1_rows; ++i) {";
 				$lines[] = 		"$cType dot_product = 0;";
-				$lines[] = 		"for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_cols) {";
+				$lines[] = 		"for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_rows) {";
 				$lines[] = 			"dot_product += op1_ptr[k] * op2_ptr[j];";
 				$lines[] = 		"}";
 				$lines[] = 		"buffer[i] = dot_product;";

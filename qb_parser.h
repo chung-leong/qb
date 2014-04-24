@@ -74,7 +74,6 @@ struct qb_matrix_dimension {
 	uint32_t column;
 };
 
-
 struct qb_token_position {
 	uint32_t index;
 	uint32_t length;
@@ -130,6 +129,7 @@ int32_t qb_add_property_declaration(qb_parser_context *cxt, uint32_t type, qb_to
 int32_t qb_end_variable_declaration(qb_parser_context *cxt);
 int32_t qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags, qb_token_position p);
 int32_t qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags, qb_token_position p);
+int32_t qb_add_matrix_dimension(qb_parser_context *cxt, qb_matrix_dimension dim, qb_token_position p);
 int32_t qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme, qb_token_position p);
 int32_t qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p);
 int32_t qb_attach_variable_name_regexp(qb_parser_context *cxt, qb_token_position p);
@@ -139,6 +139,7 @@ int32_t qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme
 int32_t qb_parse_constant(qb_parser_context *cxt, qb_token_position p);
 
 uint32_t qb_parse_integer(qb_parser_context *cxt, qb_token_position p, uint32_t radix);
+qb_matrix_dimension qb_parse_dimension(qb_parser_context *cxt, qb_token_position p);
 
 void qb_doc_comment_yyinit(qb_parser_context *cxt, const char *doc_comment, int parser_selector);
 int qb_doc_comment_yyparse(qb_parser_context *cxt);

@@ -20045,7 +20045,7 @@ void qb_do_multiply_matrix_by_vector_column_major_F32(float32_t *op1_ptr, uint32
 	float32_t *buffer = do_alloca(matrix1_rows * sizeof(float32_t), use_heap);
 	for(i = 0; i < matrix1_rows; ++i) {
 		float32_t dot_product = 0;
-		for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_cols) {
+		for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_rows) {
 			dot_product += op1_ptr[k] * op2_ptr[j];
 		}
 		buffer[i] = dot_product;
@@ -20061,7 +20061,7 @@ void qb_do_multiply_matrix_by_vector_column_major_F64(float64_t *op1_ptr, uint32
 	float64_t *buffer = do_alloca(matrix1_rows * sizeof(float64_t), use_heap);
 	for(i = 0; i < matrix1_rows; ++i) {
 		float64_t dot_product = 0;
-		for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_cols) {
+		for(j = 0, k = i; j < matrix1_cols; ++j, k += matrix1_rows) {
 			dot_product += op1_ptr[k] * op2_ptr[j];
 		}
 		buffer[i] = dot_product;
