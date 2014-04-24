@@ -73,24 +73,32 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 			return FALSE;
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
-		uint32_t index;
+		uint32_t index, swizzle_mask;
 		if(IS_SCALAR(container->address)) {
 			qb_report_not_an_array_exception(cxt->line_id);
 			return FALSE;
 		}
-		if(!container->address->index_alias_schemes || !container->address->index_alias_schemes[0]) {
-			qb_report_elements_not_named_exception(cxt->line_id);
-			return FALSE;
-		}
-		index = qb_find_index_alias(cxt, container->address->index_alias_schemes[0], name->constant);
-		if(index == INVALID_INDEX) {
-			uint32_t swizzle_mask = 0;
-			if(container->address->dimension_count == 1) {
-				swizzle_mask = qb_get_swizzle_mask(cxt, container->address->index_alias_schemes[0], name->constant);
+		if(container->address->dimension_count == 1 && ((container->address->flags & QB_ADDRESS_VECTOR) || (container->address->flags & QB_ADDRESS_COMPLEX))) {
+			index = qb_find_vector_index_alias(cxt, container->address, name->constant);
+			if(index == INVALID_INDEX) {
+				swizzle_mask = qb_get_vector_swizzle_mask(cxt, container->address, name->constant);
+				if(swizzle_mask == INVALID_INDEX) {
+					qb_report_missing_named_element_exception(cxt->line_id, Z_STRVAL_P(name->constant));
+					return FALSE;
+				}
 			}
-			if(swizzle_mask == INVALID_INDEX) {
-				qb_report_missing_named_element_exception(cxt->line_id, Z_STRVAL_P(name->constant));
+		} else {
+			if(!container->address->index_alias_schemes || !container->address->index_alias_schemes[0]) {
+				qb_report_elements_not_named_exception(cxt->line_id);
 				return FALSE;
+			}
+			index = qb_find_index_alias(cxt, container->address->index_alias_schemes[0], name->constant);
+			if(index == INVALID_INDEX) {
+				swizzle_mask = (container->address->dimension_count == 1) ? qb_get_swizzle_mask(cxt, container->address->index_alias_schemes[0], name->constant) : INVALID_INDEX;
+				if(swizzle_mask == INVALID_INDEX) {
+					qb_report_missing_named_element_exception(cxt->line_id, Z_STRVAL_P(name->constant));
+					return FALSE;
+				}
 			}
 		}
 	}

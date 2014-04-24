@@ -3244,9 +3244,34 @@ uint32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *sc
 	return INVALID_INDEX;
 }
 
+static uint32_t qb_get_letter_index(qb_compiler_context *cxt, qb_address *address, char letter) {
+	uint32_t index = INVALID_INDEX;
+	if(address->flags & QB_ADDRESS_VECTOR) {
+		switch(letter) {
+			case 'x': index = 0; break;
+			case 'y': index = 1; break;
+			case 'z': index = 2; break;
+			case 'w': index = 3; break;
+		}
+	} else if(address->flags & QB_ADDRESS_COMPLEX) {
+		switch(letter) {
+			case 'r': index = 0; break;
+			case 'i': index = 1; break;
+		}
+	}
+	if(index >= ARRAY_SIZE(address)) {
+		index = INVALID_INDEX;
+	}
+	return index;
+}
+
+uint32_t qb_find_vector_index_alias(qb_compiler_context *cxt, qb_address *address, zval *name) {
+	return (Z_STRLEN_P(name) == 1) ? qb_get_letter_index(cxt, address, Z_STRVAL_P(name)[0]) : INVALID_INDEX;
+}
+
 uint32_t qb_get_swizzle_mask(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name) {
-	uint32_t i, j, mask = 0;
-	if(scheme->dimension > 8) {
+	uint32_t i, j, mask = 0, len = (uint32_t) Z_STRLEN_P(name);
+	if(scheme->dimension > 8 || len > 8) {
 		return INVALID_INDEX;
 	}
 	for(i = 0; i < scheme->dimension; i++) {
@@ -3255,7 +3280,7 @@ uint32_t qb_get_swizzle_mask(qb_compiler_context *cxt, qb_index_alias_scheme *sc
 			return INVALID_INDEX;
 		}
 	}
-	for(j = 0; j < (uint32_t) Z_STRLEN_P(name); j++) {
+	for(j = 0; j < len; j++) {
 		char c1 = Z_STRVAL_P(name)[j];
 		uint32_t index = INVALID_INDEX;
 		for(i = 0; i < scheme->dimension; i++) {
@@ -3273,41 +3298,66 @@ uint32_t qb_get_swizzle_mask(qb_compiler_context *cxt, qb_index_alias_scheme *sc
 	return mask;
 }
 
+uint32_t qb_get_vector_swizzle_mask(qb_compiler_context *cxt, qb_address *address, zval *name) {
+	uint32_t j, mask = 0, len = (uint32_t) Z_STRLEN_P(name);
+	if(len > 8) {
+		return INVALID_INDEX;
+	}
+	for(j = 0; j < len; j++) {
+		char c1 = Z_STRVAL_P(name)[j];
+		uint32_t index = qb_get_letter_index(cxt, address, c1);
+		if(index == INVALID_INDEX) {
+			return INVALID_INDEX;
+		} else {
+			mask |= index << (j * 3);
+		}
+	}
+	return mask;
+}
+
 qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name, uint32_t bound_check_flags) {
 	 if(!IS_SCALAR(container_address)) {
-		if(container_address->index_alias_schemes && container_address->index_alias_schemes[0]) {
-			uint32_t index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], name);
-			if(index != INVALID_INDEX) {
-				qb_address *index_address = qb_obtain_constant_U32(cxt, index);
-				qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address, bound_check_flags);
-				return value_address;
-			} else {
-				uint32_t swizzle_mask = qb_get_swizzle_mask(cxt, container_address->index_alias_schemes[0], name);
-				uint32_t len = Z_STRLEN_P(name);
-				qb_operand operands[3];
-				qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt, len) };
-				qb_address *value_address = qb_obtain_temporary_variable(cxt, container_address->type, &dim);				
-				if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
-					operands[0].type = QB_OPERAND_ADDRESS;
-					operands[0].address = value_address;
-					operands[1].type = QB_OPERAND_ADDRESS;
-					operands[1].address = container_address;
-					operands[2].type = QB_OPERAND_NUMBER;
-					operands[2].number = swizzle_mask;
-					value_address->expression = qb_get_on_demand_expression(cxt, &factory_gather, operands, 3);
-				} else {
-					operands[0].type = QB_OPERAND_ADDRESS;
-					operands[0].address = container_address;
-					operands[1].type = QB_OPERAND_ADDRESS;
-					operands[1].address = value_address;
-					operands[2].type = QB_OPERAND_NUMBER;
-					operands[2].number = swizzle_mask;
-					value_address->expression = qb_get_on_demand_expression(cxt, &factory_scatter, operands, 3);
-					value_address->expression->flags &= ~QB_EXPR_EXECUTE_BEFORE;
-					value_address->expression->flags |= QB_EXPR_EXECUTE_AFTER;
-				}
-				return value_address;
+		uint32_t index = INVALID_INDEX, swizzle_mask = INVALID_INDEX;
+		if(container_address->dimension_count == 1 && ((container_address->flags & QB_ADDRESS_VECTOR) || (container_address->flags & QB_ADDRESS_COMPLEX))) {
+			index = qb_find_vector_index_alias(cxt, container_address, name);
+			if(index == INVALID_INDEX) {
+				swizzle_mask = qb_get_vector_swizzle_mask(cxt, container_address, name);
 			}
+		} else if(container_address->index_alias_schemes && container_address->index_alias_schemes[0]) {
+			index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], name);
+			if(index == INVALID_INDEX) {
+				swizzle_mask = qb_get_swizzle_mask(cxt, container_address->index_alias_schemes[0], name);
+			}
+		}
+		if(index != INVALID_INDEX) {
+			qb_address *index_address = qb_obtain_constant_U32(cxt, index);
+			qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address, bound_check_flags);
+			return value_address;
+		} else if(swizzle_mask != INVALID_INDEX) {
+			uint32_t len = Z_STRLEN_P(name);
+			qb_operand operands[3];
+			qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt, len) };
+			qb_address *value_address = qb_obtain_temporary_variable(cxt, container_address->type, &dim);				
+			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+				operands[0].type = QB_OPERAND_ADDRESS;
+				operands[0].address = value_address;
+				operands[1].type = QB_OPERAND_ADDRESS;
+				operands[1].address = container_address;
+				operands[2].type = QB_OPERAND_NUMBER;
+				operands[2].number = swizzle_mask;
+				value_address->expression = qb_get_on_demand_expression(cxt, &factory_gather, operands, 3);
+			} else {
+				operands[0].type = QB_OPERAND_ADDRESS;
+				operands[0].address = container_address;
+				operands[1].type = QB_OPERAND_ADDRESS;
+				operands[1].address = value_address;
+				operands[2].type = QB_OPERAND_NUMBER;
+				operands[2].number = swizzle_mask;
+				value_address->expression = qb_get_on_demand_expression(cxt, &factory_scatter, operands, 3);
+				value_address->expression->flags &= ~QB_EXPR_EXECUTE_BEFORE;
+				value_address->expression->flags |= QB_EXPR_EXECUTE_AFTER;
+			}
+			return value_address;
 		}
 	}
 	return NULL;

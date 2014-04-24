@@ -358,6 +358,8 @@ qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_init
 
 uint32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
 uint32_t qb_get_swizzle_mask(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
+uint32_t qb_find_vector_index_alias(qb_compiler_context *cxt, qb_address *address, zval *name);
+uint32_t qb_get_vector_swizzle_mask(qb_compiler_context *cxt, qb_address *address, zval *name);
 
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask);
 qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name);
