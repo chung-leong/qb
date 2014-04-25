@@ -552,7 +552,35 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 #endif
 #endif
 
-#ifndef HAVE_COMPLEX_H
+#ifdef HAVE_COMPLEX_H
+#	ifndef HAVE_CLOGF
+cfloat64_t clogf(cfloat64_t n) {
+	float64_t r, i;
+	if(isinf(creal(n))) {
+		r = INFINITY;
+		if(isnan(cimag(n))) {
+			i = NAN;
+		} else {
+			if(signbit(creal(n))) {
+				i = isfinite(cimag(n)) ? (float64_t) M_PI : (float64_t) (3 * M_PI / 4);
+			} else {
+				i = isfinite(cimag(n)) ? (float64_t) 0.0 : (float64_t) M_PI_4;
+			}
+		}
+	} else if(isinf(cimag(n))) {
+		r = INFINITY;
+		i = isnan(creal(n)) ? NAN : (float64_t) M_PI_2;
+	} else if(isnan(creal(n)) || isnan(cimag(n))) {
+		r = NAN;
+		i = NAN;
+	} else {
+		float64_t w = sqrt(creal(n) * creal(n) + cimag(n) * cimag(n));
+		r = log(w);
+		i = atan2(cimag(n), creal(n));
+	}
+	return r * i * I;
+}
+#	endif
 #	ifndef HAVE_CLOGF
 cfloat32_t clogf(cfloat32_t n) {
 	float32_t r, i;
@@ -581,6 +609,25 @@ cfloat32_t clogf(cfloat32_t n) {
 	return r * i * I;
 }
 #	endif
+#	ifndef HAVE_CPOW
+cfloat64_t cpow(cfloat64_t n, cfloat64_t e) {
+	float64_t r, i;
+	float64_t u = atan2(cimag(n), creal(n));
+	float64_t v = creal(n) * creal(n) + cimag(n) * cimag(n);
+	float64_t x = pow(v, 0.5 * creal(e));		
+	float64_t y = creal(e) * u;
+	if(cimag(n) != 0) {
+		float64_t z = 0.5 * cimag(i) * log(v);
+		float64_t w = exp(-cimag(i) * u);
+		r = x * w * cos(y + z);
+		i = x * w * sin(y + z);
+	} else {
+		r = x * cos(y);
+		i = x * sin(y);
+	}
+	return r * i * I;
+}
+#	endif
 #	ifndef HAVE_CPOWF
 cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
 	float32_t r, i;
@@ -588,7 +635,7 @@ cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
 	float32_t v = crealf(n) * crealf(n) + cimagf(n) * cimagf(n);
 	float32_t x = powf(v, 0.5f * crealf(e));		
 	float32_t y = crealf(e) * u;
-	if(e.i != 0) {
+	if(cimagf(e) != 0) {
 		float32_t z = 0.5f * cimagf(i) * logf(v);
 		float32_t w = expf(-cimagf(i) * u);
 		r = x * w * cosf(y + z);
@@ -600,5 +647,6 @@ cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
 	return r * i * I;
 }
 #	endif
+#else
 #	include "qb_compat_complex.c"
 #endif
