@@ -146,15 +146,18 @@ static int32_t qb_coerce_operands_assign(qb_compiler_context *cxt, qb_op_factory
 }
 
 static int32_t qb_coerce_operands_assign_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *index = &operands[1];
-	qb_operand *value = &operands[2];
+	qb_operand *container = &operands[0], *index = &operands[1], *value = &operands[2];
 	if(index->type != QB_OPERAND_NONE) {
 		if(!qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0)) {
 			return FALSE;
 		}
 	}
 	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign_array_element) {
-		if(!qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags)) {
+		uint32_t coercion_flags = f->coercion_flags;
+		if(container->address->flags & QB_ADDRESS_STRING) {
+			coercion_flags |= QB_DECODE_LITERAL_STRING;
+		}
+		if(!qb_perform_type_coercion(cxt, value, expr_type, coercion_flags)) {
 			return FALSE;
 		}
 	}

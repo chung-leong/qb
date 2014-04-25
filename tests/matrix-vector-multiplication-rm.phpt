@@ -14,7 +14,7 @@ function test_function() {
 	$m = array(	array(1, 2, 3, 4),
 				array(5, 6, 7, 8) );
 	$v = array( 2, 4 );
-	echo $v * $m, "\n";
+	echo $m * $v, "\n";
 }
 
 test_function();

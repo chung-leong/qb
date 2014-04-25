@@ -1491,6 +1491,9 @@ qb_address * qb_obtain_constant_zval_utf8(qb_compiler_context *cxt, zval *zvalue
 
 	// mark it as something that should print out as text
 	address->flags |= QB_ADDRESS_STRING;
+	if(address->array_size_address == cxt->one_address) {
+		address->mode = QB_ADDRESS_MODE_SCA;
+	}
 	return address;
 }
 
@@ -3930,8 +3933,11 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 					if(operand->type == QB_OPERAND_ADDRESS) {
 						qb_address_mode operand_address_mode = qb_get_operand_address_mode(qop->opcode, j);
 						if(operand->address->mode > operand_address_mode) {
-							// need use to a higher address mode
-							required_address_mode = operand->address->mode;
+							// need use to a higher address mode than scalar
+							if(operand->address->mode > required_address_mode) {
+								// need use to a higher address mode than what was selected earlier
+								required_address_mode = operand->address->mode;
+							}
 						}
 					}
 				}

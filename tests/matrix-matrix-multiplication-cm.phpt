@@ -3,7 +3,7 @@ Matrix-matrix multiplication test (column-major)
 --FILE--
 <?php
 
-ini_set("qb.column_major_matrix", false);
+ini_set("qb.column_major_matrix", true);
 
 /**
  * @engine qb
