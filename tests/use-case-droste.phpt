@@ -132,11 +132,10 @@ class Droste {
      * @local float[r,g,b,a]	$(color|colorSoFar)
 	 * @local float[2][2]		$imageSpin
      * @local float				$(height|width)
-     * @local float				$(sign|signTransparentOutside|alphaRemaining|theta|radius)
+     * @local float				$(sign|signTransparentOutside|alphaRemaining|theta|radius|minDimension|div)
      * @local float				$(r1|r2|p1|p2|sc|ss)
      * @local float[min,max]	$[xy]Bounds
-	 * @local complex			$(z|f|I|beta|rotate|ratio|alpha|zoom|center)
-     * @local float[x,y]		$.*				All other local variables are coordinate of some sort
+	 * @local complex			$(z|d|f|I|beta|rotate|ratio|alpha|angle|zoom|center|xyMiddle|xyRange|shift)
      *
      */
     
@@ -187,13 +186,13 @@ class Droste {
 			$yBounds = array(0.0, 2.1 * M_PI);
 		}
 		
-		$xyMiddle->x = 0.5 * ($xBounds->max + $xBounds->min);
-		$xyMiddle->y = 0.5 * ($yBounds->max + $yBounds->min);
-		$xyRange->x = $xBounds->max - $xBounds->min;
-		$xyRange->y = $yBounds->max - $yBounds->min;
-		$xyRange->x = $xyRange->y * ($width / $height);
-		$xBounds->min = $xyMiddle->x - 0.5 * $xyRange->x;
-		$xBounds->max = $xyMiddle->x + 0.5 * $xyRange->x;
+		$xyMiddle->r = 0.5 * ($xBounds->max + $xBounds->min);
+		$xyMiddle->i = 0.5 * ($yBounds->max + $yBounds->min);
+		$xyRange->r = $xBounds->max - $xBounds->min;
+		$xyRange->i = $yBounds->max - $yBounds->min;
+		$xyRange->r = $xyRange->i * ($width / $height);
+		$xBounds->min = $xyMiddle->r - 0.5 * $xyRange->r;
+		$xBounds->max = $xyMiddle->i + 0.5 * $xyRange->r;
 				
 		for($y = 0; $y < $height; $y++) {
 			for($x = 0; $x < $width; $x++) {
@@ -206,13 +205,13 @@ class Droste {
 				
 				// Only allow for procedural zooming/scaling in the standard coordinates
 				if($this->twist) {
-					$z = $xyMiddle + cmult(cdiv(($z - $xyMiddle), $zoom), cexp(cmult(-$I, $rotate)));
+					$z = $xyMiddle + ($z - $xyMiddle) / $zoom * exp(-$I * $rotate);
 				}
 				
 				if($this->rotatePolar != 0.0) {
 					$theta = deg2rad($this->rotatePolar);
 				
-					$div->x = (1.0 + pow($z->r, 2.0) + pow($z->i, 2.0) + ((1.0 - pow($z->r, 2.0) - pow($z->i, 2.0)) * cos($theta)) - (2.0 * $z->r * sin($theta))) / 2.0;
+					$div = (1.0 + pow($z->r, 2.0) + pow($z->i, 2.0) + ((1.0 - pow($z->r, 2.0) - pow($z->i, 2.0)) * cos($theta)) - (2.0 * $z->r * sin($theta))) / 2.0;
 					$z->r = $z->r * cos($theta) + ((1.0 - pow($z->r, 2.0) - pow($z->i, 2.0)) * sin($theta) / 2.0);
 					$z = $z / $div;
 				}
@@ -231,8 +230,8 @@ class Droste {
 				$beta = $f * exp($alpha * $I);
 				
 				// The angle of rotation between adjacent annular levels
-				$angle->x = -2 * M_PI * $p1;
-				$angle->y = 0.0;
+				$angle->r = -2 * M_PI * $p1;
+				$angle->i = 0.0;
 				
 				if($p2 > 0.0) {
 					$angle = -$angle;
@@ -260,7 +259,7 @@ class Droste {
         		$d = $minDimension * ($z + $shift);
 	        	$sign = 0;
 		        if($tileBasedOnTransparency || $iteration == 0) {
-					$color = sample_bilinear($image, $d->x, $d->y);
+					$color = sample_bilinear($image, $d->r, $d->i);
 		            $colorSoFar += $color * ($color->a * $alphaRemaining);
 		            $alphaRemaining *= (1.0 - $colorSoFar->a);
 		        }
@@ -271,7 +270,7 @@ class Droste {
         			}
         		} else {
             		if($iteration > 0) {
-            			$colorSoFar = sample_bilinear($image, $d->x, $d->y);
+            			$colorSoFar = sample_bilinear($image, $d->r, $d->i);
             		}
             		$radius = length($z);
             		$sign = sign($radius - $r1);
@@ -293,7 +292,7 @@ class Droste {
 	        		$d = $minDimension * ($z + $shift);
 		        	$sign = 0;
 			        if($tileBasedOnTransparency || $iteration == 0) {
-						$color = sample_bilinear($image, $d->x, $d->y);
+						$color = sample_bilinear($image, $d->r, $d->i);
 			            $colorSoFar += $color * ($color->a * $alphaRemaining);
 			            $alphaRemaining *= (1.0 - $colorSoFar->a);
 			        }
@@ -304,7 +303,7 @@ class Droste {
 	        			}
 	        		} else {
 	            		if($iteration > 0) {
-	            			$colorSoFar = sample_bilinear($image, $d->x, $d->y);
+	            			$colorSoFar = sample_bilinear($image, $d->r, $d->i);
 	            		}
 	            		$radius = length($z);
 	            		$sign = sign($radius - $r1);

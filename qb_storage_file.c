@@ -34,10 +34,29 @@ static php_stream * qb_get_file_stream(zval *resource) {
 
 static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
 	// get the file size
-	php_stream_statbuf ssb;
 	TSRMLS_FETCH();
-	php_stream_stat(stream, &ssb);
-	return qb_capture_dimensions_from_byte_count((uint32_t) ssb.sb.st_size, m, dimension_index);
+	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+		off_t position;
+		uint32_t cp_count = 0, byte_count = 0, i, state = 0, codepoint;
+		char buffer[1024];
+		position = php_stream_tell(stream);
+		php_stream_seek(stream, 0, SEEK_SET);
+		do {
+			byte_count = php_stream_read(stream, buffer, sizeof(buffer));
+			for(i = 0; i < byte_count; i++) {
+				if(decode(&state, &codepoint, buffer[i])) {
+					cp_count++;
+				}
+			}
+		} while(byte_count == sizeof(buffer));
+		php_stream_seek(stream, position, SEEK_SET);
+		m->dst_dimensions[dimension_index] = cp_count;
+		return TRUE;
+	} else {
+		php_stream_statbuf ssb;
+		php_stream_stat(stream, &ssb);
+		return qb_capture_dimensions_from_byte_count((uint32_t) ssb.sb.st_size, m, dimension_index);
+	}
 }
 
 static int32_t qb_copy_elements_to_file(int8_t *src_memory, zval *zstream, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
@@ -62,19 +81,46 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 	off_t position;
 	uint32_t src_byte_count;
 	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
-	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 	TSRMLS_FETCH();
 	position = php_stream_tell(stream);
 	php_stream_seek(stream, 0, SEEK_SET);
-	src_byte_count = (uint32_t) php_stream_read(stream, (char *) dst_memory, dst_byte_count);
-	php_stream_seek(stream, position, SEEK_SET);
-	if(src_byte_count < dst_byte_count) {
-		if(dimension_index == 0) {
-			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
-		} else {
-			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+
+	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+		uint32_t byte_count = 0, i, j = 0, state = 0, codepoint;
+		char buffer[1024];
+		do {
+			byte_count = php_stream_read(stream, buffer, sizeof(buffer));
+			if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I16)) {
+				uint16_t *dst_elements = (uint16_t *) dst_memory;
+				for(i = 0; i < byte_count; i++) {
+					if(decode(&state, &codepoint, buffer[i])) {
+						dst_elements[j] = codepoint;
+						j++;
+					}
+				}
+			} else if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
+				uint32_t *dst_elements = (uint32_t *) dst_memory;
+				for(i = 0; i < byte_count; i++) {
+					if(decode(&state, &codepoint, buffer[i])) {
+						dst_elements[j] = codepoint;
+						j++;
+					}
+				}
+			}
+		} while(byte_count == sizeof(buffer));
+	} else {
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		src_byte_count = (uint32_t) php_stream_read(stream, (char *) dst_memory, dst_byte_count);
+		php_stream_seek(stream, position, SEEK_SET);
+		if(src_byte_count < dst_byte_count) {
+			if(dimension_index == 0) {
+				qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+			} else {
+				memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+			}
 		}
 	}
+	php_stream_seek(stream, position, SEEK_SET);
 	return TRUE;
 }
 

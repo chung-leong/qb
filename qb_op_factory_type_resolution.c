@@ -26,16 +26,15 @@ static int32_t qb_resolve_expression_flags_temporary(qb_compiler_context *cxt, q
 
 // the expression yields a temporary variable (keeping flags of operands)
 static int32_t qb_resolve_expression_flags_temporary_pass_thru(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t mask = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t special_flags = 0;
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {
-			special_flags &= operand->address->flags;
+			special_flags |= operand->address->flags & mask;
 		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-			special_flags &= operand->result_prototype->address_flags;
-		} else {
-			special_flags = 0;
+			special_flags |= operand->result_prototype->address_flags & mask;
 		}
 	}
 	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
@@ -44,14 +43,13 @@ static int32_t qb_resolve_expression_flags_temporary_pass_thru(qb_compiler_conte
 
 // the expression yields a temporary variable (keeping flags of first operand)
 static int32_t qb_resolve_expression_flags_temporary_pass_thru_first(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t mask = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t special_flags = 0;
 	qb_operand *operand = &operands[0];
 	if(operand->type == QB_OPERAND_ADDRESS) {
-		special_flags &= operand->address->flags;
+		special_flags |= operand->address->flags & mask;
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		special_flags &= operand->result_prototype->address_flags;
-	} else {
-		special_flags = 0;
+		special_flags |= operand->result_prototype->address_flags & mask;
 	}
 	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
 	return TRUE;
@@ -59,14 +57,13 @@ static int32_t qb_resolve_expression_flags_temporary_pass_thru_first(qb_compiler
 
 // the expression yields a temporary variable (keeping flags of second operand)
 static int32_t qb_resolve_expression_flags_temporary_pass_thru_second(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, uint32_t *p_flags) {
-	uint32_t special_flags = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t mask = QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
+	uint32_t special_flags = 0;
 	qb_operand *operand = &operands[1];
 	if(operand->type == QB_OPERAND_ADDRESS) {
-		special_flags &= operand->address->flags;
+		special_flags |= operand->address->flags & mask;
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		special_flags &= operand->result_prototype->address_flags;
-	} else {
-		special_flags = 0;
+		special_flags |= operand->result_prototype->address_flags & mask;
 	}
 	*p_flags |= QB_ADDRESS_TEMPORARY | special_flags;
 	return TRUE;
