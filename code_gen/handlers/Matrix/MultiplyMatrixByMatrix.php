@@ -77,7 +77,7 @@ class MultiplyMatrixByMatrix extends Handler {
 				$lines[] = "uint32_t i, j, k, p, q, res_index = 0;";
 				$lines[] = "uint32_t matrix1_rows = op3, matrix2_rows = op4, matrix2_cols = op5;";
 				$lines[] = "$cType *__restrict buffer = do_alloca(matrix1_rows * matrix2_cols * sizeof($cType), use_heap);";
-				$lines[] = "for(i = 0, q = 0; i < matrix1_rows; ++i) {";
+				$lines[] = "for(i = 0, q = 0; i < matrix1_rows; ++i, q += matrix2_rows) {";
 				$lines[] = 		"for(j = 0; j < matrix2_cols; ++j) {";
 				$lines[] = 			"$cType dot_product = 0;";
 				$lines[] = 			"for(p = 0, k = j; p < matrix2_rows; ++p, k += matrix2_cols) {";
@@ -85,7 +85,6 @@ class MultiplyMatrixByMatrix extends Handler {
 				$lines[] = 			"}";
 				$lines[] = 			"buffer[res_index++] = dot_product;";
 				$lines[] = 		"}";
-				$lines[] = 		"q += matrix2_rows;";
 				$lines[] = "}";
 				$lines[] = "memcpy(res_ptr, buffer, matrix1_rows * matrix2_cols * sizeof($cType));";
 				$lines[] = "free_alloca(buffer, use_heap);";
@@ -94,7 +93,7 @@ class MultiplyMatrixByMatrix extends Handler {
 				$lines[] = "uint32_t i, j, k, p, q, res_index = 0;";
 				$lines[] = "uint32_t matrix1_rows = op3, matrix1_cols = op4, matrix2_cols = op5;";
 				$lines[] = "$cType *__restrict buffer = do_alloca(matrix1_rows * matrix2_cols * sizeof($cType), use_heap);";
-				$lines[] = "for(i = 0, q = 0; i < matrix2_cols; ++i) {";
+				$lines[] = "for(i = 0, q = 0; i < matrix2_cols; ++i, q += matrix1_cols) {";
 				$lines[] = 		"for(j = 0; j < matrix1_rows; ++j) {";
 				$lines[] = 			"$cType dot_product = 0;";
 				$lines[] = 			"for(p = 0, k = 0; p < matrix1_cols; ++p, k += matrix1_rows) {";
@@ -102,7 +101,6 @@ class MultiplyMatrixByMatrix extends Handler {
 				$lines[] = 			"}";
 				$lines[] = 			"buffer[res_index++] = dot_product;";
 				$lines[] = 		"}";
-				$lines[] = 		"q += matrix1_cols;";
 				$lines[] = "}";
 				$lines[] = "memcpy(res_ptr, buffer, matrix1_rows * matrix2_cols * sizeof($cType));";
 				$lines[] = "free_alloca(buffer, use_heap);";

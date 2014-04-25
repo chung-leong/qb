@@ -21,6 +21,7 @@ function test_function($text) {
 
 $f = fopen($text_path, "r");
 test_function($f);
+fclose($f);
 
 unlink($text_path);
 

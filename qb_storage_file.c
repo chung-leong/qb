@@ -68,7 +68,7 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 }
 
 static int32_t qb_copy_elements_to_file(int8_t *src_memory, zval *zstream, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
-	off_t position = php_stream_tell(stream);
+	off_t position;
 	uint32_t src_element_count = (dimension_index < m->src_dimension_count) ? m->src_array_sizes[dimension_index] : 1;
 	uint32_t src_byte_count;
 	size_t byte_written;
@@ -81,6 +81,7 @@ static int32_t qb_copy_elements_to_file(int8_t *src_memory, zval *zstream, php_s
 		}
 	}
 
+	position = php_stream_tell(stream);
 	php_stream_seek(stream, 0, SEEK_SET);
 	if(need_utf8_encoding) {
 		uint32_t i = 0, j;
@@ -118,7 +119,7 @@ static int32_t qb_copy_elements_to_file(int8_t *src_memory, zval *zstream, php_s
 }
 
 static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
-	off_t position = php_stream_tell(stream);
+	off_t position;
 	uint32_t src_byte_count;
 	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
 	int32_t need_utf8_decoding = FALSE;
@@ -130,6 +131,7 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 		}
 	}
 
+	position = php_stream_tell(stream);
 	php_stream_seek(stream, 0, SEEK_SET);
 	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
 		uint32_t read = 0, i, j = 0, state = 0, codepoint;

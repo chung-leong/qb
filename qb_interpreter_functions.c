@@ -19792,7 +19792,7 @@ void qb_do_multiply_matrix_by_matrix_column_major_F32(float32_t *op1_ptr, uint32
 	uint32_t i, j, k, p, q, res_index = 0;
 	uint32_t matrix1_rows = op3, matrix1_cols = op4, matrix2_cols = op5;
 	float32_t *__restrict buffer = do_alloca(matrix1_rows * matrix2_cols * sizeof(float32_t), use_heap);
-	for(i = 0, q = 0; i < matrix2_cols; ++i) {
+	for(i = 0, q = 0; i < matrix2_cols; ++i, q += matrix1_cols) {
 		for(j = 0; j < matrix1_rows; ++j) {
 			float32_t dot_product = 0;
 			for(p = 0, k = 0; p < matrix1_cols; ++p, k += matrix1_rows) {
@@ -19800,7 +19800,6 @@ void qb_do_multiply_matrix_by_matrix_column_major_F32(float32_t *op1_ptr, uint32
 			}
 			buffer[res_index++] = dot_product;
 		}
-		q += matrix1_cols;
 	}
 	memcpy(res_ptr, buffer, matrix1_rows * matrix2_cols * sizeof(float32_t));
 	free_alloca(buffer, use_heap);
@@ -19811,7 +19810,7 @@ void qb_do_multiply_matrix_by_matrix_column_major_F64(float64_t *op1_ptr, uint32
 	uint32_t i, j, k, p, q, res_index = 0;
 	uint32_t matrix1_rows = op3, matrix1_cols = op4, matrix2_cols = op5;
 	float64_t *__restrict buffer = do_alloca(matrix1_rows * matrix2_cols * sizeof(float64_t), use_heap);
-	for(i = 0, q = 0; i < matrix2_cols; ++i) {
+	for(i = 0, q = 0; i < matrix2_cols; ++i, q += matrix1_cols) {
 		for(j = 0; j < matrix1_rows; ++j) {
 			float64_t dot_product = 0;
 			for(p = 0, k = 0; p < matrix1_cols; ++p, k += matrix1_rows) {
@@ -19819,7 +19818,6 @@ void qb_do_multiply_matrix_by_matrix_column_major_F64(float64_t *op1_ptr, uint32
 			}
 			buffer[res_index++] = dot_product;
 		}
-		q += matrix1_cols;
 	}
 	memcpy(res_ptr, buffer, matrix1_rows * matrix2_cols * sizeof(float64_t));
 	free_alloca(buffer, use_heap);
