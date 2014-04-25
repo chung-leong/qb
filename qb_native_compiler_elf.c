@@ -213,6 +213,19 @@ static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const ch
 }
 #endif
 
+#ifdef ELF_R_TYPE
+#	undef ELF_R_TYPE
+#endif
+#ifdef ELF_R_SYM
+#	undef ELF_R_SYM
+#endif
+#ifdef ELF_ST_BIND
+#	undef ELF_ST_BIND
+#endif
+#ifdef ELF_ST_TYPE
+#	undef ELF_ST_TYPE
+#endif
+
 #ifdef __LP64__
 #define ELF_R_TYPE(r)			ELF64_R_TYPE(r)
 #define ELF_R_SYM(r)			ELF64_R_SYM(r)

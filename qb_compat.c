@@ -578,7 +578,7 @@ cfloat64_t clog(cfloat64_t n) {
 		r = log(w);
 		i = atan2(cimag(n), creal(n));
 	}
-	return r * i * I;
+	return (cfloat64_t) { r, i };
 }
 #	endif
 #	ifndef HAVE_CLOGF
@@ -606,7 +606,7 @@ cfloat32_t clogf(cfloat32_t n) {
 		r = logf(w);
 		i = atan2f(cimagf(n), crealf(n));
 	}
-	return r * i * I;
+	return (cfloat32_t) { r, i };
 }
 #	endif
 #	ifndef HAVE_CPOW
@@ -617,15 +617,15 @@ cfloat64_t cpow(cfloat64_t n, cfloat64_t e) {
 	float64_t x = pow(v, 0.5 * creal(e));		
 	float64_t y = creal(e) * u;
 	if(cimag(n) != 0) {
-		float64_t z = 0.5 * cimag(i) * log(v);
-		float64_t w = exp(-cimag(i) * u);
+		float64_t z = 0.5 * cimag(e) * log(v);
+		float64_t w = exp(-cimag(e) * u);
 		r = x * w * cos(y + z);
 		i = x * w * sin(y + z);
 	} else {
 		r = x * cos(y);
 		i = x * sin(y);
 	}
-	return r * i * I;
+	return (cfloat64_t) { r, i };
 }
 #	endif
 #	ifndef HAVE_CPOWF
@@ -636,15 +636,15 @@ cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
 	float32_t x = powf(v, 0.5f * crealf(e));		
 	float32_t y = crealf(e) * u;
 	if(cimagf(e) != 0) {
-		float32_t z = 0.5f * cimagf(i) * logf(v);
-		float32_t w = expf(-cimagf(i) * u);
+		float32_t z = 0.5f * cimagf(e) * logf(v);
+		float32_t w = expf(-cimagf(e) * u);
 		r = x * w * cosf(y + z);
 		i = x * w * sinf(y + z);
 	} else {
 		r = x * cosf(y);
 		i = x * sinf(y);
 	}
-	return r * i * I;
+	return (cfloat32_t) { r, i };
 }
 #	endif
 #else
