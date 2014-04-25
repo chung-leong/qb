@@ -450,7 +450,7 @@ double _php_math_round(double value, int places, int mode);
 #	ifdef _MSC_VER
 #		define NAN			(-(INFINITY - INFINITY))
 #	else
-#		define NAN			(0.0/0.0)
+#		define NAN			(-0.0/0.0)
 #	endif
 #endif
 
