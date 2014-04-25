@@ -56,6 +56,9 @@
 #	include <sys/param.h>
 #endif
 
+typedef float  float32_t;
+typedef double float64_t;
+
 #ifdef _MSC_VER
 #	if _M_IX86_FP == 2
 #		define __SSE2__		1
@@ -164,8 +167,8 @@
 
 #include "qb_debug_interface.h"
 #include "qb_version.h"
-#include "qb_types.h"
 #include "qb_compat.h"
+#include "qb_types.h"
 #include "qb_opcodes.h"
 #include "qb_op.h"
 #include "qb_thread.h"

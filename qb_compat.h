@@ -346,6 +346,9 @@ float log2f(float x);
 #endif
 
 #if defined(HAVE_COMPLEX_H)
+typedef float _Complex						cfloat32_t;
+typedef double _Complex						cfloat64_t;
+
 #	ifndef HAVE_CLOGF
 cfloat64_t clog(cfloat64_t n);
 #	endif
@@ -364,6 +367,19 @@ cfloat32_t cpowf(cfloat32_t n, cfloat32_t e);
 #	define cdiv(x, y)						((x) / (y))
 #	define cdivf(x, y)						((x) / (y))
 #else
+typedef struct cfloat32_t					cfloat32_t;
+typedef struct cfloat64_t					cfloat64_t;
+
+struct cfloat32_t { 
+	float r; 
+	float i;
+};
+
+struct cfloat64_t { 
+	double r; 
+	double i;
+};
+
 float32_t cabsf(cfloat32_t n);
 float64_t cabs(cfloat64_t n);
 

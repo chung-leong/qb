@@ -21,9 +21,6 @@
 #ifndef QB_TYPES_H_
 #define QB_TYPES_H_
 
-typedef float  float32_t;
-typedef double float64_t;
-
 typedef struct qb_block_allocator 			qb_block_allocator;
 typedef struct qb_intrinsic_function		qb_intrinsic_function;
 typedef struct qb_data_pool					qb_data_pool;
@@ -36,29 +33,6 @@ typedef struct qb_pointer_adjustment		qb_pointer_adjustment;
 typedef struct qb_thread_parameters			qb_thread_parameters;
 
 typedef enum qb_primitive_type				qb_primitive_type;
-
-#if defined(HAVE_COMPLEX_H)
-typedef float _Complex						cfloat32_t;
-typedef double _Complex						cfloat64_t;
-
-#	define cmult(x, y)						((x) * (y))
-#	define cmultf(x, y)						((x) * (y))
-#	define cdiv(x, y)						((x) / (y))
-#	define cdivf(x, y)						((x) / (y))
-#else
-typedef struct cfloat32_t					cfloat32_t;
-typedef struct cfloat64_t					cfloat64_t;
-
-struct cfloat32_t { 
-	float r; 
-	float i;
-};
-
-struct cfloat64_t { 
-	float64_t r; 
-	float64_t i;
-};
-#endif
 
 #define MAKE_STRING(...)					#__VA_ARGS__
 #define STRING(x)							MAKE_STRING(x)
