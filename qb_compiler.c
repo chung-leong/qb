@@ -744,7 +744,7 @@ qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *addre
 	return alias;
 }
 
-static qb_address * qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb_address *address, uint32_t flag) {
+qb_address * qb_obtain_alias(qb_compiler_context *cxt, qb_address *address, uint32_t flag) {
 	qb_address *alias;
 	if(address->flags & flag) {
 		return address;
@@ -771,18 +771,6 @@ static qb_address * qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb
 	alias = qb_create_address_alias(cxt, address);
 	alias->flags |= flag;
 	return alias;
-}
-
-qb_address * qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *address) {
-	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_STRING);
-}
-
-qb_address * qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address) {
-	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_BOOLEAN);
-}
-
-qb_address * qb_obtain_reused_alias(qb_compiler_context *cxt, qb_address *address) {
-	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_REUSED);
 }
 
 qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type) {
@@ -1766,14 +1754,13 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		qb_attach_bound_checking_expression(cxt, target_address, dim, TRUE);
 	}
 	if(IS_TEMPORARY(target_address)) {
+		uint32_t mask = QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING | QB_ADDRESS_VECTOR | QB_ADDRESS_MATRIX | QB_ADDRESS_COMPLEX;
 		if(dim->dimension_count > 1) {
 			// obtain an alias with dimensional info 
 			target_address = qb_obtain_multidimensional_alias(cxt, target_address, dim);
 		}
-		if(address_flags & QB_ADDRESS_BOOLEAN) {
-			target_address = qb_obtain_boolean_alias(cxt, target_address);
-		} else if(address_flags & QB_ADDRESS_STRING) {
-			target_address = qb_obtain_string_alias(cxt, target_address);
+		if(address_flags & mask) {
+			target_address = qb_obtain_alias(cxt, target_address, address_flags & mask);
 		}
 	}
 	return target_address;

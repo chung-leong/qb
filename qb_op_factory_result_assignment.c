@@ -134,7 +134,7 @@ static int32_t qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, 
 				}
 
 				// the condition needs to be marked as reused so the branch op doesn't get merge with the comparison op
-				condition->address = qb_obtain_reused_alias(cxt, condition->address);
+				condition->address = qb_obtain_alias(cxt, condition->address, QB_ADDRESS_REUSED);
 			}
 		}
 
@@ -383,7 +383,7 @@ static int32_t qb_set_result_append_string(qb_compiler_context *cxt, qb_op_facto
 	if(string->type != QB_OPERAND_ADDRESS) {
 		qb_variable_dimensions dim = { 1, NULL };
 		qb_address *address = qb_obtain_temporary_variable(cxt, expr_type, &dim);
-		string->address = qb_obtain_string_alias(cxt, address);
+		string->address = qb_obtain_alias(cxt, address, QB_ADDRESS_STRING);
 		string->type = QB_OPERAND_ADDRESS;
 		qb_produce_op(cxt, &factory_unset, string, 1, NULL, NULL, 0, NULL);
 	}
