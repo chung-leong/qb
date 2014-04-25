@@ -553,5 +553,52 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 #endif
 
 #ifndef HAVE_COMPLEX_H
+#	ifndef HAVE_CLOGF
+cfloat32_t clogf(cfloat32_t n) {
+	float32_t r, i;
+	if(isinf(crealf(n))) {
+		r = INFINITY;
+		if(isnan(cimagf(n))) {
+			i = NAN;
+		} else {
+			if(signbit(crealf(n))) {
+				i = isfinite(cimagf(n)) ? (float32_t) M_PI : (float32_t) (3 * M_PI / 4);
+			} else {
+				i = isfinite(cimagf(n)) ? (float32_t) 0.0 : (float32_t) M_PI_4;
+			}
+		}
+	} else if(isinf(cimagf(n))) {
+		r = INFINITY;
+		i = isnan(crealf(n)) ? NAN : (float32_t) M_PI_2;
+	} else if(isnan(crealf(n)) || isnan(cimagf(n))) {
+		r = NAN;
+		i = NAN;
+	} else {
+		float32_t w = sqrtf(crealf(n) * crealf(n) + cimagf(n) * cimagf(n));
+		r = logf(w);
+		i = atan2f(cimagf(n), crealf(n));
+	}
+	return r * i * I;
+}
+#	endif
+#	ifndef HAVE_CPOWF
+cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
+	float32_t r, i;
+	float32_t u = atan2f(cimagf(n), crealf(n));
+	float32_t v = crealf(n) * crealf(n) + cimagf(n) * cimagf(n);
+	float32_t x = powf(v, 0.5f * crealf(e));		
+	float32_t y = crealf(e) * u;
+	if(e.i != 0) {
+		float32_t z = 0.5f * cimagf(i) * logf(v);
+		float32_t w = expf(-cimagf(i) * u);
+		r = x * w * cosf(y + z);
+		i = x * w * sinf(y + z);
+	} else {
+		r = x * cosf(y);
+		i = x * sinf(y);
+	}
+	return r * i * I;
+}
+#	endif
 #	include "qb_compat_complex.c"
 #endif

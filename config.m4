@@ -53,7 +53,7 @@ if test "$PHP_QB" != "no"; then
   
   AC_SEARCH_LIBS(exp,m,[ ])
   
-  AC_CHECK_FUNCS([exp2f log2f roundf qsort_r sincos cexp cexpf])
+  AC_CHECK_FUNCS([exp2f log2f roundf qsort_r sincos clogf cpowf])
 
   ac_saved_cflags="$CFLAGS"
   CFLAGS="$CFLAGS -Werror"

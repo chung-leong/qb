@@ -1,7 +1,5 @@
 sincos
 sincosf
-cexp
-cexpf
 __libm_sse2_sincos
 __libm_sse2_sincosf
 __aeabi_d2f
