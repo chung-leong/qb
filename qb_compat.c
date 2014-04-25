@@ -554,7 +554,7 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 
 #ifdef HAVE_COMPLEX_H
 #	ifndef HAVE_CLOGF
-cfloat64_t clogf(cfloat64_t n) {
+cfloat64_t clog(cfloat64_t n) {
 	float64_t r, i;
 	if(isinf(creal(n))) {
 		r = INFINITY;

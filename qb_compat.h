@@ -346,6 +346,19 @@ float log2f(float x);
 #endif
 
 #if defined(HAVE_COMPLEX_H)
+#	ifndef HAVE_CLOGF
+cfloat64_t clog(cfloat64_t n);
+#	endif
+#	ifndef HAVE_CLOGF
+cfloat32_t clogf(cfloat32_t n);
+#	endif
+#	ifndef HAVE_CPOW
+cfloat64_t cpow(cfloat64_t n, cfloat64_t e);
+#	endif
+#	ifndef HAVE_CPOWF
+cfloat32_t cpowf(cfloat32_t n, cfloat32_t e);
+#	endif
+
 #	define cmult(x, y)						((x) * (y))
 #	define cmultf(x, y)						((x) * (y))
 #	define cdiv(x, y)						((x) / (y))
