@@ -77,6 +77,7 @@
     <TargetName>php_qb</TargetName>
     <IntDir>..\Debug_TS\</IntDir>
     <OutDir>..\..\..\x64\Debug_TS\</OutDir>
+    <ExecutablePath>D:\php-sdk\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">
     <OutDir>..\..\..\Release_TS\</OutDir>
@@ -401,6 +402,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_parser.c" />
+    <ClCompile Include="..\qb_parser_bison.c" />
+    <ClCompile Include="..\qb_parser_re2c.c" />
     <ClCompile Include="..\qb_printer.c" />
     <ClCompile Include="..\qb_storage.c" />
     <ClCompile Include="..\qb_storage_file.c">
@@ -440,6 +443,8 @@
     <ClInclude Include="..\qb_op_factories.h" />
     <ClInclude Include="..\qb_opcodes.h" />
     <ClInclude Include="..\qb_parser.h" />
+    <ClInclude Include="..\qb_parser_bison.h" />
+    <ClInclude Include="..\qb_parser_re2c.h" />
     <ClInclude Include="..\qb_printer.h" />
     <ClInclude Include="..\qb_storage.h" />
     <ClInclude Include="..\qb_thread.h" />
@@ -450,6 +455,40 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE" />
+    <CustomBuild Include="..\qb_parser_bison.y">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">cd /d %(RootDir)%(Directory) &amp; bison %(Filename)%(Extension) --output=%(Filename).c --defines=%(Filename).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">%(Filename).c %(Filename).h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">cd /d %(RootDir)%(Directory) &amp; bison %(Filename)%(Extension) --output=%(Filename).c --defines=%(Filename).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">%(Filename).c %(Filename).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">cd /d %(RootDir)%(Directory) &amp; bison %(Filename)%(Extension) --output=%(Filename).c --defines=%(Filename).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">cd /d %(RootDir)%(Directory) &amp; bison %(Filename)%(Extension) --output=%(Filename).c --defines=%(Filename).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">%(Filename).c %(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">%(Filename).c %(Filename).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\qb_parser_re2c.l">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">cd /d %(RootDir)%(Directory) &amp; re2c --no-generation-date -c -o %(Filename).c -t %(Filename).h %(Filename)%(Extension)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">%(Filename).c %(Filename).h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">
+      </AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">cd /d %(RootDir)%(Directory) &amp; re2c --no-generation-date -c -o %(Filename).c -t %(Filename).h %(Filename)%(Extension)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">%(Filename).c %(Filename).h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">
+      </AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">cd /d %(RootDir)%(Directory) &amp; re2c --no-generation-date -c -o %(Filename).c -t %(Filename).h %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">cd /d %(RootDir)%(Directory) &amp; re2c --no-generation-date -c -o %(Filename).c -t %(Filename).h %(Filename)%(Extension)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">%(Filename).c %(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">%(Filename).c %(Filename).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

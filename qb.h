@@ -45,17 +45,6 @@
 #	include <math.h>
 #endif
 
-#ifdef _MSC_VER
-#	include "win32\php_stdint.h"
-#	include "win32\msc_inttypes.h"
-#	include "win32\time.h"
-#else
-#	include <stdint.h>
-#	include <inttypes.h>
-#	include <sys/types.h>
-#	include <sys/param.h>
-#endif
-
 typedef float  float32_t;
 typedef double float64_t;
 
@@ -84,6 +73,22 @@ typedef double float64_t;
 #	endif
 #endif
 
+// disable size_t to int warning in MSVC
+#ifdef _MSC_VER
+#	pragma warning (disable: 4267)
+#endif
+
+#ifdef _MSC_VER
+#	include "win32\php_stdint.h"
+#	include "win32\msc_inttypes.h"
+#	include "win32\time.h"
+#else
+#	include <stdint.h>
+#	include <inttypes.h>
+#	include <sys/types.h>
+#	include <sys/param.h>
+#endif
+
 #include "php.h"
 #include "php_qb.h"
 #include "ext/standard/php_rand.h"
@@ -91,6 +96,10 @@ typedef double float64_t;
 
 #ifdef ZEND_ACC_GENERATOR
 #	include "zend_generators.h"
+#endif
+
+#ifdef _MSC_VER
+#	pragma warning (default: 4267)
 #endif
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1

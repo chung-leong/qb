@@ -681,7 +681,7 @@ void qb_disable_zend_optimizer(TSRMLS_D) {
 		char *entry_name = "opcache.optimization_level";
 		char *entry_value = "0";
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
+		zend_alter_ini_entry_ex(entry_name, (uint32_t) strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
 #elif !ZEND_ENGINE_2_1
 		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE);
 #else
@@ -695,7 +695,7 @@ void qb_reenable_zend_optimizer(TSRMLS_D) {
 		char *entry_name = "opcache.optimization_level";
 		// since there isn't a "force" parameter for zend_restore_ini_entry()
 		// we'll pass something other than PHP_INI_STAGE_RUNTIME so the function succeeds
-		zend_restore_ini_entry(entry_name, strlen(entry_name) + 1, PHP_INI_STAGE_ACTIVATE);
+		zend_restore_ini_entry(entry_name, (uint32_t) strlen(entry_name) + 1, PHP_INI_STAGE_ACTIVATE);
 	}
 }
 

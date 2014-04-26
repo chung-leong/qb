@@ -21,5 +21,5 @@ $obj = new Test();
 $obj->test_function();
 
 ?>
---EXPECT--
-0.6666666
+--EXPECTREGEX--
+0.666666[67]

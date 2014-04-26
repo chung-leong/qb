@@ -49,7 +49,7 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 		position = php_stream_tell(stream);
 		php_stream_seek(stream, 0, SEEK_SET);
 		do {
-			read = php_stream_read(stream, (char *) buffer, sizeof(buffer));
+			read = (uint32_t) php_stream_read(stream, (char *) buffer, sizeof(buffer));
 			for(i = 0; i < read; i++) {
 				if(!decode(&state, &codepoint, buffer[i])) {
 					cp_count++;
@@ -137,7 +137,7 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 		uint32_t read = 0, i, j = 0, state = 0, codepoint;
 		uint8_t buffer[1024];
 		do {
-			read = php_stream_read(stream, (char *) buffer, sizeof(buffer));
+			read = (uint32_t) php_stream_read(stream, (char *) buffer, sizeof(buffer));
 			if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I16)) {
 				uint16_t *dst_elements = (uint16_t *) dst_memory;
 				for(i = 0; i < read; i++) {

@@ -361,8 +361,8 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, YYLTYPE *locp, qb_parser_context *cxt) 
 		locp->length = 0;
 	} else {
 		ret = qb_scan_next_token(cxt->lexer_context);
-		locp->index = cxt->lexer_context->token - cxt->lexer_context->base;
-		locp->length = cxt->lexer_context->cursor - cxt->lexer_context->token;
+		locp->index = (uint32_t) (cxt->lexer_context->token - cxt->lexer_context->base);
+		locp->length = (uint32_t) (cxt->lexer_context->cursor - cxt->lexer_context->token);
 	}
 	if(ret == 0) {
 		if(cxt->lexer_context != &cxt->comment_lexer_context) {
@@ -449,7 +449,7 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 
 static void qb_find_line_number(qb_parser_context *cxt, uint32_t offset, uint32_t *p_line_number, uint32_t *p_column_number) {
 	const char *comment = cxt->comment_lexer_context.base;
-	uint32_t comment_length = strlen(comment);
+	uint32_t comment_length = (uint32_t) strlen(comment);
 	uint32_t line_number = 0;
 	uint32_t column_number = 0;
 	TSRMLS_FETCH();

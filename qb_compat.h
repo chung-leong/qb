@@ -469,6 +469,7 @@ double _php_math_round(double value, int places, int mode);
 
 #ifndef INFINITY
 #	ifdef _MSC_VER
+#		pragma warning (disable: 4056 4756)
 #		define INFINITY		((float) (DBL_MAX + DBL_MAX))
 #	else
 #		define INFINITY		(1.0/0.0)

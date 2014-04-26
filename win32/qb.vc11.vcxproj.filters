@@ -124,6 +124,12 @@
     <ClCompile Include="..\qb_interpreter_loop.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\qb_parser_bison.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\qb_parser_re2c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\php_qb.h">
@@ -198,8 +204,18 @@
     <ClInclude Include="..\qb_debug_interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\qb_interpreter_functions.h" />
-    <ClInclude Include="..\qb_interpreter_structures.h" />
+    <ClInclude Include="..\qb_interpreter_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\qb_interpreter_structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\qb_parser_bison.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\qb_parser_re2c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -211,5 +227,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\qb_parser_re2c.l">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\qb_parser_bison.y">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
