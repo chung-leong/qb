@@ -618,6 +618,8 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 	}
 #endif
 #ifdef HAVE_COMPLEX_H
+#	ifdef __clang__
+#	else
 	if(!address) {
 		if(strcmp(name, "__muldc3") == 0) {
 			address = __muldc3;
@@ -629,6 +631,7 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 			address = __divsc3;
 		}
 	}
+#	endif	
 #endif
 #ifdef __INTEL_COMPILER
 	extern void __libm_sse2_sincos(void);
