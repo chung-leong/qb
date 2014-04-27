@@ -95,6 +95,13 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define TRUE	"STRING(TRUE)"\n");
 	qb_print(cxt, "#define FALSE	"STRING(FALSE)"\n");
 
+#if defined(HAVE_COMPLEX_H)
+	qb_print(cxt, "#define cmult(x, y)	((x) * (y))\n");
+	qb_print(cxt, "#define cmultf(x, y)	((x) * (y))\n");
+	qb_print(cxt, "#define cdiv(x, y)	((x) / (y))\n");
+	qb_print(cxt, "#define cdivf(x, y)	((x) / (y))\n");
+#endif
+
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
 	qb_print(cxt, "#define __builtin_bswap16(n)	((n >> 8) | (n << 8))\n");
@@ -137,10 +144,25 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "typedef float float32_t;\n");
 	qb_print(cxt, "typedef double float64_t;\n");
 
-#if defined(_Complex_I)
+#if defined(HAVE_COMPLEX_H)
 	qb_print(cxt, "typedef float "STRING(complex)" cfloat32_t;\n");
 	qb_print(cxt, "typedef double "STRING(complex)" cfloat64_t;\n");
 #else
+	qb_print(cxt, "typedef struct cfloat32_t cfloat32_t;\n");
+	qb_print(cxt, "typedef struct cfloat64_t cfloat64_t;\n");
+
+	qb_print(cxt, "\
+struct cfloat32_t {\
+	float r;\
+	float i;\
+};\
+\n");
+
+	qb_print(cxt, "struct cfloat64_t {\
+		double r;\
+		double i;\
+};\
+\n");
 #endif
 	qb_print(cxt, "\n");
 
@@ -295,8 +317,11 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	for(i = 0; i < prototype_count; i++) {
 		if(required[i]) {
 			const char *prototype = cxt->function_prototypes[i];
-#ifdef _WIN64
 			qb_native_symbol *symbol = &global_native_symbols[i];
+			if(symbol->flags & QB_NATIVE_SYMBOL_UNUSED) {
+				continue;
+			}
+#ifdef _WIN64
 			if(!(symbol->flags & QB_NATIVE_SYMBOL_INLINE_FUNCTION)) {
 				if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
 					// redefine it to something else so we can declare it
@@ -775,9 +800,14 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 					}	break;
 					case QB_ADDRESS_MODE_ARR: {
 						if(address->array_size_address != cxt->zero_address) {
-							const char *count = qb_get_scalar(cxt, address->array_size_address);
 							const char *pointer = qb_get_pointer(cxt, address);
+							const char *count = qb_get_scalar(cxt, address->array_size_address);
 							const char *count_pointer = qb_get_pointer(cxt, address->array_size_address);
+							if(qb_is_operand_complex(qop->opcode, i)) {
+								char *buffer = qb_get_buffer(cxt);
+								snprintf(buffer, 128, "((c%s *) (%s))", type_cnames[operand->address->type], pointer);
+								pointer = buffer;
+							}
 							qb_printf(cxt, "#define %s_ptr	%s\n", name, pointer);
 							qb_printf(cxt, "#define %s_count	%s\n", name, count);
 							qb_printf(cxt, "#define %s_count_ptr	%s\n", name, count_pointer);
@@ -1358,7 +1388,9 @@ void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_b
 		// calculate hash for faster lookup
 		for(i = 0; i < global_native_symbol_count; i++) {
 			qb_native_symbol *symbol = &global_native_symbols[i];
-			symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
+			if(symbol->name) {
+				symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
+			}
 		}
 		hashes_initialized = TRUE;
 	}

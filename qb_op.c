@@ -53,6 +53,8 @@ qb_address_mode qb_get_operand_address_mode(uint32_t opcode, uint32_t operand_in
 			return QB_ADDRESS_MODE_ELE;
 		case 'A':
 		case 'a':
+		case 'X':
+		case 'x':
 			return QB_ADDRESS_MODE_ARR;
 		case 'c':
 			return QB_ADDRESS_MODE_SCA;
@@ -68,6 +70,19 @@ int32_t qb_is_operand_write_target(qb_opcode opcode, uint32_t operand_index) {
 		case 'S':
 		case 'E':
 		case 'A':
+		case 'X':
+			return TRUE;
+	}
+	return FALSE;
+}
+
+int32_t qb_is_operand_complex(qb_opcode opcode, uint32_t operand_index) {
+	const qb_op_info *op = &global_op_info[opcode];
+	const char *codes = op->instruction_format;
+	char code = codes[operand_index];
+	switch(code) {
+		case 'X':
+		case 'x':
 			return TRUE;
 	}
 	return FALSE;

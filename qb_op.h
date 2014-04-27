@@ -291,6 +291,7 @@ uint32_t qb_get_operand_count(qb_opcode opcode);
 uint32_t qb_get_instruction_length(qb_opcode opcode);
 qb_address_mode qb_get_operand_address_mode(uint32_t opcode, uint32_t operand_index);
 int32_t qb_is_operand_write_target(qb_opcode opcode, uint32_t operand_index);
+int32_t qb_is_operand_complex(qb_opcode opcode, uint32_t operand_index);
 const char *qb_get_op_format(uint32_t opcode);
 
 uint32_t qb_get_switch_table_size(uint32_t case_count);

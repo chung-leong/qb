@@ -2,7 +2,7 @@
 
 class ComplexTanh extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, FixedOperandSize, Slow, Multithreaded, Complex;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, FixedOperandSize, Multithreaded, Complex;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);

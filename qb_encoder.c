@@ -856,7 +856,9 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 						ip += sizeof(qb_pointer_ELE);
 					}	break;	
 					case 'A':
-					case 'a': {
+					case 'a':
+					case 'X':
+					case 'x': {
 						qb_pointer_ARR *p = (qb_pointer_ARR *) ip;
 						qb_adjust_pointer((void **) &p->data_pointer, range_start, range_end, storage_shift);
 						qb_adjust_pointer((void **) &p->index_pointer, range_start, range_end, storage_shift);

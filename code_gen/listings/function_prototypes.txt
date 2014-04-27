@@ -61,6 +61,50 @@ float fmodf(float n, float d);
 float rintf(float x);
 float roundf(float x);
 
+float32_t cabsf(cfloat32_t n);
+float32_t cargf(cfloat32_t n);
+cfloat32_t cacosf(cfloat32_t n);
+cfloat32_t cacoshf(cfloat32_t n);
+cfloat32_t casinf(cfloat32_t n);
+cfloat32_t casinhf(cfloat32_t n);
+cfloat32_t catanf(cfloat32_t n);
+cfloat32_t catanhf(cfloat32_t n);
+cfloat32_t ccosf(cfloat32_t n);
+cfloat32_t ccoshf(cfloat32_t n);
+cfloat32_t cdivf(cfloat32_t n1, cfloat32_t n2);
+cfloat32_t cexpf(cfloat32_t n);
+cfloat32_t clogf(cfloat32_t n);
+cfloat32_t cmultf(cfloat32_t n1, cfloat32_t n2);
+cfloat32_t cpowf(cfloat32_t n, cfloat32_t e);
+cfloat32_t csinf(cfloat32_t n);
+cfloat32_t csinhf(cfloat32_t n);
+cfloat32_t csqrtf(cfloat32_t n);
+cfloat32_t ctanf(cfloat32_t n);
+cfloat32_t ctanhf(cfloat32_t n);
+
+float64_t cabs(cfloat64_t n);
+float64_t carg(cfloat64_t n);
+cfloat32_t cacosf(cfloat32_t n);
+cfloat64_t cacos(cfloat64_t n);
+cfloat64_t cacosh(cfloat64_t n);
+cfloat64_t casin(cfloat64_t n);
+cfloat64_t casinh(cfloat64_t n);
+cfloat64_t catan(cfloat64_t n);
+cfloat64_t catanh(cfloat64_t n);
+cfloat64_t ccos(cfloat64_t n);
+cfloat64_t ccosh(cfloat64_t n);
+cfloat64_t cdiv(cfloat64_t n1, cfloat64_t n2);
+cfloat64_t cexp(cfloat64_t n);
+cfloat64_t clog(cfloat64_t n);
+cfloat64_t cmult(cfloat64_t n1, cfloat64_t n2);
+cfloat64_t cpow(cfloat64_t n, cfloat64_t e);
+cfloat64_t csin(cfloat64_t n);
+cfloat64_t csinh(cfloat64_t n);
+cfloat64_t csqrt(cfloat64_t n);
+cfloat64_t ctan(cfloat64_t n);
+
+cfloat64_t ctanh(cfloat64_t n);
+
 double php_combined_lcg(void);
 double _php_math_round(double x, int precision, int mode);
 

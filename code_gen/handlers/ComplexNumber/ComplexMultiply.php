@@ -2,7 +2,7 @@
 
 class ComplexMultiply extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, FixedOperandSize, Slow, Multithreaded, Complex;
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, FixedOperandSize, Multithreaded, Complex;
 
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(3);

@@ -9,7 +9,7 @@ Complex number multiplication test
  * @engine	qb 
  * @local	float32[2]		$a
  * @local	float32[2]		$b
- * @local	float32[3][2]	$c
+ * @local	float64[3][2]	$c
  * @local	complex			$e
  * @local	complex			$f
  *

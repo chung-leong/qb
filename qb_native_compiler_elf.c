@@ -617,17 +617,16 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 		}
 	}
 #endif
-#ifdef HAVE_CEXP
+#ifdef HAVE_COMPLEX_H
 	if(!address) {
-		if(strcmp(name, "cexp") == 0) {
-			address = cexp;
-		}
-	}
-#endif
-#ifdef HAVE_CEXPF
-	if(!address) {
-		if(strcmp(name, "cexpf") == 0) {
-			address = cexpf;
+		if(strcmp(name, "__muldc3") == 0) {
+			address = __muldc3;
+		} else if(strcmp(name, "__mulsc3") == 0) {
+			address = __mulsc3;
+		} else if(strcmp(name, "__divdc3") == 0) {
+			address = __divdc3;
+		} else if(strcmp(name, "__divsc3") == 0) {
+			address = __divsc3;
 		}
 	}
 #endif

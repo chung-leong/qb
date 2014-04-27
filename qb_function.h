@@ -75,6 +75,8 @@ struct qb_external_symbol {
 enum {
 	QB_NATIVE_SYMBOL_INLINE_FUNCTION			= 0x0001,
 	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION			= 0x0002,
+
+	QB_NATIVE_SYMBOL_UNUSED						= 0x8000,
 };
 
 struct qb_native_symbol {

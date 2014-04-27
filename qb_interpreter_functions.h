@@ -523,84 +523,44 @@ void qb_do_clear_element_resize_update_dimension_I08(qb_interpreter_context *__r
 void qb_do_clear_element_resize_update_dimension_I16(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t *op3_ptr, uint32_t op4, int16_t *res_ptr, uint32_t *res_count_ptr);
 void qb_do_clear_element_resize_update_dimension_I32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t *op3_ptr, uint32_t op4, int32_t *res_ptr, uint32_t *res_count_ptr);
 void qb_do_clear_element_resize_update_dimension_I64(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t *op3_ptr, uint32_t op4, int64_t *res_ptr, uint32_t *res_count_ptr);
-void qb_do_complex_abs_F32(cfloat32_t *op1_ptr, float32_t *res_ptr);
-void qb_do_complex_abs_F64(cfloat64_t *op1_ptr, float64_t *res_ptr);
 void qb_do_complex_abs_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_abs_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_acos_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_acos_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_acos_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_acos_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_acosh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_acosh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_acosh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_acosh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_argument_F32(cfloat32_t *op1_ptr, float32_t *res_ptr);
-void qb_do_complex_argument_F64(cfloat64_t *op1_ptr, float64_t *res_ptr);
 void qb_do_complex_argument_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_argument_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_asin_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_asin_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_asin_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_asin_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_asinh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_asinh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_asinh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_asinh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_atan_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_atan_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_atan_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_atan_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_atanh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_atanh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_atanh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_atanh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_cos_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_cos_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_cos_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_cos_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_cosh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_cosh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_cosh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_cosh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_divide_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_divide_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_divide_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_divide_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_exp_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_exp_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_exp_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_exp_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_log_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_log_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_log_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_log_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_multiply_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_multiply_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_multiply_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_multiply_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_pow_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_pow_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_pow_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *op2_ptr, uint32_t op2_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_pow_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *op2_ptr, uint32_t op2_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_sin_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_sin_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_sin_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_sin_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_sinh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_sinh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_sinh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_sinh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_square_root_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_square_root_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_square_root_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_square_root_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_tan_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_tan_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_tan_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_tan_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
-void qb_do_complex_tanh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr);
-void qb_do_complex_tanh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr);
 void qb_do_complex_tanh_multiple_times_F32(cfloat32_t *op1_ptr, uint32_t op1_count, cfloat32_t *res_ptr, uint32_t res_count);
 void qb_do_complex_tanh_multiple_times_F64(cfloat64_t *op1_ptr, uint32_t op1_count, cfloat64_t *res_ptr, uint32_t res_count);
 void qb_do_convert_from_string_F32(uint8_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr);
@@ -2758,6 +2718,166 @@ static zend_always_inline void qb_do_clear_scalar_I32(int32_t *res_ptr) {
 
 static zend_always_inline void qb_do_clear_scalar_I64(int64_t *res_ptr) {
 	(*res_ptr) = 0;
+}
+
+static zend_always_inline void qb_do_complex_abs_F32(cfloat32_t *op1_ptr, float32_t *res_ptr) {
+	(*res_ptr) = cabsf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_abs_F64(cfloat64_t *op1_ptr, float64_t *res_ptr) {
+	(*res_ptr) = cabs((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_acos_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cacosf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_acos_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cacos((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_acosh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cacoshf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_acosh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cacosh((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_argument_F32(cfloat32_t *op1_ptr, float32_t *res_ptr) {
+	(*res_ptr) = cargf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_argument_F64(cfloat64_t *op1_ptr, float64_t *res_ptr) {
+	(*res_ptr) = carg((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_asin_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = casinf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_asin_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = casin((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_asinh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = casinhf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_asinh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = casinh((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_atan_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = catanf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_atan_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = catan((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_atanh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = catanhf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_atanh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = catanh((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_cos_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ccosf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_cos_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ccos((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_cosh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ccoshf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_cosh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ccosh((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_divide_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cdivf((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_divide_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cdiv((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_exp_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cexpf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_exp_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cexp((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_log_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = clogf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_log_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = clog((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_multiply_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cmultf((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_multiply_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cmult((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_pow_F32(cfloat32_t *op1_ptr, cfloat32_t *op2_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = cpowf((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_pow_F64(cfloat64_t *op1_ptr, cfloat64_t *op2_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = cpow((*op1_ptr), (*op2_ptr));
+}
+
+static zend_always_inline void qb_do_complex_sin_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csinf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_sin_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csin((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_sinh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csinhf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_sinh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csinh((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_square_root_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = csqrtf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_square_root_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = csqrt((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_tan_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ctanf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_tan_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ctan((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_tanh_F32(cfloat32_t *op1_ptr, cfloat32_t *res_ptr) {
+	(*res_ptr) = ctanhf((*op1_ptr));
+}
+
+static zend_always_inline void qb_do_complex_tanh_F64(cfloat64_t *op1_ptr, cfloat64_t *res_ptr) {
+	(*res_ptr) = ctanh((*op1_ptr));
 }
 
 static zend_always_inline void qb_do_copy_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {

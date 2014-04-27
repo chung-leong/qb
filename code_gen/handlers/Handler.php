@@ -222,7 +222,14 @@ class Handler {
 				switch($addressMode) {
 					case 'SCA': $format .= 'S'; break;
 					case 'ELE': $format .= 'E'; break;
-					case 'ARR': $format .= 'A'; break;
+					case 'ARR':
+						$type = $this->getOperandCType($i);
+						if($type[0] == 'c') {
+							$format .= 'X'; 
+						} else {
+							$format .= 'A'; 
+						}
+						break;
 					case 'CON':
 						$class = get_class($this);
 						die("Operand $i of $class is constant and changeable at the same time\n");
@@ -231,7 +238,14 @@ class Handler {
 				switch($addressMode) {
 					case 'SCA': $format .= 's'; break;
 					case 'ELE': $format .= 'e'; break;
-					case 'ARR': $format .= 'a'; break;
+					case 'ARR': 
+						$type = $this->getOperandCType($i);
+						if($type[0] == 'c') {
+							$format .= 'x'; 
+						} else {
+							$format .= 'a';
+						}
+						break;
 					case 'CON': $format .= 'c'; break;
 				}
 			}
