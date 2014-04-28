@@ -15,7 +15,7 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <email>cleong728@gmail.com</email>
   <active>yes</active>
  </lead>
- <date>2014-03-30</date>
+ <date>2014-04-28</date>
  <time>19:00:00</time>
  <version>
   <release>2.3</release>
@@ -28,6 +28,9 @@ QB performs code translation on a per-function basis. It does not affect in anyw
  <license uri="http://www.php.net/license">PHP License</license>
  <notes>Enabled compilation using clang
  Improved interpreter performance in 64-bit Windows
+ Implemented proper parser for type declaration
+ Bought complex number functions into compliance with ISO standard
+ Fixed issue #36 - Incorrect cast to int
 </notes>
  <contents>
   <dir name="/">
