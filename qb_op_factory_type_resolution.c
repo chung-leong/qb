@@ -452,7 +452,7 @@ static int32_t qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op
 static int32_t qb_resolve_expression_type_append_string(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
 	qb_primitive_type string_type;
-	if(string->type != QB_OPERAND_NONE) {
+	if(string->type != QB_OPERAND_NONE && string->type != QB_OPERAND_EMPTY) {
 		string_type = qb_get_operand_type(cxt, string, 0);
 	} else {
 		string_type = QB_TYPE_U08;

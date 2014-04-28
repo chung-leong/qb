@@ -180,7 +180,7 @@ static int32_t qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory
 static int32_t qb_coerce_operands_append_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
 	qb_primitive_type addend_type = qb_get_string_append_type(cxt, addend, expr_type);
-	if(string->type != QB_OPERAND_NONE) {
+	if(string->type != QB_OPERAND_NONE && string->type != QB_OPERAND_EMPTY) {
 		if(!qb_perform_type_coercion(cxt, string, expr_type, f->coercion_flags)) {
 			return FALSE;
 		}
