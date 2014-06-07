@@ -755,6 +755,20 @@ int qb_is_compiled_function(zend_function *zfunc) {
 	return qb_get_compiled_function(zfunc) != NULL;
 }
 
+int qb_strip_namespace(const char **p_name_str, uint32_t *p_name_len) {
+	const char *name_str = *p_name_str;
+	uint32_t name_len = *p_name_len;
+	uint32_t i;
+	for(i = name_len - 1; (int32_t) i >= 0; i--) {
+		if(name_str[i] == '\\') {
+			*p_name_str = &name_str[i] + 1;
+			*p_name_len = name_len - i - 1;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* {{{ qb_functions[]

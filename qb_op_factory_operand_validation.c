@@ -252,6 +252,8 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 	} else {
 		zend_class_entry *ce = NULL;
 		HashTable *ht;
+		const char *name_str = Z_STRVAL_P(name->constant);
+		uint32_t name_len = Z_STRLEN_P(name->constant);
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			ce = scope->zend_class;
 		} else if(scope->type == QB_OPERAND_ZVAL) {
@@ -266,15 +268,23 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 		} else {
 			ht = EG(zend_constants);
 		}
-		if(!zend_hash_exists(ht, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
-			// see if it's a special QB constant
-			if(!qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant))) {
-				qb_report_undefined_constant_exception(cxt->line_id, ce, Z_STRVAL_P(name->constant));
-				return FALSE;
+		if(zend_hash_exists(ht, name_str, name_len + 1)) {
+			return TRUE;
+		}
+		// see if the name has a namespace attached
+		if(qb_strip_namespace(&name_str, &name_len)) {
+			if(zend_hash_exists(ht, name_str, name_len + 1)) {
+				return TRUE;
 			}
 		}
+		// see if it's a special QB constant
+		if(qb_get_special_constant(cxt, name_str, name_len)) {
+			return TRUE;
+		} else {
+			qb_report_undefined_constant_exception(cxt->line_id, ce, Z_STRVAL_P(name->constant));
+		}
 	}
-	return TRUE;
+	return FALSE;
 }
 
 static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {

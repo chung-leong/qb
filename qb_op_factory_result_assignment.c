@@ -493,6 +493,8 @@ static int32_t qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_fact
 	} else {
 		zend_class_entry *ce = NULL;
 		zval *value;
+		const char *name_str = Z_STRVAL_P(name->constant);
+		uint32_t name_len = Z_STRLEN_P(name->constant);
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			ce = scope->zend_class;
 		} else if(scope->type == QB_OPERAND_ZVAL) {
@@ -504,20 +506,28 @@ static int32_t qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_fact
 		}
 		if(ce) {
 			zval **p_value;
-			zend_hash_find(&ce->constants_table, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1, (void **) &p_value);
+			zend_hash_find(&ce->constants_table, name_str, name_len + 1, (void **) &p_value);
 			value = *p_value;
 		} else {
 			zend_constant *zconst;
-			if(zend_hash_find(EG(zend_constants), Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1, (void **) &zconst) == SUCCESS) {
+			if(zend_hash_find(EG(zend_constants), name_str, name_len + 1, (void **) &zconst) == SUCCESS) {
 				value = &zconst->value;
 			} else {
-				value = qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant));
+				if(qb_strip_namespace(&name_str, &name_len)) {
+					if(zend_hash_find(EG(zend_constants), name_str, name_len + 1, (void **) &zconst) == SUCCESS) {
+						value = &zconst->value;
+					}
+				}
+			}
+			if(!value) {
+				value = qb_get_special_constant(cxt, name_str, name_len);
 			}
 		}
-		if(value) {
-			result->type = QB_OPERAND_ZVAL;
-			result->constant = value;
+		if(!value) {
+			value = &zval_used_for_init;
 		}
+		result->type = QB_OPERAND_ZVAL;
+		result->constant = value;
 	}
 	return TRUE;
 }

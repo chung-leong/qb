@@ -303,6 +303,8 @@ qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_i
 
 uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC);
 
+int qb_strip_namespace(const char **p_name_str, uint32_t *p_name_len);
+
 extern int debug_compatibility_mode;
 extern long multithreading_threshold;
 
