@@ -93,6 +93,7 @@ typedef double float64_t;
 #include "php_qb.h"
 #include "ext/standard/php_rand.h"
 #include "SAPI.h"
+#include "Zend/zend_hash.h"
 
 #ifdef ZEND_ACC_GENERATOR
 #	include "zend_generators.h"

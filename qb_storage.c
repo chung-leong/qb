@@ -462,7 +462,9 @@ void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t re
 
 static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index) {
 	switch(Z_TYPE_P(zvalue)) {
+#ifdef IS_CONSTANT_ARRAY
 		case IS_CONSTANT_ARRAY:
+#endif
 		case IS_ARRAY: {
 			return qb_capture_dimensions_from_array(zvalue, m, dimension_index);
 		}
@@ -851,7 +853,9 @@ static int32_t qb_copy_elements_from_null(zval *znull, int8_t *dst_memory, qb_di
 
 static int32_t qb_copy_elements_from_zval(zval *zvalue, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	switch(Z_TYPE_P(zvalue)) {
+#ifdef IS_CONSTANT_ARRAY
 		case IS_CONSTANT_ARRAY:
+#endif
 		case IS_ARRAY:	return qb_copy_elements_from_array(zvalue, dst_memory, m, dimension_index);
 		case IS_OBJECT:	return qb_copy_elements_from_object(zvalue, dst_memory, m, dimension_index);
 		case IS_STRING:	return qb_copy_elements_from_string(zvalue, dst_memory, m, dimension_index);

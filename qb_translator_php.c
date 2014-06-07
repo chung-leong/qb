@@ -1219,8 +1219,14 @@ static qb_intrinsic_function intrinsic_functions[] = {
 #define MAX_INLINE_FUNCTION_NAME_LEN		32
 
 qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translator_context *cxt, zval *callable) {
-	const char *name = Z_STRVAL_P(callable);
+	const char *name = Z_STRVAL_P(callable), *slash;
 	uint32_t len = Z_STRLEN_P(callable);
+
+	slash = strchr(name, '\\');
+	if(slash) {
+		len -= (slash - name) + 1;
+		name = slash + 1;
+	}
 
 	if(len < MAX_INLINE_FUNCTION_NAME_LEN) {
 		// make it lower case

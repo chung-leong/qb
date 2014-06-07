@@ -18,7 +18,7 @@ QB performs code translation on a per-function basis. It does not affect in anyw
  <date>2014-04-28</date>
  <time>19:00:00</time>
  <version>
-  <release>2.3</release>
+  <release>2.3.0</release>
   <api>0.1.0</api>
  </version>
  <stability>
