@@ -184,7 +184,6 @@ struct cfloat32_t {\
 enum qb_vm_exit_type {\
 	QB_VM_RETURN = 0,\
 	QB_VM_ERROR,\
-	QB_VM_WARNING,\
 	QB_VM_TIMEOUT,\
 	QB_VM_FORK,\
 	QB_VM_SPOON,\

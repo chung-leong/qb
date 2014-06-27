@@ -616,6 +616,12 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		if(QB_IS_COMPILED(op_array)) {
 			qb_compile_functions(op_array TSRMLS_CC);
 			qfunc = QB_GET_FUNCTION(op_array);
+
+			// dispatch any exceptions
+			if(QB_G(exception_count) > 0) {
+				qb_dispatch_exceptions(TSRMLS_C);
+				return ZEND_USER_OPCODE_RETURN;
+			}
 		}
 	}
 	if(qfunc) {
@@ -654,6 +660,12 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 			qb_free_interpreter_context(interpreter_cxt);
 			qb_stop_execution_timer(qfunc TSRMLS_CC);
 		}
+
+		// dispatch any exceptions
+		if(QB_G(exception_count) > 0) {
+			qb_dispatch_exceptions(TSRMLS_C);
+		}
+
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 		EG(current_execute_data) = EG(current_execute_data)->prev_execute_data;
 #endif

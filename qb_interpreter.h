@@ -67,7 +67,6 @@ struct qb_zend_argument_stack {
 enum qb_vm_exit_type { 
 	QB_VM_RETURN = 0,
 	QB_VM_ERROR,
-	QB_VM_WARNING,
 	QB_VM_TIMEOUT,
 	QB_VM_FORK,
 	QB_VM_SPOON,
@@ -117,8 +116,8 @@ extern void *op_handlers[];
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
 void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer);
 
-int32_t qb_execute(qb_interpreter_context *cxt);
-int32_t qb_execute_internal(qb_interpreter_context *cxt);
+void qb_execute(qb_interpreter_context *cxt);
+void qb_execute_internal(qb_interpreter_context *cxt);
 int32_t qb_execute_rewind(qb_interpreter_context *cxt);
 int32_t qb_execute_resume(qb_interpreter_context *cxt);
 

@@ -199,9 +199,10 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				memory = qb_map_file_to_memory(segment->stream, new_allocation, TRUE TSRMLS_CC);
 				if(!memory) {
 					// shouldn't really happen--we had managed to map it successfully after all
-					// can use NULL for the thread since this always run in the main thread
 					qb_report_memory_map_exception(0, segment->stream->orig_path);
-					qb_dispatch_exceptions(TSRMLS_C);
+					addition = 0;
+					new_size = 0;
+					new_allocation = 0;
 				}
 			} else {
 				// segment->memory is valid only when current_allocation > 0

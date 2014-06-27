@@ -310,7 +310,7 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 }
 
 #ifdef ZEND_ACC_GENERATOR
-static void qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
 	USE_TSRM
 	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
 
@@ -322,12 +322,15 @@ static void qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
 #else
 			zval *value = &generator->send_target->tmp_var;
 #endif
-			qb_transfer_value_from_zval(cxt->function->local_storage, cxt->function->sent_variable->address, value, QB_TRANSFER_CAN_BORROW_MEMORY);
+			if(!qb_transfer_value_from_zval(cxt->function->local_storage, cxt->function->sent_variable->address, value, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+				return FALSE;
+			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	USE_TSRM
 	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
 	zval *ret, *ret_key;
@@ -350,12 +353,14 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
 			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 			qb_set_exception_line_id(line_id TSRMLS_CC);
+			return FALSE;
 		}
 	}
 	if(cxt->function->return_key_variable->address) {
 		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key)) {
 			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 			qb_set_exception_line_id(line_id TSRMLS_CC);
+			return FALSE;
 		}
 	}
 	if(cxt->function->sent_variable->address) {
@@ -377,6 +382,7 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		}
 #endif
 	}
+	return TRUE;
 }
 #endif
 
@@ -758,14 +764,7 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 				fork_execution = (cxt->fork_count > 0);
 			}	break;
 			case QB_VM_ERROR: {
-				USE_TSRM
-				qb_dispatch_exceptions(TSRMLS_C);
 				continue_execution = FALSE;
-			}	break;
-			case QB_VM_WARNING: {
-				USE_TSRM
-				qb_dispatch_exceptions(TSRMLS_C);
-				continue_execution = TRUE;
 			}	break;
 			case QB_VM_TIMEOUT: {
 				zend_timeout(0);
@@ -812,16 +811,8 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 	}
 }
 
-static int32_t qb_execute_in_current_thread(qb_interpreter_context *cxt) {
+static void qb_execute_in_current_thread(qb_interpreter_context *cxt) {
 	qb_handle_execution(cxt, FALSE);
-
-	if(cxt->exit_type == QB_VM_EXCEPTION) {
-		return FALSE;
-	} else if(cxt->exit_type == QB_VM_YIELD) {
-		return FALSE;
-	} else {
-		return TRUE;
-	}
 }
 
 static int32_t qb_initialize_local_variables(qb_interpreter_context *cxt) {
@@ -879,66 +870,59 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 	}
 }
 
-int32_t qb_execute(qb_interpreter_context *cxt) {
-	USE_TSRM
-	int32_t success = FALSE;
-
+void qb_execute(qb_interpreter_context *cxt) {
 	// clear local memory segments
 	if(qb_initialize_local_variables(cxt)) {
 		// copy values from arguments, class variables, object variables, and global variables
 		if(qb_transfer_variables_from_external_sources(cxt)) {
 			// enter the vm
-			if(qb_execute_in_current_thread(cxt)) {
+			qb_execute_in_current_thread(cxt);
+			if(cxt->exit_type == QB_VM_RETURN) {
 				// move values back into caller space
-				if(qb_transfer_variables_to_external_sources(cxt)) {
-					success = TRUE;
-				}
+				qb_transfer_variables_to_external_sources(cxt);
 			}
 		}
+
 		// release dynamically allocated segments
 		qb_finalize_variables(cxt);
 	}
-
-	qb_dispatch_exceptions(TSRMLS_C);
-	return success;
 }
 
 #ifdef ZEND_ACC_GENERATOR
 int32_t qb_execute_resume(qb_interpreter_context *cxt) {
 	// copy variable passed by send()
-	qb_transfer_arguments_from_generator(cxt);
+	if(qb_transfer_arguments_from_generator(cxt)) {
+		// enter the vm
+		qb_execute_in_current_thread(cxt);
 
-	// enter the vm
-	if(!qb_execute_in_current_thread(cxt)) {
-		// there're more values still
-		qb_transfer_variables_to_generator(cxt);
-		return FALSE;
-	} else {
-		// done running
-		qb_finalize_variables(cxt);
-		return TRUE;
+		if(cxt->exit_type == QB_VM_YIELD) {
+			// there're more values still
+			qb_transfer_variables_to_generator(cxt);
+			return FALSE;
+		} else if(cxt->exit_type == QB_VM_RETURN) {
+			// done running
+			qb_finalize_variables(cxt);
+		}
 	}
+	return TRUE;
 }
 
 int32_t qb_execute_rewind(qb_interpreter_context *cxt) {
 	// clear local memory segments
-	qb_initialize_local_variables(cxt);
-
-	// copy values from arguments, class variables, object variables, and global variables
-	qb_transfer_variables_from_external_sources(cxt);
-
-	return qb_execute_resume(cxt);
+	if(qb_initialize_local_variables(cxt)) {
+		// copy values from arguments, class variables, object variables, and global variables
+		if(qb_transfer_variables_from_external_sources(cxt)) {
+			return qb_execute_resume(cxt);
+		}
+	}
+	return TRUE;
 }
 #endif
 
-int32_t qb_execute_internal(qb_interpreter_context *cxt) {
-	int32_t success = TRUE;
+void qb_execute_internal(qb_interpreter_context *cxt) {
 	qb_initialize_local_variables(cxt);
-	if(!qb_execute_in_current_thread(cxt)) {
-		success = FALSE;
-	}
+	qb_execute_in_current_thread(cxt);
 	qb_finalize_variables(cxt);
-	return success;
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count) {
@@ -1104,7 +1088,6 @@ static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function
 	if(cxt->call_depth < 1024) {
 		USE_TSRM
 		qb_interpreter_context _new_cxt, *new_cxt = &_new_cxt;
-		int32_t successful;
 
 		cxt->argument_indices = variable_indices;
 		cxt->argument_count = argument_count;
@@ -1113,9 +1096,9 @@ static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function
 		cxt->exception_encountered = FALSE;
 
 		qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
-		successful = qb_execute(new_cxt);
+		qb_execute(new_cxt);
 		qb_free_interpreter_context(new_cxt);
-		return successful;
+		return (new_cxt->exit_type == QB_VM_RETURN);
 	} else {
 		qb_report_too_much_recursion_exception(line_id, cxt->call_depth);
 		return FALSE;
