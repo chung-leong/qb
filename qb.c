@@ -27,7 +27,6 @@
 #include "ext/standard/info.h"
 #include "zend_extensions.h"
 
-int debug_compatibility_mode = TRUE;
 
 #ifndef QB_DISABLE_MULTITHREADING
 #	define PERMITTED_THREAD_COUNT	0
@@ -35,7 +34,9 @@ int debug_compatibility_mode = TRUE;
 #	define PERMITTED_THREAD_COUNT	1
 #endif
 
+int debug_compatibility_mode = TRUE;
 int permitted_thread_count = PERMITTED_THREAD_COUNT;
+zend_class_entry *qb_exception_ce = NULL;
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
 	qb_import_scope *scope;
@@ -930,6 +931,8 @@ int zend_shutdown_strtod(void);
  */
 PHP_MINIT_FUNCTION(qb)
 {
+	zend_class_entry ce;
+
 	ZEND_INIT_MODULE_GLOBALS(qb, php_qb_init_globals, NULL);
 
 	REGISTER_INI_ENTRIES();
@@ -946,6 +949,9 @@ PHP_MINIT_FUNCTION(qb)
 		return FAILURE;
 	}
 #endif
+
+	INIT_CLASS_ENTRY(ce, "QBException", NULL);
+ 	qb_exception_ce = zend_register_internal_class_ex(&ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
 
 	qb_install_user_opcode_handler();
 

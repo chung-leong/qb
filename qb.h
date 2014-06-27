@@ -94,6 +94,7 @@ typedef double float64_t;
 #include "ext/standard/php_rand.h"
 #include "SAPI.h"
 #include "Zend/zend_hash.h"
+#include "Zend/zend_exceptions.h"
 
 #ifdef ZEND_ACC_GENERATOR
 #	include "zend_generators.h"
@@ -223,6 +224,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_main_thread main_thread;
 	long thread_count;
 	long debug_fork_id;
+	long error_as_exception;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;
@@ -307,6 +309,7 @@ int qb_strip_namespace(const char **p_name_str, uint32_t *p_name_len);
 
 extern int debug_compatibility_mode;
 extern long multithreading_threshold;
+extern zend_class_entry *qb_exception_ce;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

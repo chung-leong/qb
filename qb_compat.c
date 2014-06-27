@@ -553,64 +553,65 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 #endif
 
 #ifdef HAVE_COMPLEX_H
-#	ifndef HAVE_CLOGF
+#	ifndef HAVE_CLOG
 cfloat64_t clog(cfloat64_t n) {
-	float64_t r, i;
+	float64_t c[2];
 	if(isinf(creal(n))) {
-		r = INFINITY;
+		c[0] = INFINITY;
 		if(isnan(cimag(n))) {
-			i = NAN;
+			c[1] = NAN;
 		} else {
 			if(signbit(creal(n))) {
-				i = isfinite(cimag(n)) ? (float64_t) M_PI : (float64_t) (3 * M_PI / 4);
+				c[1] = isfinite(cimag(n)) ? (float64_t) M_PI : (float64_t) (3 * M_PI / 4);
 			} else {
-				i = isfinite(cimag(n)) ? (float64_t) 0.0 : (float64_t) M_PI_4;
+				c[1] = isfinite(cimag(n)) ? (float64_t) 0.0 : (float64_t) M_PI_4;
 			}
 		}
 	} else if(isinf(cimag(n))) {
-		r = INFINITY;
-		i = isnan(creal(n)) ? NAN : (float64_t) M_PI_2;
+		c[0] = INFINITY;
+		c[1] = isnan(creal(n)) ? NAN : (float64_t) M_PI_2;
 	} else if(isnan(creal(n)) || isnan(cimag(n))) {
-		r = NAN;
-		i = NAN;
+		c[0] = NAN;
+		c[1] = NAN;
 	} else {
 		float64_t w = sqrt(creal(n) * creal(n) + cimag(n) * cimag(n));
-		r = log(w);
-		i = atan2(cimag(n), creal(n));
+		c[0] = log(w);
+		c[1] = atan2(cimag(n), creal(n));
 	}
-	return (cfloat64_t) { r, i };
+	return *((cfloat64_t *) c);
 }
 #	endif
 #	ifndef HAVE_CLOGF
 cfloat32_t clogf(cfloat32_t n) {
-	float32_t r, i;
+	float32_t c[2];
 	if(isinf(crealf(n))) {
-		r = INFINITY;
+		c[0] = INFINITY;
 		if(isnan(cimagf(n))) {
-			i = NAN;
+			c[1] = NAN;
 		} else {
 			if(signbit(crealf(n))) {
-				i = isfinite(cimagf(n)) ? (float32_t) M_PI : (float32_t) (3 * M_PI / 4);
+				c[1] = isfinite(cimagf(n)) ? (float32_t) M_PI : (float32_t) (3 * M_PI / 4);
 			} else {
-				i = isfinite(cimagf(n)) ? (float32_t) 0.0 : (float32_t) M_PI_4;
+				c[1] = isfinite(cimagf(n)) ? (float32_t) 0.0 : (float32_t) M_PI_4;
 			}
 		}
 	} else if(isinf(cimagf(n))) {
-		r = INFINITY;
-		i = isnan(crealf(n)) ? NAN : (float32_t) M_PI_2;
+		c[0] = INFINITY;
+		c[1] = isnan(crealf(n)) ? NAN : (float32_t) M_PI_2;
 	} else if(isnan(crealf(n)) || isnan(cimagf(n))) {
-		r = NAN;
-		i = NAN;
+		c[0] = NAN;
+		c[1] = NAN;
 	} else {
 		float32_t w = sqrtf(crealf(n) * crealf(n) + cimagf(n) * cimagf(n));
-		r = logf(w);
-		i = atan2f(cimagf(n), crealf(n));
+		c[0] = logf(w);
+		c[1] = atan2f(cimagf(n), crealf(n));
 	}
-	return (cfloat32_t) { r, i };
+	return *((cfloat32_t *) c);
 }
 #	endif
 #	ifndef HAVE_CPOW
 cfloat64_t cpow(cfloat64_t n, cfloat64_t e) {
+	float64_t c[2];
 	float64_t r, i;
 	float64_t u = atan2(cimag(n), creal(n));
 	float64_t v = creal(n) * creal(n) + cimag(n) * cimag(n);
@@ -619,18 +620,18 @@ cfloat64_t cpow(cfloat64_t n, cfloat64_t e) {
 	if(cimag(n) != 0) {
 		float64_t z = 0.5 * cimag(e) * log(v);
 		float64_t w = exp(-cimag(e) * u);
-		r = x * w * cos(y + z);
-		i = x * w * sin(y + z);
+		c[0] = x * w * cos(y + z);
+		c[1] = x * w * sin(y + z);
 	} else {
-		r = x * cos(y);
-		i = x * sin(y);
+		c[0] = x * cos(y);
+		c[1] = x * sin(y);
 	}
-	return (cfloat64_t) { r, i };
+	return *((cfloat64_t *) c);
 }
 #	endif
 #	ifndef HAVE_CPOWF
 cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
-	float32_t r, i;
+	float32_t c[2];
 	float32_t u = atan2f(cimagf(n), crealf(n));
 	float32_t v = crealf(n) * crealf(n) + cimagf(n) * cimagf(n);
 	float32_t x = powf(v, 0.5f * crealf(e));		
@@ -638,13 +639,13 @@ cfloat32_t cpowf(cfloat32_t n, cfloat32_t e) {
 	if(cimagf(e) != 0) {
 		float32_t z = 0.5f * cimagf(e) * logf(v);
 		float32_t w = expf(-cimagf(e) * u);
-		r = x * w * cosf(y + z);
-		i = x * w * sinf(y + z);
+		c[0] = x * w * cosf(y + z);
+		c[1] = x * w * sinf(y + z);
 	} else {
-		r = x * cosf(y);
-		i = x * sinf(y);
+		c[0] = x * cosf(y);
+		c[1] = x * sinf(y);
 	}
-	return (cfloat32_t) { r, i };
+	return *((cfloat32_t *) c);
 }
 #	endif
 #else

@@ -294,30 +294,29 @@ int32_t qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
 
 		if(constant) {
 			char *expanded;
-			uint32_t expanded_len;
 			int condition;
 
 			switch (Z_TYPE_P(constant)) {
 				case IS_NULL: {
-					expanded_len = spprintf(&expanded, 0, "[]");
+					spprintf(&expanded, 0, "[]");
 				}	break;
 				case IS_STRING: {
-					expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
+					spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
 				}	break;
 				case IS_BOOL: {
 					if (Z_LVAL_P(constant)) {
-						expanded_len = spprintf(&expanded, 0, "[1]");
+						spprintf(&expanded, 0, "[1]");
 					} else {
-						expanded_len = spprintf(&expanded, 0, "[]");
+						spprintf(&expanded, 0, "[]");
 					}
 				}	break;
 				case IS_RESOURCE:
 				case IS_LONG: {
-					expanded_len = spprintf(&expanded, 0, "[%ld]", Z_LVAL_P(constant));
+					spprintf(&expanded, 0, "[%ld]", Z_LVAL_P(constant));
 				}	break;
 				case IS_DOUBLE: {
 					USE_TSRM
-					expanded_len = spprintf(&expanded, 0, "[%.*G]", (int) EG(precision), Z_DVAL_P(constant));
+					spprintf(&expanded, 0, "[%.*G]", (int) EG(precision), Z_DVAL_P(constant));
 				}	break;
 			}
 

@@ -52,7 +52,7 @@ qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_functio
 	return NULL;
 }
 
-static void qb_parse_declarations(qb_build_context *cxt) {
+static int32_t qb_parse_declarations(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 	for(i = 0; i < cxt->function_tag_count; i++) {
@@ -77,10 +77,10 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 			qb_free_parser_context(parser_cxt);
 		}
 	}
-
+	return TRUE;
 }
 
-static void qb_initialize_build_environment(qb_build_context *cxt) {
+static int32_t qb_initialize_build_environment(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 
@@ -91,7 +91,7 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 
 		// add variables used within function
 		if(!qb_add_variables(compiler_cxt)) {
-			qb_dispatch_exceptions(TSRMLS_C);
+			return FALSE;
 		}
 
 		// set up function prototypes so the functions can resolved against each other
@@ -112,7 +112,7 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 			// load the code into memory and decode the pbj data
 			if(!qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path)
 			|| !qb_decode_pbj_binary(translator_cxt)) {
-				qb_dispatch_exceptions(TSRMLS_C);
+				return FALSE;
 			}
 		}
 
@@ -132,17 +132,19 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 			case QB_TRANSLATION_PHP: {
 				// run an initial pass over the opcode to gather info
 				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
-				qb_survey_instructions(translator_cxt);
+				if(!qb_survey_instructions(translator_cxt)) {
+					return FALSE;
+				}
 			}	break;
 			case QB_TRANSLATION_PBJ: {
 				qb_pbj_translator_context *translator_cxt = compiler_cxt->translator_context;
-				qb_survey_pbj_instructions(translator_cxt);
+				if(!qb_survey_pbj_instructions(translator_cxt)) {
+					return FALSE;
+				}
 			}	break;
 		}
 	}
-
-	// display warning and bail out on fatal errors
-	qb_dispatch_exceptions(TSRMLS_C);
+	return TRUE;
 }
 
 static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_context *compiler_cxt, int32_t *p_changed) {
@@ -226,7 +228,7 @@ static void qb_resolve_dependencies(qb_build_context *cxt) {
 	}
 }
 
-void qb_perform_translation(qb_build_context *cxt) {
+static int32_t qb_perform_translation(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -236,20 +238,21 @@ void qb_perform_translation(qb_build_context *cxt) {
 			case QB_TRANSLATION_PHP: {
 				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
 				// translate the zend ops to intermediate qb ops
-				qb_translate_instructions(translator_cxt);
+				if(!qb_translate_instructions(translator_cxt)) {
+					return FALSE;
+				}
 			}	break;
 			case QB_TRANSLATION_PBJ: {
 				qb_pbj_translator_context *translator_cxt = compiler_cxt->translator_context;
 				// create the main loop and translate the PB instructions
-				qb_translate_pbj_instructions(translator_cxt);
+				if(!qb_translate_pbj_instructions(translator_cxt)) {
+					return FALSE;
+				}
 
 				// free the binary
 				qb_free_external_code(compiler_cxt);
 			}	break;
 		}
-
-		// display warning and bail out on fatal errors
-		qb_dispatch_exceptions(TSRMLS_C);
 
 		// make all jump target indices absolute
 		qb_resolve_jump_targets(compiler_cxt);
@@ -276,6 +279,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 			qb_print_ops(printer_cxt);
 		}
 	}
+	return TRUE;
 }
 
 #ifndef QB_DISABLE_NATIVE_COMPILATION
@@ -285,7 +289,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 #endif
 int32_t native_compilation_disabled = NATIVE_COMPILATION_DISABLED;
 
-void qb_generate_executables(qb_build_context *cxt) {
+static int32_t qb_generate_executables(qb_build_context *cxt) {
 	USE_TSRM
 	int32_t native_compile = FALSE;
 	uint32_t i;
@@ -299,7 +303,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 		compiler_cxt->compiled_function = qb_encode_function(encoder_cxt);
 
 		if(!compiler_cxt->compiled_function) {
-			qb_dispatch_exceptions(TSRMLS_C);
+			return FALSE;
 		}
 
 		// relocate the function now, so the base function won't be in the middle of relcoation while it's being copied
@@ -329,28 +333,39 @@ void qb_generate_executables(qb_build_context *cxt) {
 			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 			if(!compiler_cxt->compiled_function->native_proc) {
 				qb_report_native_compilation_exception(compiler_cxt->compiled_function->line_id, compiler_cxt->compiled_function->name);
-				qb_dispatch_exceptions(TSRMLS_C);
+				return FALSE;
 			}
 		}
 	}
 #endif
+	return TRUE;
 }
 
-void qb_build(qb_build_context *cxt) {
+int qb_build(qb_build_context *cxt) {
 	// parse the doc comments
-	qb_parse_declarations(cxt);
+	if(!qb_parse_declarations(cxt)) {
+		return FALSE;
+	}
 
 	// create the compiler contexts for all functions to be compiled 
-	qb_initialize_build_environment(cxt);
+	if(!qb_initialize_build_environment(cxt)) {
+		return FALSE;
+	}
 
 	// resolve function dependencies
 	qb_resolve_dependencies(cxt);
 
 	// translate the functions
-	qb_perform_translation(cxt);
+	if(!qb_perform_translation(cxt)) {
+		return FALSE;
+	}
 
 	// generate the instruction streams
-	qb_generate_executables(cxt);
+	if(!qb_generate_executables(cxt)) {
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC) {

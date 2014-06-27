@@ -92,8 +92,9 @@ void qb_dispatch_exceptions(TSRMLS_D) {
 				uint32_t file_id = FILE_ID(exception->line_id);
 				uint32_t line_number = LINE_NUMBER(exception->line_id);
 				const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
-				qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
+				zval *zexception = zend_throw_exception(qb_exception_ce, exception->message, 0 TSRMLS_CC);
 				efree(exception->message);
+				break;
 			}
 			QB_G(exception_count) = 0;
 		}

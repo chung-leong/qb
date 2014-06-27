@@ -58,7 +58,7 @@ struct qb_function_dependencies {
 	ulong hash;
 };
 
-void qb_build(qb_build_context *cxt);
+int qb_build(qb_build_context *cxt);
 
 qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_function *function_prototype);
 

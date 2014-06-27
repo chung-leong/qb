@@ -349,7 +349,7 @@ float log2f(float x);
 typedef float _Complex						cfloat32_t;
 typedef double _Complex						cfloat64_t;
 
-#	ifndef HAVE_CLOGF
+#	ifndef HAVE_CLOG
 cfloat64_t clog(cfloat64_t n);
 #	endif
 #	ifndef HAVE_CLOGF
