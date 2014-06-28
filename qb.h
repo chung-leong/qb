@@ -224,7 +224,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_main_thread main_thread;
 	long thread_count;
 	long debug_fork_id;
-	long error_as_exception;
+	long error_exception;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;

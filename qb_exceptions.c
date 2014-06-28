@@ -81,18 +81,28 @@ void qb_dispatch_exceptions_in_main_thread(void *param1, void *param2, int param
 	qb_dispatch_exceptions(TSRMLS_C);
 }
 
+void qb_throw_exception(const char *source_file, uint32_t line_number, const char *message TSRMLS_DC) {
+	EG(current_execute_data)->opline->lineno = line_number;
+	zend_throw_exception(qb_exception_ce, message, 0 TSRMLS_CC);
+}
+
 void qb_dispatch_exceptions(TSRMLS_D) {
 	if(QB_G(exception_count)) {
 		if(!qb_in_main_thread()) {
 			qb_run_in_main_thread(qb_dispatch_exceptions_in_main_thread, NULL, NULL, 0);
 		} else {
+			long exception_mask = QB_G(error_exception);
 			uint32_t i;
 			for(i = 0; i < QB_G(exception_count); i++) {
 				qb_exception *exception = &QB_G(exceptions)[i];
 				uint32_t file_id = FILE_ID(exception->line_id);
 				uint32_t line_number = LINE_NUMBER(exception->line_id);
 				const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
-				zval *zexception = zend_throw_exception(qb_exception_ce, exception->message, 0 TSRMLS_CC);
+				if(exception->type & exception_mask) {
+					qb_throw_exception(source_file, line_number, exception->message TSRMLS_CC);
+				} else {
+					qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
+				}
 				efree(exception->message);
 				break;
 			}
