@@ -36,6 +36,7 @@
 
 int debug_compatibility_mode = TRUE;
 int permitted_thread_count = PERMITTED_THREAD_COUNT;
+int qb_resource_handle;
 zend_class_entry *qb_exception_ce = NULL;
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
@@ -945,6 +946,11 @@ int zend_shutdown_strtod(void);
 PHP_MINIT_FUNCTION(qb)
 {
 	zend_class_entry ce;
+
+	qb_resource_handle = zend_get_resource_handle(&qb_zend_extension_entry);
+	if(qb_resource_handle == -1) {
+		return FAILURE;
+	}
 
 	ZEND_INIT_MODULE_GLOBALS(qb, php_qb_init_globals, NULL);
 

@@ -309,6 +309,7 @@ int qb_strip_namespace(const char **p_name_str, uint32_t *p_name_len);
 
 extern int debug_compatibility_mode;
 extern long multithreading_threshold;
+extern int qb_resource_handle;
 extern zend_class_entry *qb_exception_ce;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)

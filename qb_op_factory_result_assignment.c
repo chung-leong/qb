@@ -492,7 +492,7 @@ static int32_t qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_fact
 		result->address = qb_obtain_class_static_constant(cxt, name->constant, expr_type);
 	} else {
 		zend_class_entry *ce = NULL;
-		zval *value;
+		zval *value = NULL;
 		const char *name_str = Z_STRVAL_P(name->constant);
 		uint32_t name_len = Z_STRLEN_P(name->constant);
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
