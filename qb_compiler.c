@@ -1747,7 +1747,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 							// make sure the index is a U32
 							qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
 						}
-						lvalue_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
+						lvalue_address = qb_obtain_array_element(cxt, container->address, index->address, QB_ARRAY_BOUND_CHECK_WRITE);
 					}	break;
 					case QB_RESULT_DESTINATION_PROPERTY: {
 						qb_operand *container = &destination->property.container, *name = &destination->property.name;
