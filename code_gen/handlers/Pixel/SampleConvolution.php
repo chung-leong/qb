@@ -95,14 +95,16 @@ class SampleConvolution extends Handler {
 		$cType = $this->getOperandCType(6);
 		$f = ($type == 'F32') ? 'f' : '';
 		$lines = array();
-		$lines[] = "$cType x0 = op4 - ((double) op8) / 2;";
-		$lines[] = "$cType y0 = op5 - ((double) op7) / 2;";
+		$lines[] = "$cType x0 = op4 - ((double) (op8 - 1)) / 2;";
+		$lines[] = "$cType y0 = op5 - ((double) (op7 - 1)) / 2;";
 		$lines[] = "int32_t ix0 = (int32_t) floor$f(x0 - 0.5$f);";
 		$lines[] = "int32_t iy0 = (int32_t) floor$f(y0 - 0.5$f);";
-		$lines[] = "$cType fx = (op4 - 0.5$f) - floor$f(x0 - 0.5$f);";
-		$lines[] = "$cType fy = (op5 - 0.5$f) - floor$f(y0 - 0.5$f);";
+		$lines[] = "$cType fx = (x0 - 0.5$f) - floor$f(x0 - 0.5$f);";
+		$lines[] = "$cType fy = (y0 - 0.5$f) - floor$f(y0 - 0.5$f);";
 		$lines[] = "int32_t ix, iy, c, r;";
-		$lines[] = "$cType sum[$this->operandSize] = {" . implode(', ', array_fill(0, $this->operandSize, 0)) . "};";
+		$lines[] = "$cType sum[$this->operandSize] = {";
+		$lines[] = 		implode(', ', array_fill(0, $this->operandSize, "0.0$f"));
+		$lines[] = "};";
 		$lines[] = "if(fx + fy == 0) {";
 		$lines[] =		"for(r = 0, iy = iy0; r < op7; r++, iy++) {";
 		$lines[] =			"for(c = 0, ix = ix0; c < op8; c++, ix++) {";
@@ -150,7 +152,6 @@ class SampleConvolution extends Handler {
 		$lines[] = 			"}";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "";
 		$lines[] = "if(op9 != 0.0$f) {";
 		$lines[] = 		"sum[0] /= op9;";
 		if($this->operandSize >= 2) {
@@ -175,7 +176,6 @@ class SampleConvolution extends Handler {
 			$lines[] = 	"sum[3] += op10;";
 		}
 		$lines[] = "}";
-		$lines[] = "";
 		$lines[] = "res_ptr[0] = sum[0];";
 		if($this->operandSize >= 2) {
 			$lines[] = 	"res_ptr[1] = sum[1];";

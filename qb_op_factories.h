@@ -674,6 +674,7 @@ extern qb_pixel_op_factory factory_sample_nearest;
 extern qb_derived_op_factory factory_sample_nearest_vector;
 extern qb_pixel_op_factory factory_sample_bilinear;
 extern qb_derived_op_factory factory_sample_bilinear_vector;
+extern qb_pixel_op_factory factory_sample_convolution;
 
 extern qb_basic_op_factory factory_array_column;
 extern qb_op_decomposer factory_array_diff;

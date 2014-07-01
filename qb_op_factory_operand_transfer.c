@@ -480,6 +480,29 @@ static int32_t qb_transfer_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	return TRUE;
 }
 
+static int32_t qb_transfer_operands_sampling_convolution(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *image = &operands[0], *x = &operands[1], *y = &operands[2];
+	qb_operand *matrix = &operands[3], *divider = &operands[4], *offset = &operands[5];
+	dest[0] = *image;
+	dest[1].address = image->address->dimension_addresses[1];
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = image->address->dimension_addresses[0];
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *x;
+	dest[4] = *y;
+	dest[5] = *matrix;
+	dest[6].address = matrix->address->dimension_addresses[0];
+	dest[6].type = QB_OPERAND_ADDRESS;
+	dest[7].address = matrix->address->dimension_addresses[1];
+	dest[7].type = QB_OPERAND_ADDRESS;
+	dest[8].address = (divider->type == QB_OPERAND_ADDRESS) ? divider->address : cxt->zero_address;
+	dest[8].type = QB_OPERAND_ADDRESS;
+	dest[9].address = (offset->type == QB_OPERAND_ADDRESS) ? offset->address : cxt->zero_address;
+	dest[9].type = QB_OPERAND_ADDRESS;
+	dest[10] = *result;
+	return TRUE;
+}
+
 static int32_t qb_transfer_operands_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *image = &operands[0], *coordinates = &operands[1];
 	dest[0] = *image;
