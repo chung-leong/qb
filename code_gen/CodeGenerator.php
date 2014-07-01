@@ -1512,6 +1512,19 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 1, ($addressMode == "ARR"));
 			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleConvolution("SAMPLE_CV", $elementType, $addressMode, 4, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleConvolution("SAMPLE_CV", $elementType, $addressMode, 3, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleConvolution("SAMPLE_CV", $elementType, $addressMode, 2, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleConvolution("SAMPLE_CV", $elementType, $addressMode, 1, ($addressMode == "ARR"));
+			}
+			
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 2);
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 2, true);
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 4);

@@ -208,6 +208,21 @@ typedef struct qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR {
 	qb_pointer_ARR operand6;
 } qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR;
 
+typedef struct qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR {
+	qb_op_handler next_handler;
+	qb_pointer_ARR operand1;
+	qb_pointer_SCA operand2;
+	qb_pointer_SCA operand3;
+	qb_pointer_ARR operand4;
+	qb_pointer_ARR operand5;
+	qb_pointer_ARR operand6;
+	qb_pointer_SCA operand7;
+	qb_pointer_SCA operand8;
+	qb_pointer_ARR operand9;
+	qb_pointer_ARR operand10;
+	qb_pointer_ARR operand11;
+} qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR;
+
 typedef struct qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR {
 	qb_op_handler next_handler;
 	qb_pointer_ARR operand1;
@@ -217,6 +232,21 @@ typedef struct qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR {
 	qb_pointer_ELE operand5;
 	qb_pointer_ARR operand6;
 } qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR;
+
+typedef struct qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR_SCA_SCA_ELE_ELE_ARR {
+	qb_op_handler next_handler;
+	qb_pointer_ARR operand1;
+	qb_pointer_SCA operand2;
+	qb_pointer_SCA operand3;
+	qb_pointer_ELE operand4;
+	qb_pointer_ELE operand5;
+	qb_pointer_ARR operand6;
+	qb_pointer_SCA operand7;
+	qb_pointer_SCA operand8;
+	qb_pointer_ELE operand9;
+	qb_pointer_ELE operand10;
+	qb_pointer_ARR operand11;
+} qb_instruction_ARR_SCA_SCA_ELE_ELE_ARR_SCA_SCA_ELE_ELE_ARR;
 
 typedef struct qb_instruction_ARR_SCA_SCA_SCA_ARR_line_id {
 	qb_op_handler next_handler;
@@ -237,6 +267,21 @@ typedef struct qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR {
 	qb_pointer_SCA operand5;
 	qb_pointer_ARR operand6;
 } qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR;
+
+typedef struct qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR_SCA_SCA_SCA_SCA_ARR {
+	qb_op_handler next_handler;
+	qb_pointer_ARR operand1;
+	qb_pointer_SCA operand2;
+	qb_pointer_SCA operand3;
+	qb_pointer_SCA operand4;
+	qb_pointer_SCA operand5;
+	qb_pointer_ARR operand6;
+	qb_pointer_SCA operand7;
+	qb_pointer_SCA operand8;
+	qb_pointer_SCA operand9;
+	qb_pointer_SCA operand10;
+	qb_pointer_ARR operand11;
+} qb_instruction_ARR_SCA_SCA_SCA_SCA_ARR_SCA_SCA_SCA_SCA_ARR;
 
 typedef struct qb_instruction_ARR_SCA_SCA_SCA_SCA_U32_ARR {
 	qb_op_handler next_handler;
