@@ -561,6 +561,27 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	return TRUE;
 }
 
+static int32_t qb_validate_operands_sample_convolution(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *matrix = &operands[3], *divider = &operands[4], *offset = &operands[5];
+
+	if(!qb_validate_operands_sampling(cxt, f, expr_type, flags, operands, operand_count, result_destination)) {
+		return FALSE;
+	}
+	if(matrix->address->dimension_count != 2) {
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 3, "2x2 matrix");
+		return FALSE;
+	}
+	if(divider->type == QB_OPERAND_ADDRESS && !IS_SCALAR(divider->address)) {
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 4, "scalar");
+		return FALSE;
+	}
+	if(offset->type == QB_OPERAND_ADDRESS && !IS_SCALAR(offset->address)) {
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 5, "scalar");
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, uint32_t flags, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *column_index = &operands[1];
 	if(container->address->dimension_count < 2) {

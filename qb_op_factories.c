@@ -5370,6 +5370,29 @@ qb_derived_op_factory factory_sample_bilinear_vector = {
 	&factory_sample_bilinear,
 };
 
+qb_pixel_op_factory factory_sample_convolution = {
+	NULL,
+	qb_resolve_expression_flags_temporary,
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_sample_convolution,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_sampling,
+	qb_select_opcode_sampling,
+	qb_transfer_operands_sampling_convolution,
+	NULL,
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	{
+		{	QB_SAMPLE_CV_F64_U32_U32_F64_F64_F64_U32_U32_F64_F64_F64,		QB_SAMPLE_CV_F32_U32_U32_F32_F32_F32_U32_U32_F32_F32_F32,	},
+		{	QB_SAMPLE_CV_2X_F64_U32_U32_F64_F64_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_CV_2X_F32_U32_U32_F32_F32_F32_U32_U32_F32_F32_F32,	},
+		{	QB_SAMPLE_CV_3X_F64_U32_U32_F64_F64_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_CV_3X_F32_U32_U32_F32_F32_F32_U32_U32_F32_F32_F32,	},
+		{	QB_SAMPLE_CV_4X_F64_U32_U32_F64_F64_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_CV_4X_F32_U32_U32_F32_F32_F32_U32_U32_F32_F32_F32,	},
+	}
+};
+
 qb_pixel_op_factory factory_alpha_blend = {
 	NULL,
 	qb_resolve_expression_flags_temporary,

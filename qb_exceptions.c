@@ -83,7 +83,8 @@ void qb_dispatch_exceptions_in_main_thread(void *param1, void *param2, int param
 
 void qb_throw_exception(const char *source_file, uint32_t line_number, const char *message TSRMLS_DC) {
 	EG(current_execute_data)->opline->lineno = line_number;
-	zend_throw_exception(qb_exception_ce, message, 0 TSRMLS_CC);
+	EG(current_execute_data)->op_array->filename = source_file;
+	zend_throw_exception(qb_exception_ce, (char *) message, 0 TSRMLS_CC);
 }
 
 void qb_dispatch_exceptions(TSRMLS_D) {

@@ -24239,6 +24239,986 @@ void qb_do_sample_bilinear_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_c
 	}
 }
 
+void qb_do_sample_convolution_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
+	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
+	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
+	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
+	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
+	int32_t ix, iy, c, r;
+	float32_t sum[2] = {
+		0.0f, 0.0f
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 2;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float32_t fx1 = 1.0f - fx;
+		float32_t fy1 = 1.0f - fy;
+		float32_t w00 = fx1 * fy1;
+		float32_t w10 = fx * fy1;
+		float32_t w01 = fx1 * fy;
+		float32_t w11 = fx * fy;
+		float32_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 2;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 2;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 2;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 2;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0f) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+	}
+	if(op10 != 0.0f) {
+		sum[0] += op10;
+		sum[1] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+}
+
+void qb_do_sample_convolution_2x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
+	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floor(x0 - 0.5);
+	int32_t iy0 = (int32_t) floor(y0 - 0.5);
+	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
+	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
+	int32_t ix, iy, c, r;
+	float64_t sum[2] = {
+		0.0, 0.0
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 2;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float64_t fx1 = 1.0 - fx;
+		float64_t fy1 = 1.0 - fy;
+		float64_t w00 = fx1 * fy1;
+		float64_t w10 = fx * fy1;
+		float64_t w01 = fx1 * fy;
+		float64_t w11 = fx * fy;
+		float64_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 2;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 2;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 2;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 2;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+	}
+	if(op10 != 0.0) {
+		sum[0] += op10;
+		sum[1] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+}
+
+void qb_do_sample_convolution_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float32_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float32_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float32_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float32_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_2x_F32(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 2;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float64_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float64_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float64_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float64_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_2x_F64(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 2;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_3x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
+	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
+	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
+	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
+	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
+	int32_t ix, iy, c, r;
+	float32_t sum[3] = {
+		0.0f, 0.0f, 0.0f
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 3;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+					sum[2] += op1_ptr[index + 2] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float32_t fx1 = 1.0f - fx;
+		float32_t fy1 = 1.0f - fy;
+		float32_t w00 = fx1 * fy1;
+		float32_t w10 = fx * fy1;
+		float32_t w01 = fx1 * fy;
+		float32_t w11 = fx * fy;
+		float32_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 3;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+					p00[2] = op1_ptr[index + 2];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+					p00[2] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 3;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+					p10[2] = op1_ptr[index + 2];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+					p10[2] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 3;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+					p01[2] = op1_ptr[index + 2];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+					p01[2] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 3;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+					p11[2] = op1_ptr[index + 2];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+					p11[2] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+				sum[2] += (p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0f) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+		sum[2] /= op9;
+	}
+	if(op10 != 0.0f) {
+		sum[0] += op10;
+		sum[1] += op10;
+		sum[2] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+	res_ptr[2] = sum[2];
+}
+
+void qb_do_sample_convolution_3x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
+	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floor(x0 - 0.5);
+	int32_t iy0 = (int32_t) floor(y0 - 0.5);
+	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
+	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
+	int32_t ix, iy, c, r;
+	float64_t sum[3] = {
+		0.0, 0.0, 0.0
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 3;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+					sum[2] += op1_ptr[index + 2] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float64_t fx1 = 1.0 - fx;
+		float64_t fy1 = 1.0 - fy;
+		float64_t w00 = fx1 * fy1;
+		float64_t w10 = fx * fy1;
+		float64_t w01 = fx1 * fy;
+		float64_t w11 = fx * fy;
+		float64_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 3;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+					p00[2] = op1_ptr[index + 2];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+					p00[2] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 3;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+					p10[2] = op1_ptr[index + 2];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+					p10[2] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 3;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+					p01[2] = op1_ptr[index + 2];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+					p01[2] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 3;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+					p11[2] = op1_ptr[index + 2];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+					p11[2] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+				sum[2] += (p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+		sum[2] /= op9;
+	}
+	if(op10 != 0.0) {
+		sum[0] += op10;
+		sum[1] += op10;
+		sum[2] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+	res_ptr[2] = sum[2];
+}
+
+void qb_do_sample_convolution_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float32_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float32_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float32_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float32_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_3x_F32(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 3;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float64_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float64_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float64_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float64_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_3x_F64(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 3;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_4x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
+	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
+	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
+	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
+	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
+	int32_t ix, iy, c, r;
+	float32_t sum[4] = {
+		0.0f, 0.0f, 0.0f, 0.0f
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 4;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+					sum[2] += op1_ptr[index + 2] * coefficient;
+					sum[3] += op1_ptr[index + 3] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float32_t fx1 = 1.0f - fx;
+		float32_t fy1 = 1.0f - fy;
+		float32_t w00 = fx1 * fy1;
+		float32_t w10 = fx * fy1;
+		float32_t w01 = fx1 * fy;
+		float32_t w11 = fx * fy;
+		float32_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 4;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+					p00[2] = op1_ptr[index + 2];
+					p00[3] = op1_ptr[index + 3];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+					p00[2] = 0;
+					p00[3] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 4;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+					p10[2] = op1_ptr[index + 2];
+					p10[3] = op1_ptr[index + 3];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+					p10[2] = 0;
+					p10[3] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 4;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+					p01[2] = op1_ptr[index + 2];
+					p01[3] = op1_ptr[index + 3];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+					p01[2] = 0;
+					p01[3] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 4;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+					p11[2] = op1_ptr[index + 2];
+					p11[3] = op1_ptr[index + 3];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+					p11[2] = 0;
+					p11[3] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+				sum[2] += (p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11) * coefficient;
+				sum[3] += (p00[3] * w00 + p10[3] * w10 + p01[3] * w01 + p11[3] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0f) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+		sum[2] /= op9;
+		sum[3] /= op9;
+	}
+	if(op10 != 0.0f) {
+		sum[0] += op10;
+		sum[1] += op10;
+		sum[2] += op10;
+		sum[3] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+	res_ptr[2] = sum[2];
+	res_ptr[3] = sum[3];
+}
+
+void qb_do_sample_convolution_4x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
+	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floor(x0 - 0.5);
+	int32_t iy0 = (int32_t) floor(y0 - 0.5);
+	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
+	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
+	int32_t ix, iy, c, r;
+	float64_t sum[4] = {
+		0.0, 0.0, 0.0, 0.0
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 4;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+					sum[1] += op1_ptr[index + 1] * coefficient;
+					sum[2] += op1_ptr[index + 2] * coefficient;
+					sum[3] += op1_ptr[index + 3] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float64_t fx1 = 1.0 - fx;
+		float64_t fy1 = 1.0 - fy;
+		float64_t w00 = fx1 * fy1;
+		float64_t w10 = fx * fy1;
+		float64_t w01 = fx1 * fy;
+		float64_t w11 = fx * fy;
+		float64_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 4;
+					p00[0] = op1_ptr[index + 0];
+					p00[1] = op1_ptr[index + 1];
+					p00[2] = op1_ptr[index + 2];
+					p00[3] = op1_ptr[index + 3];
+				} else {
+					p00[0] = 0;
+					p00[1] = 0;
+					p00[2] = 0;
+					p00[3] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 4;
+					p10[0] = op1_ptr[index + 0];
+					p10[1] = op1_ptr[index + 1];
+					p10[2] = op1_ptr[index + 2];
+					p10[3] = op1_ptr[index + 3];
+				} else {
+					p10[0] = 0;
+					p10[1] = 0;
+					p10[2] = 0;
+					p10[3] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 4;
+					p01[0] = op1_ptr[index + 0];
+					p01[1] = op1_ptr[index + 1];
+					p01[2] = op1_ptr[index + 2];
+					p01[3] = op1_ptr[index + 3];
+				} else {
+					p01[0] = 0;
+					p01[1] = 0;
+					p01[2] = 0;
+					p01[3] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 4;
+					p11[0] = op1_ptr[index + 0];
+					p11[1] = op1_ptr[index + 1];
+					p11[2] = op1_ptr[index + 2];
+					p11[3] = op1_ptr[index + 3];
+				} else {
+					p11[0] = 0;
+					p11[1] = 0;
+					p11[2] = 0;
+					p11[3] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+				sum[1] += (p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11) * coefficient;
+				sum[2] += (p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11) * coefficient;
+				sum[3] += (p00[3] * w00 + p10[3] * w10 + p01[3] * w01 + p11[3] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0) {
+		sum[0] /= op9;
+		sum[1] /= op9;
+		sum[2] /= op9;
+		sum[3] /= op9;
+	}
+	if(op10 != 0.0) {
+		sum[0] += op10;
+		sum[1] += op10;
+		sum[2] += op10;
+		sum[3] += op10;
+	}
+	res_ptr[0] = sum[0];
+	res_ptr[1] = sum[1];
+	res_ptr[2] = sum[2];
+	res_ptr[3] = sum[3];
+}
+
+void qb_do_sample_convolution_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float32_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float32_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float32_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float32_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_4x_F32(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 4;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float64_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float64_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float64_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float64_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_4x_F64(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 4;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
+	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
+	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
+	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
+	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
+	int32_t ix, iy, c, r;
+	float32_t sum[1] = {
+		0.0f
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 1;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float32_t fx1 = 1.0f - fx;
+		float32_t fy1 = 1.0f - fy;
+		float32_t w00 = fx1 * fy1;
+		float32_t w10 = fx * fy1;
+		float32_t w01 = fx1 * fy;
+		float32_t w11 = fx * fy;
+		float32_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float32_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 1;
+					p00[0] = op1_ptr[index + 0];
+				} else {
+					p00[0] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 1;
+					p10[0] = op1_ptr[index + 0];
+				} else {
+					p10[0] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 1;
+					p01[0] = op1_ptr[index + 0];
+				} else {
+					p01[0] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 1;
+					p11[0] = op1_ptr[index + 0];
+				} else {
+					p11[0] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0f) {
+		sum[0] /= op9;
+	}
+	if(op10 != 0.0f) {
+		sum[0] += op10;
+	}
+	res_ptr[0] = sum[0];
+}
+
+void qb_do_sample_convolution_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
+	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
+	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	int32_t ix0 = (int32_t) floor(x0 - 0.5);
+	int32_t iy0 = (int32_t) floor(y0 - 0.5);
+	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
+	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
+	int32_t ix, iy, c, r;
+	float64_t sum[1] = {
+		0.0
+	};
+	if(fx + fy == 0) {
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
+					uint32_t index = ((iy * op2) + ix) * 1;
+					sum[0] += op1_ptr[index + 0] * coefficient;
+				}
+			}
+		}
+	} else { 
+		float64_t fx1 = 1.0 - fx;
+		float64_t fy1 = 1.0 - fy;
+		float64_t w00 = fx1 * fy1;
+		float64_t w10 = fx * fy1;
+		float64_t w01 = fx1 * fy;
+		float64_t w11 = fx * fy;
+		float64_t p00[4], p01[4], p10[4], p11[4];
+		for(r = 0, iy = iy0; r < op7; r++, iy++) {
+			for(c = 0, ix = ix0; c < op8; c++, ix++) {
+				float64_t coefficient = *op6_ptr++;
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 0)) * 1;
+					p00[0] = op1_ptr[index + 0];
+				} else {
+					p00[0] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 0) < op3)) {
+					uint32_t index = (((iy + 0) * op2) + (ix + 1)) * 1;
+					p10[0] = op1_ptr[index + 0];
+				} else {
+					p10[0] = 0;
+				}
+				if((((uint32_t) ix + 0) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 0)) * 1;
+					p01[0] = op1_ptr[index + 0];
+				} else {
+					p01[0] = 0;
+				}
+				if((((uint32_t) ix + 1) < op2) && (((uint32_t) iy + 1) < op3)) {
+					uint32_t index = (((iy + 1) * op2) + (ix + 1)) * 1;
+					p11[0] = op1_ptr[index + 0];
+				} else {
+					p11[0] = 0;
+				}
+				sum[0] += (p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11) * coefficient;
+			}
+		}
+	}
+	if(op9 != 0.0) {
+		sum[0] /= op9;
+	}
+	if(op10 != 0.0) {
+		sum[0] += op10;
+	}
+	res_ptr[0] = sum[0];
+}
+
+void qb_do_sample_convolution_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float32_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float32_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float32_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float32_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_F32(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 1;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
+void qb_do_sample_convolution_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op4_count && op5_count && op9_count && op10_count && res_count) {
+		float64_t *op4_start = op4_ptr, *op4_end = op4_ptr + op4_count;
+		float64_t *op5_start = op5_ptr, *op5_end = op5_ptr + op5_count;
+		float64_t *op9_start = op9_ptr, *op9_end = op9_ptr + op9_count;
+		float64_t *op10_start = op10_ptr, *op10_end = op10_ptr + op10_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_sample_convolution_F64(op1_ptr, op2, op3, (*op4_ptr), (*op5_ptr), op6_ptr, op7, op8, (*op9_ptr), (*op10_ptr), res_ptr);
+			
+			res_ptr += 1;
+			op4_ptr += 1;
+			op5_ptr += 1;
+			op9_ptr += 1;
+			op10_ptr += 1;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op4_ptr >= op4_end) {
+				op4_ptr = op4_start;
+			}
+			if(op5_ptr >= op5_end) {
+				op5_ptr = op5_start;
+			}
+			if(op9_ptr >= op9_end) {
+				op9_ptr = op9_start;
+			}
+			if(op10_ptr >= op10_end) {
+				op10_ptr = op10_start;
+			}
+		}
+	}
+}
+
 void qb_do_sample_nearest_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *res_ptr) {
 	int32_t ix = (int32_t) floorf(op4);
 	int32_t iy = (int32_t) floorf(op5);
@@ -29528,6 +30508,182 @@ void qb_redirect_sample_bilinear_multiple_times_F32(qb_interpreter_context *__re
 #undef res_count
 }
 
+void qb_redirect_sample_convolution_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float32_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float32_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 4, 32768)) {
+		qb_do_sample_convolution_4x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float32_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float32_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 3, 32768)) {
+		qb_do_sample_convolution_3x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float32_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float32_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 2, 32768)) {
+		qb_do_sample_convolution_2x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float32_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float32_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 1, 32768)) {
+		qb_do_sample_convolution_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
 void qb_redirect_alpha_blend_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
 #define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
@@ -32230,6 +33386,182 @@ void qb_redirect_sample_bilinear_multiple_times_F64(qb_interpreter_context *__re
 #undef op4_count
 #undef op5_ptr
 #undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float64_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float64_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 4, 32768)) {
+		qb_do_sample_convolution_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float64_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float64_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 3, 32768)) {
+		qb_do_sample_convolution_3x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float64_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float64_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 2, 32768)) {
+		qb_do_sample_convolution_2x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_convolution_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define op6_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define op6_count	INSTR->operand6.count_pointer[0]
+#define op7	((uint32_t *) INSTR->operand7.data_pointer)[0]
+#define op8	((uint32_t *) INSTR->operand8.data_pointer)[0]
+#define op9_ptr		(((float64_t *) INSTR->operand9.data_pointer) + INSTR->operand9.index_pointer[0])
+#define op9_count	INSTR->operand9.count_pointer[0]
+#define op10_ptr		(((float64_t *) INSTR->operand10.data_pointer) + INSTR->operand10.index_pointer[0])
+#define op10_count	INSTR->operand10.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand11.data_pointer) + INSTR->operand11.index_pointer[0])
+#define res_count	INSTR->operand11.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_convolution_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, op6_count, 1, 1, 1, 32768)) {
+		qb_do_sample_convolution_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, op6_ptr, op6_count, op7, op8, op9_ptr, op9_count, op10_ptr, op10_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef op6_ptr
+#undef op6_count
+#undef op7
+#undef op8
+#undef op9_ptr
+#undef op9_count
+#undef op10_ptr
+#undef op10_count
 #undef res_ptr
 #undef res_count
 }
@@ -35868,6 +37200,131 @@ int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *
 	return FALSE;
 }
 
+int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t operand5_size, uint32_t operand6_size, uint32_t operand9_size, uint32_t operand10_size, uint32_t operand11_size, uint32_t threshold) {
+	uint32_t op11_count = instr->operand11.count_pointer[0];
+	if(op11_count >= threshold) {
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op11_count / operand11_size;
+		uint32_t thread_count = cxt->thread_count;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op4_count = instr->operand4.count_pointer[0], op4_unit_count = op4_count / operand4_size, op4_shift, op4_chunk_size;
+		uint32_t op5_count = instr->operand5.count_pointer[0], op5_unit_count = op5_count / operand5_size, op5_shift, op5_chunk_size;
+		uint32_t op6_count = instr->operand6.count_pointer[0], op6_unit_count = op6_count / operand6_size, op6_shift, op6_chunk_size;
+		uint32_t op9_count = instr->operand9.count_pointer[0], op9_unit_count = op9_count / operand9_size, op9_shift, op9_chunk_size;
+		uint32_t op10_count = instr->operand10.count_pointer[0], op10_unit_count = op10_count / operand10_size, op10_shift, op10_chunk_size;
+		uint32_t op11_shift = operand11_size * chunk_size, op11_chunk_size = operand11_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op4_unit_count == res_unit_count) {
+			op4_shift = operand4_size * chunk_size;
+			op4_chunk_size = operand4_size * chunk_size;
+		} else if(op4_unit_count == 1) {
+			op4_shift = 0;
+			op4_chunk_size = operand4_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op5_unit_count == res_unit_count) {
+			op5_shift = operand5_size * chunk_size;
+			op5_chunk_size = operand5_size * chunk_size;
+		} else if(op5_unit_count == 1) {
+			op5_shift = 0;
+			op5_chunk_size = operand5_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op6_unit_count == res_unit_count) {
+			op6_shift = operand6_size * chunk_size;
+			op6_chunk_size = operand6_size * chunk_size;
+		} else if(op6_unit_count == 1) {
+			op6_shift = 0;
+			op6_chunk_size = operand6_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op9_unit_count == res_unit_count) {
+			op9_shift = operand9_size * chunk_size;
+			op9_chunk_size = operand9_size * chunk_size;
+		} else if(op9_unit_count == 1) {
+			op9_shift = 0;
+			op9_chunk_size = operand9_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op10_unit_count == res_unit_count) {
+			op10_shift = operand10_size * chunk_size;
+			op10_chunk_size = operand10_size * chunk_size;
+		} else if(op10_unit_count == 1) {
+			op10_shift = 0;
+			op10_chunk_size = operand10_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][7];
+			uint32_t new_counts[MAX_THREAD_COUNT][7];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_instr->operand2 = instr->operand2;
+				new_instr->operand3 = instr->operand3;
+				new_indices[i][1] = i * op4_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op4_count - (i * op4_shift) : op4_chunk_size;
+				new_instr->operand4.data_pointer = instr->operand4.data_pointer;
+				new_instr->operand4.index_pointer = &new_indices[i][1];
+				new_instr->operand4.count_pointer = &new_counts[i][1];
+				new_indices[i][2] = i * op5_shift;
+				new_counts[i][2] = (i == thread_count - 1) ? op5_count - (i * op5_shift) : op5_chunk_size;
+				new_instr->operand5.data_pointer = instr->operand5.data_pointer;
+				new_instr->operand5.index_pointer = &new_indices[i][2];
+				new_instr->operand5.count_pointer = &new_counts[i][2];
+				new_indices[i][3] = i * op6_shift;
+				new_counts[i][3] = (i == thread_count - 1) ? op6_count - (i * op6_shift) : op6_chunk_size;
+				new_instr->operand6.data_pointer = instr->operand6.data_pointer;
+				new_instr->operand6.index_pointer = &new_indices[i][3];
+				new_instr->operand6.count_pointer = &new_counts[i][3];
+				new_instr->operand7 = instr->operand7;
+				new_instr->operand8 = instr->operand8;
+				new_indices[i][4] = i * op9_shift;
+				new_counts[i][4] = (i == thread_count - 1) ? op9_count - (i * op9_shift) : op9_chunk_size;
+				new_instr->operand9.data_pointer = instr->operand9.data_pointer;
+				new_instr->operand9.index_pointer = &new_indices[i][4];
+				new_instr->operand9.count_pointer = &new_counts[i][4];
+				new_indices[i][5] = i * op10_shift;
+				new_counts[i][5] = (i == thread_count - 1) ? op10_count - (i * op10_shift) : op10_chunk_size;
+				new_instr->operand10.data_pointer = instr->operand10.data_pointer;
+				new_instr->operand10.index_pointer = &new_indices[i][5];
+				new_instr->operand10.count_pointer = &new_counts[i][5];
+				new_indices[i][6] = i * op11_shift;
+				new_counts[i][6] = (i == thread_count - 1) ? op11_count - (i * op11_shift) : op11_chunk_size;
+				new_instr->operand11.data_pointer = instr->operand11.data_pointer;
+				new_instr->operand11.index_pointer = &new_indices[i][6];
+				new_instr->operand11.count_pointer = &new_counts[i][6];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 qb_native_symbol global_native_symbols[] = {
 {	"memcpy",	memcpy,	0,	0	},
 {	"memmove",	memmove,	0,	0	},
@@ -37295,6 +38752,22 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_do_sample_bilinear_F64",	qb_do_sample_bilinear_F64,	0,	0	},
 {	"qb_do_sample_bilinear_multiple_times_F32",	qb_do_sample_bilinear_multiple_times_F32,	0,	0	},
 {	"qb_do_sample_bilinear_multiple_times_F64",	qb_do_sample_bilinear_multiple_times_F64,	0,	0	},
+{	"qb_do_sample_convolution_2x_F32",	qb_do_sample_convolution_2x_F32,	0,	0	},
+{	"qb_do_sample_convolution_2x_F64",	qb_do_sample_convolution_2x_F64,	0,	0	},
+{	"qb_do_sample_convolution_2x_multiple_times_F32",	qb_do_sample_convolution_2x_multiple_times_F32,	0,	0	},
+{	"qb_do_sample_convolution_2x_multiple_times_F64",	qb_do_sample_convolution_2x_multiple_times_F64,	0,	0	},
+{	"qb_do_sample_convolution_3x_F32",	qb_do_sample_convolution_3x_F32,	0,	0	},
+{	"qb_do_sample_convolution_3x_F64",	qb_do_sample_convolution_3x_F64,	0,	0	},
+{	"qb_do_sample_convolution_3x_multiple_times_F32",	qb_do_sample_convolution_3x_multiple_times_F32,	0,	0	},
+{	"qb_do_sample_convolution_3x_multiple_times_F64",	qb_do_sample_convolution_3x_multiple_times_F64,	0,	0	},
+{	"qb_do_sample_convolution_4x_F32",	qb_do_sample_convolution_4x_F32,	0,	0	},
+{	"qb_do_sample_convolution_4x_F64",	qb_do_sample_convolution_4x_F64,	0,	0	},
+{	"qb_do_sample_convolution_4x_multiple_times_F32",	qb_do_sample_convolution_4x_multiple_times_F32,	0,	0	},
+{	"qb_do_sample_convolution_4x_multiple_times_F64",	qb_do_sample_convolution_4x_multiple_times_F64,	0,	0	},
+{	"qb_do_sample_convolution_F32",	qb_do_sample_convolution_F32,	0,	0	},
+{	"qb_do_sample_convolution_F64",	qb_do_sample_convolution_F64,	0,	0	},
+{	"qb_do_sample_convolution_multiple_times_F32",	qb_do_sample_convolution_multiple_times_F32,	0,	0	},
+{	"qb_do_sample_convolution_multiple_times_F64",	qb_do_sample_convolution_multiple_times_F64,	0,	0	},
 {	"qb_do_sample_nearest_2x_F32",	qb_do_sample_nearest_2x_F32,	0,	0	},
 {	"qb_do_sample_nearest_2x_F64",	qb_do_sample_nearest_2x_F64,	0,	0	},
 {	"qb_do_sample_nearest_2x_multiple_times_F32",	qb_do_sample_nearest_2x_multiple_times_F32,	0,	0	},
@@ -37554,6 +39027,10 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_sample_bilinear_3x_multiple_times_F32",	qb_redirect_sample_bilinear_3x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_sample_bilinear_2x_multiple_times_F32",	qb_redirect_sample_bilinear_2x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_sample_bilinear_multiple_times_F32",	qb_redirect_sample_bilinear_multiple_times_F32,	0,	0	},
+{	"qb_redirect_sample_convolution_4x_multiple_times_F32",	qb_redirect_sample_convolution_4x_multiple_times_F32,	0,	0	},
+{	"qb_redirect_sample_convolution_3x_multiple_times_F32",	qb_redirect_sample_convolution_3x_multiple_times_F32,	0,	0	},
+{	"qb_redirect_sample_convolution_2x_multiple_times_F32",	qb_redirect_sample_convolution_2x_multiple_times_F32,	0,	0	},
+{	"qb_redirect_sample_convolution_multiple_times_F32",	qb_redirect_sample_convolution_multiple_times_F32,	0,	0	},
 {	"qb_redirect_alpha_blend_2x_multiple_times_F32",	qb_redirect_alpha_blend_2x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_alpha_blend_4x_multiple_times_F32",	qb_redirect_alpha_blend_4x_multiple_times_F32,	0,	0	},
 {	"qb_redirect_apply_premultiplication_4x_multiple_times_F32",	qb_redirect_apply_premultiplication_4x_multiple_times_F32,	0,	0	},
@@ -37701,6 +39178,10 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_redirect_sample_bilinear_3x_multiple_times_F64",	qb_redirect_sample_bilinear_3x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_sample_bilinear_2x_multiple_times_F64",	qb_redirect_sample_bilinear_2x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_sample_bilinear_multiple_times_F64",	qb_redirect_sample_bilinear_multiple_times_F64,	0,	0	},
+{	"qb_redirect_sample_convolution_4x_multiple_times_F64",	qb_redirect_sample_convolution_4x_multiple_times_F64,	0,	0	},
+{	"qb_redirect_sample_convolution_3x_multiple_times_F64",	qb_redirect_sample_convolution_3x_multiple_times_F64,	0,	0	},
+{	"qb_redirect_sample_convolution_2x_multiple_times_F64",	qb_redirect_sample_convolution_2x_multiple_times_F64,	0,	0	},
+{	"qb_redirect_sample_convolution_multiple_times_F64",	qb_redirect_sample_convolution_multiple_times_F64,	0,	0	},
 {	"qb_redirect_alpha_blend_2x_multiple_times_F64",	qb_redirect_alpha_blend_2x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_alpha_blend_4x_multiple_times_F64",	qb_redirect_alpha_blend_4x_multiple_times_F64,	0,	0	},
 {	"qb_redirect_apply_premultiplication_4x_multiple_times_F64",	qb_redirect_apply_premultiplication_4x_multiple_times_F64,	0,	0	},
@@ -37897,6 +39378,7 @@ qb_native_symbol global_native_symbols[] = {
 {	"qb_dispatch_instruction_ARR_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_ARR_ARR_ARR,	0,	0	},
 {	"qb_dispatch_instruction_ARR_ARR_SCA_ARR",	qb_dispatch_instruction_ARR_ARR_SCA_ARR,	0,	0	},
 {	"qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR,	0,	0	},
+{	"qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR,	0,	0	},
 {	"qb_do_check_index_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 {	"qb_do_check_index_multiply_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 {	"qb_do_check_index_multiply_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},

@@ -334,6 +334,14 @@ SampleNearest	F64	1	262144
 SampleNearest	F64	2	65536
 SampleNearest	F64	3	131072
 SampleNearest	F64	4	131072
+SampleConvolution	F32	1	32768
+SampleConvolution	F32	2	32768
+SampleConvolution	F32	3	32768
+SampleConvolution	F32	4	32768
+SampleConvolution	F64	1	32768
+SampleConvolution	F64	2	32768
+SampleConvolution	F64	3	32768
+SampleConvolution	F64	4	32768
 ShiftLeft	S08	1	524288
 ShiftLeft	S16	1	524288
 ShiftLeft	S32	1	524288

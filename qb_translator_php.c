@@ -1106,6 +1106,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"transform",			2,		2,		&factory_transform			},
 	{	0,	"sample_nearest",		3,		3,		&factory_sample_nearest		},
 	{	0,	"sample_bilinear",		3,		3,		&factory_sample_bilinear	},
+	{	0,	"sample_convolution",	4,		6,		&factory_sample_convolution	},
 	{	0,	"blend",				2,		2,		&factory_alpha_blend		},
 
 	{	0,	"array_column",			2,		2,		&factory_array_column		},

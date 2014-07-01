@@ -1100,6 +1100,22 @@ void qb_do_sample_bilinear_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, f
 void qb_do_sample_bilinear_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr);
 void qb_do_sample_bilinear_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_sample_bilinear_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr);
+void qb_do_sample_convolution_2x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr);
+void qb_do_sample_convolution_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_3x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr);
+void qb_do_sample_convolution_3x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr);
+void qb_do_sample_convolution_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_4x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr);
+void qb_do_sample_convolution_4x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr);
+void qb_do_sample_convolution_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr);
+void qb_do_sample_convolution_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr);
+void qb_do_sample_convolution_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float32_t *op9_ptr, uint32_t op9_count, float32_t *op10_ptr, uint32_t op10_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_sample_convolution_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *op6_ptr, uint32_t op6_count, uint32_t op7, uint32_t op8, float64_t *op9_ptr, uint32_t op9_count, float64_t *op10_ptr, uint32_t op10_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_sample_nearest_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *res_ptr);
 void qb_do_sample_nearest_2x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr);
 void qb_do_sample_nearest_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count);
@@ -1359,6 +1375,10 @@ void qb_redirect_sample_bilinear_4x_multiple_times_F32(qb_interpreter_context *_
 void qb_redirect_sample_bilinear_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_bilinear_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_bilinear_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_alpha_blend_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_alpha_blend_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_apply_premultiplication_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -1506,6 +1526,10 @@ void qb_redirect_sample_bilinear_4x_multiple_times_F64(qb_interpreter_context *_
 void qb_redirect_sample_bilinear_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_bilinear_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_bilinear_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_sample_convolution_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_alpha_blend_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_alpha_blend_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_apply_premultiplication_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -1702,6 +1726,7 @@ int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict c
 int32_t qb_dispatch_instruction_ARR_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t operand4_size, uint32_t threshold);
 int32_t qb_dispatch_instruction_ARR_ARR_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand4_size, uint32_t threshold);
 int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t operand5_size, uint32_t operand6_size, uint32_t threshold);
+int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR_SCA_SCA_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t operand5_size, uint32_t operand6_size, uint32_t operand9_size, uint32_t operand10_size, uint32_t operand11_size, uint32_t threshold);
 
 static zend_always_inline int32_t qb_do_check_index_add_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t *res_ptr, uint32_t line_id) {
 	(*res_ptr) = op1 + op3;
