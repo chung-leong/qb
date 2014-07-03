@@ -586,11 +586,25 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 				uint32_t i;
 				for(i = 0; i < m->dst_dimension_count; i++) {
 					if(m->dst_dimensions[i] != 0) {
-						// the subarray size of the destination needs to match the source
-						if(i < m->src_dimension_count && m->dst_array_sizes[i] == m->src_array_sizes[i]) {
-							known_dimension_count = i;
+						if(i < m->src_dimension_count) {
+							// the subarray size of the destination needs to match the source
+							if(m->dst_array_sizes[i] == m->src_array_sizes[i]) {
+								known_dimension_count = i;
+							} else {
+								known_dimension_count = 0;
+							}
 						} else {
-							known_dimension_count = 0;
+							// see if the source array at one level higher contains a multiple
+							// of the sub-array size
+							if(i > 0 && i - 1 < m->src_dimension_count && m->src_array_sizes[i - 1] > 0 && (m->src_array_sizes[i - 1] % m->dst_array_sizes[i]) == 0) {
+								// adjust the src_dimensions
+								m->src_dimensions[i - 1] = m->src_array_sizes[i - 1] / m->dst_array_sizes[i];
+								m->src_dimensions[i] = m->src_array_sizes[i] = m->dst_array_sizes[i];
+								m->src_dimension_count++;
+								known_dimension_count = i;
+							} else {
+								known_dimension_count = 0;
+							}
 						}
 						break;
 					} else {
