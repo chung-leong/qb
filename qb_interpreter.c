@@ -71,6 +71,7 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 			}
 		} else {
 			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_append_exception_variable_name(ivar TSRMLS_CC);
 			qb_set_exception_line_id(line_id TSRMLS_CC);
 			result = FALSE;
 		}
@@ -92,6 +93,7 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 			}
 			if(!qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_append_exception_variable_name(ivar TSRMLS_CC);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
 				result = FALSE;
 			}
@@ -136,6 +138,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 			}
 			if(!qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags)) {
 				USE_TSRM
+				qb_append_exception_variable_name(qvar TSRMLS_CC);
 				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}
@@ -148,6 +151,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 					USE_TSRM
+					qb_append_exception_variable_name(qvar TSRMLS_CC);
 					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
@@ -188,6 +192,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 			zval *zarg = *p_zarg;
 			if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_append_exception_variable_name(qvar TSRMLS_CC);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
 				result = FALSE;
 			}
@@ -197,6 +202,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				zval *zarg = qvar->default_value;
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+					qb_append_exception_variable_name(qvar TSRMLS_CC);
 					qb_set_exception_line_id(line_id TSRMLS_CC);
 					result = FALSE;
 				}
@@ -285,6 +291,7 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 				zval *zarg = *p_zarg;
 				if(!qb_transfer_value_to_zval(cxt->function->local_storage, qvar->address, zarg)) {
 					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+					qb_append_exception_variable_name(qvar TSRMLS_CC);
 					qb_set_exception_line_id(line_id TSRMLS_CC);
 					return FALSE;
 				}
@@ -301,6 +308,7 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 		if(cxt->function->return_variable->address) {
 			if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_append_exception_variable_name(cxt->function->return_variable TSRMLS_CC);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
@@ -352,6 +360,7 @@ static int32_t qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	if(cxt->function->return_variable->address) {
 		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
 			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_append_exception_variable_name(cxt->function->return_variable TSRMLS_CC);
 			qb_set_exception_line_id(line_id TSRMLS_CC);
 			return FALSE;
 		}
@@ -359,6 +368,7 @@ static int32_t qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	if(cxt->function->return_key_variable->address) {
 		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key)) {
 			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_append_exception_variable_name(cxt->function->return_key_variable TSRMLS_CC);
 			qb_set_exception_line_id(line_id TSRMLS_CC);
 			return FALSE;
 		}
@@ -457,6 +467,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			if(qvar->flags & QB_VARIABLE_BY_REF) {
 				if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
 					USE_TSRM
+					qb_append_exception_variable_name(qvar TSRMLS_CC);
 					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
@@ -471,6 +482,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
 				USE_TSRM
+				qb_append_exception_variable_name(qvar TSRMLS_CC);
 				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}

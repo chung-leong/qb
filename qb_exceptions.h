@@ -34,6 +34,7 @@ const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC);
 
 uint32_t qb_get_zend_line_id(TSRMLS_D);
 void qb_set_exception_line_id(uint32_t line_id TSRMLS_DC);
+void qb_append_exception_variable_name(qb_variable *qvar TSRMLS_DC);
 
 void qb_dispatch_exceptions(TSRMLS_D);
 

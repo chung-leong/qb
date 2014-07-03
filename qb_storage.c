@@ -1126,9 +1126,7 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 	} else {
 		dst_memory = emalloc(src_byte_count + 1);
 		dst_memory[src_byte_count] = '\0';
-		if(!IS_INTERNED(Z_STRVAL_P(zstring))) {
-			efree(Z_STRVAL_P(zstring));
-		}
+		STR_FREE(Z_STRVAL_P(zstring));
 		Z_STRVAL_P(zstring) = (char *) dst_memory;
 		Z_STRLEN_P(zstring) = src_byte_count;
 	}
@@ -1548,6 +1546,9 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 					} else if(!Z_ISREF_P(zvalue) && Z_REFCOUNT_P(zvalue) > 1) {
 						// the zval is copy-on-write
 						can_modify_zval = FALSE;
+					} else if(Z_STRLEN_P(zvalue) == 0) {
+						// it's empty
+						can_modify_zval = FALSE;
 					}
 					if(can_modify_zval) {
 						int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
@@ -1670,7 +1671,7 @@ int32_t qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval
 				memory = src_segment->memory;
 			}
 			if(Z_STRVAL_P(zvalue) != (char *) memory) {
-				efree(Z_STRVAL_P(zvalue));
+				STR_FREE(Z_STRVAL_P(zvalue));
 				Z_STRVAL_P(zvalue) = (char *) memory;
 			}
 			Z_STRLEN_P(zvalue) = src_segment->byte_count;

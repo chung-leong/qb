@@ -69,6 +69,31 @@ void qb_set_exception_line_id(uint32_t line_id TSRMLS_DC) {
 	}
 }
 
+void qb_append_exception_variable_name(qb_variable *qvar TSRMLS_DC) {
+	uint32_t i;
+	for(i = 0; i < QB_G(exception_count); i++) {
+		qb_exception *exception = &QB_G(exceptions)[i];
+		if(exception->line_id == 0) {
+			char *new_message = NULL;
+			if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_ARGUMENT | QB_VARIABLE_LEXICAL)) {
+				spprintf(&new_message, 0, "%s: $%s", exception->message, qvar->name);
+			} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
+				spprintf(&new_message, 0, "%s: $this->%s", exception->message, qvar->name);
+			} else if(qvar->flags & QB_VARIABLE_CLASS) {
+				spprintf(&new_message, 0, "%s: %s::$%s", exception->message, qvar->zend_class->name, qvar->name);
+			} else if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
+				spprintf(&new_message, 0, "%s: (return value)", exception->message);
+			} else if(qvar->flags & QB_VARIABLE_RETURN_KEY_VALUE) {
+				spprintf(&new_message, 0, "%s: (return key)", exception->message);
+			}
+			if(new_message) {
+				efree(exception->message);
+				exception->message = new_message;
+			}
+		}
+	}
+}
+
 static void qb_show_error(int32_t type, const char *filename, uint32_t line_number, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
