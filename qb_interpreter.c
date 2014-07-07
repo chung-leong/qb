@@ -435,6 +435,21 @@ void qb_sync_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
 	qb_transfer_value_to_import_source(cxt, ivar, scope);
 }
 
+static int32_t qb_release_imported_segments(qb_interpreter_context *cxt) {
+	USE_TSRM
+	uint32_t i, j;
+	for(i = 0; i < QB_G(scope_count); i++) {
+		qb_import_scope *scope = QB_G(scopes)[i];
+		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT && scope->type != QB_IMPORT_SCOPE_FREED_OBJECT) {
+			for(j = QB_SELECTOR_ARRAY_START; j < scope->storage->segment_count; j++) {
+				qb_memory_segment *segment = &scope->storage->segments[j];
+				qb_release_segment(segment);
+			}
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_release_object_instances(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i;
@@ -880,6 +895,8 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 	if(cxt->shadow_variables) {
 		qb_destroy_shadow_variables(cxt);
 	}
+
+	qb_release_imported_segments(cxt);
 }
 
 void qb_execute(qb_interpreter_context *cxt) {
@@ -1062,6 +1079,7 @@ static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_f
 	}
 
 	qb_sync_imported_variables(cxt);
+	qb_release_imported_segments(cxt);
 
 	if(!qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_id, &retval)) {
 		return FALSE;

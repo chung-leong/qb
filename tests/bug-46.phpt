@@ -1,5 +1,5 @@
 --TEST--
-Bug #43
+Bug #46
 --FILE--
 <?php
 
@@ -17,3 +17,5 @@ $a = array();
 test();
 
 ?>
+--EXPECT--
+0
