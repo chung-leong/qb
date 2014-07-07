@@ -440,7 +440,7 @@ static int32_t qb_release_imported_segments(qb_interpreter_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < QB_G(scope_count); i++) {
 		qb_import_scope *scope = QB_G(scopes)[i];
-		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT && scope->type != QB_IMPORT_SCOPE_FREED_OBJECT) {
+		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
 			for(j = QB_SELECTOR_ARRAY_START; j < scope->storage->segment_count; j++) {
 				qb_memory_segment *segment = &scope->storage->segments[j];
 				qb_release_segment(segment);

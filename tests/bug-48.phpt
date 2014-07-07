@@ -21,6 +21,9 @@ function test() {
 test();
 test();
 
+fclose($a);
+unlink($path);
+
 ?>
 --EXPECT--
 1234
