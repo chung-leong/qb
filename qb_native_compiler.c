@@ -413,6 +413,7 @@ static qb_access_method qb_get_array_access_method(qb_native_compiler_context *c
 		case QB_SELECTOR_CLASS_ARRAY:
 		case QB_SELECTOR_OBJECT_ARRAY:
 		case QB_SELECTOR_GLOBAL_ARRAY:
+		case QB_SELECTOR_STATIC_ARRAY:
 		case QB_SELECTOR_SHARED_ARRAY: 
 		case QB_SELECTOR_LOCAL_ARRAY:
 		case QB_SELECTOR_TEMPORARY_ARRAY: {

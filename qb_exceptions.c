@@ -118,8 +118,27 @@ void qb_dispatch_exceptions(TSRMLS_D) {
 			qb_run_in_main_thread(qb_dispatch_exceptions_in_main_thread, NULL, NULL, 0);
 		} else {
 			long exception_mask = QB_G(error_exception);
-			uint32_t i;
+			uint32_t i, reachable = 0;
+			int32_t free_remaining = FALSE;
+
+			// free the onces that aren't reachable
 			for(i = 0; i < QB_G(exception_count); i++) {
+				qb_exception *exception = &QB_G(exceptions)[i];
+				if(free_remaining) {
+					efree(exception->message);
+				} else {
+					if(exception->type & exception_mask) {
+						free_remaining = TRUE;
+					} else {
+						if(exception->type & (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR)) {
+							free_remaining = TRUE;
+						}
+					}
+					reachable = i + 1;
+				}
+			}
+
+			for(i = 0; i < reachable; i++) {
 				qb_exception *exception = &QB_G(exceptions)[i];
 				uint32_t file_id = FILE_ID(exception->line_id);
 				uint32_t line_number = LINE_NUMBER(exception->line_id);
@@ -130,7 +149,6 @@ void qb_dispatch_exceptions(TSRMLS_D) {
 					qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
 				}
 				efree(exception->message);
-				break;
 			}
 			QB_G(exception_count) = 0;
 		}
