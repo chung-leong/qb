@@ -123,6 +123,10 @@ static qb_pixel_format qb_get_compatible_pixel_format(uint32_t dimension_count, 
 		if(true_color) {
 			if(STORAGE_TYPE_MATCH(element_type, QB_TYPE_I32)) {
 				pixel_format = QB_PIXEL_2D_I32_1;
+			} else if(STORAGE_TYPE_MATCH(element_type, QB_TYPE_I08)) {
+				if(last_dimension == 4) {
+					pixel_format = QB_PIXEL_1D_I08_4;
+				}
 			} else if(element_type == QB_TYPE_F32) {
 				if(last_dimension == 1) {
 					pixel_format = QB_PIXEL_1D_F32_1;
