@@ -1037,10 +1037,6 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(native_code_bundle_count) = 0;
 #endif
 
-	if(qb_initialize_thread_pool(TSRMLS_C)) {
-		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
-		qb_add_workers(&QB_G(main_thread));
-	}
 	return SUCCESS;
 }
 /* }}} */

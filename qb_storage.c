@@ -576,13 +576,13 @@ static int32_t qb_add_source_dimensions_from_zval(zval *zvalue, qb_dimension_map
 }
 
 static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *address, qb_dimension_mappings *m, int32_t autovivification) {
-	uint32_t src_array_size = (m->src_dimension_count > 0) ? m->src_dimensions[0] : 1;
+	uint32_t src_array_size = (m->src_dimension_count > 0) ? m->src_array_sizes[0] : 1;
 	if(m->dst_dimension_count > 0) {
 		uint32_t dst_array_size = m->dst_array_sizes[0];
 		if(src_array_size != dst_array_size) {
 			if(!dst_array_size) {
 				// some dimensions aren't defined
-				uint32_t unknown_dimension_count = 0, known_dimension_count = m->src_dimension_count;
+				uint32_t unknown_dimension_count = 0, known_dimension_count = m->src_dimension_count, derived_dimension_count = 0;
 				uint32_t i;
 				for(i = 0; i < m->dst_dimension_count; i++) {
 					if(m->dst_dimensions[i] != 0) {
@@ -594,13 +594,13 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 								known_dimension_count = 0;
 							}
 						} else {
-							// see if the source array at one level higher contains a multiple
-							// of the sub-array size
+							// see if the source array at one level higher contains a multiple of the sub-array size
 							if(i > 0 && i - 1 < m->src_dimension_count && m->src_array_sizes[i - 1] > 0 && (m->src_array_sizes[i - 1] % m->dst_array_sizes[i]) == 0) {
-								// adjust the src_dimensions
-								m->src_dimensions[i - 1] = m->src_array_sizes[i - 1] / m->dst_array_sizes[i];
-								m->src_dimensions[i] = m->src_array_sizes[i] = m->dst_array_sizes[i];
-								m->src_dimension_count++;
+								// we can derive what the dimension should be
+								m->dst_dimensions[i - 1] = m->src_array_sizes[i - 1] / m->dst_array_sizes[i];
+								m->dst_array_sizes[i - 1] = m->dst_dimensions[i - 1] * m->dst_array_sizes[i];
+								unknown_dimension_count--;
+								derived_dimension_count++;
 								known_dimension_count = i;
 							} else {
 								known_dimension_count = 0;
@@ -611,7 +611,7 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 						unknown_dimension_count++;
 					}
 				}
-				if(unknown_dimension_count == known_dimension_count) {
+				if(unknown_dimension_count <= known_dimension_count) {
 					// copy the dimensions over
 					for(i = 0; i < unknown_dimension_count; i++) {
 						m->dst_dimensions[i] = m->src_dimensions[i];
@@ -639,7 +639,7 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 						return FALSE;
 					}
 				}
-				for(i = 0; i < unknown_dimension_count; i++) {
+				for(i = 0; i < unknown_dimension_count + derived_dimension_count; i++) {
 					qb_address *dimension_address = address->dimension_addresses[i];
 					qb_address *array_size_address = address->array_size_addresses[i];
 					VALUE_IN(storage, U32, dimension_address) = m->dst_dimensions[i];
