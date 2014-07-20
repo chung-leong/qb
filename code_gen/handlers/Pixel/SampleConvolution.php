@@ -95,8 +95,8 @@ class SampleConvolution extends Handler {
 		$cType = $this->getOperandCType(6);
 		$f = ($type == 'F32') ? 'f' : '';
 		$lines = array();
-		$lines[] = "$cType x0 = op4 - ((double) (op8 - 1)) / 2;";
-		$lines[] = "$cType y0 = op5 - ((double) (op7 - 1)) / 2;";
+		$lines[] = "$cType x0 = op4 - ((double) (op8 - 1)) * 0.5$f;";
+		$lines[] = "$cType y0 = op5 - ((double) (op7 - 1)) * 0.5$f;";
 		$lines[] = "int32_t ix0 = (int32_t) floor$f(x0 - 0.5$f);";
 		$lines[] = "int32_t iy0 = (int32_t) floor$f(y0 - 0.5$f);";
 		$lines[] = "$cType fx = (x0 - 0.5$f) - floor$f(x0 - 0.5$f);";
