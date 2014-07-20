@@ -80,7 +80,7 @@ if(file_exists($correct_path)) {
 	} else {
 		$correct_output = imagecreatefrompng($correct_path);
 		$diff = _image_diff($output, $correct_output);
-		if($diff < 0.01) {
+		if($diff < 1.0) {
 			// the output is different ever so slightly
 			$match = true;
 		} else {
@@ -93,7 +93,7 @@ if(file_exists($correct_path)) {
 			unlink($incorrect_path);
 		}
 	} else {
-		echo "INCORRECT\n";
+		echo "INCORRECT ($diff)\n";
 		file_put_contents($incorrect_path, $output_png);
 	}
 } else {
