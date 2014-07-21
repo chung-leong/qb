@@ -477,8 +477,6 @@ Fixed issue $51 - Multithreading fails when pcntl_fork() is used
     <file role="test" name="large-fixed-length-array-parameter.phpt"/>
     <file role="test" name="large-fixed-length-array.phpt"/>
     <file role="test" name="list.phpt"/>
-    <file role="test" name="long-long-array-from-multidim-array.phpt"/>
-    <file role="test" name="long-long-from-array.phpt"/>
     <file role="test" name="matrix-matrix-multiplication-cm.phpt"/>
     <file role="test" name="matrix-matrix-multiplication-rm.phpt"/>
     <file role="test" name="matrix-vector-multiplication-cm.phpt"/>
