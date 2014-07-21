@@ -1,4 +1,20 @@
-Version 2.2.0 (Basia B)
+Version 2.4.0 (Basia D)
+--------------------------------------------------
+21-July-2014
+--------------------------------------------------
+
+* Added option to emit errors as exceptions
+* Fixed issue #39 - Incompatibility with namespace usage
+* Fixed issue #40 - Incompatibility with namespace usage
+* Fixed issue #42 - Inability to append to array
+* Fixed issue #43 - Segfault when opcache is used
+* Fixed issue #46 - Incorrect array size when initialized with empty array
+* Fixed issue #48 - Memory-mapped file don't get released on function exit
+* Fixed issue #49 - Multiple static arrays cause failure to compile to native code
+* Fixed issue #50 - Cannot pass GD image as int8[][4]
+* Fixed issue $51 - Multithreading fails when pcntl_fork() is used
+
+Version 2.3.0 (Basia C)
 --------------------------------------------------
 28-April-2014
 --------------------------------------------------

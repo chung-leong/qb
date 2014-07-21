@@ -15,10 +15,10 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <email>cleong728@gmail.com</email>
   <active>yes</active>
  </lead>
- <date>2014-04-28</date>
- <time>19:00:00</time>
+ <date>2014-07-21</date>
+ <time>03:00:00</time>
  <version>
-  <release>2.3.0</release>
+  <release>2.4.0</release>
   <api>0.1.0</api>
  </version>
  <stability>
@@ -26,11 +26,17 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Enabled compilation using clang
- Improved interpreter performance in 64-bit Windows
- Implemented proper parser for type declaration
- Bought complex number functions into compliance with ISO standard
- Fixed issue #36 - Incorrect cast to int
+ <notes>Added option to emit errors as exceptions
+Fixed issue #36 - Incorrect cast to int
+Fixed issue #39 - Incompatibility with namespace usage
+Fixed issue #40 - Incompatibility with namespace usage
+Fixed issue #42 - Inability to append to array
+Fixed issue #43 - Segfault when opcache is used
+Fixed issue #46 - Incorrect array size when initialized with empty array
+Fixed issue #48 - Memory-mapped file don't get released on function exit
+Fixed issue #49 - Multiple static arrays cause failure to compile to native code
+Fixed issue #50 - Cannot pass GD image as int8[][4]
+Fixed issue $51 - Multithreading fails when pcntl_fork() is used 
 </notes>
  <contents>
   <dir name="/">
@@ -181,6 +187,13 @@ QB performs code translation on a per-function basis. It does not affect in anyw
     <file role="test" name="branch-elimination-short-circuited.phpt"/>
     <file role="test" name="bug-20.phpt"/>
     <file role="test" name="bug-36.phpt"/>
+    <file role="test" name="bug-38.phpt"/>
+    <file role="test" name="bug-39.phpt"/>
+    <file role="test" name="bug-40.phpt"/>
+    <file role="test" name="bug-42.phpt"/>
+    <file role="test" name="bug-46.phpt"/>
+    <file role="test" name="bug-48.phpt"/>
+    <file role="test" name="bug-49.phpt"/>
     <file role="test" name="bug-4.phpt"/>
     <file role="test" name="chained-assignment-array.phpt"/>
     <file role="test" name="chained-assignment-element.phpt"/>
