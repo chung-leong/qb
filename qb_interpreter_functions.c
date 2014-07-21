@@ -24240,13 +24240,14 @@ void qb_do_sample_bilinear_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_c
 }
 
 void qb_do_sample_convolution_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
-	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float32_t x0 = op4 - ((float32_t) (op8 - 1)) * 0.5f;
+	float32_t y0 = op5 - ((float32_t) (op7 - 1)) * 0.5f;
 	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
 	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
 	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
 	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float32_t sum[2] = {
 		0.0f, 0.0f
 	};
@@ -24322,13 +24323,14 @@ void qb_do_sample_convolution_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t 
 }
 
 void qb_do_sample_convolution_2x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
-	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float64_t x0 = op4 - ((float64_t) (op8 - 1)) * 0.5;
+	float64_t y0 = op5 - ((float64_t) (op7 - 1)) * 0.5;
 	int32_t ix0 = (int32_t) floor(x0 - 0.5);
 	int32_t iy0 = (int32_t) floor(y0 - 0.5);
 	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
 	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float64_t sum[2] = {
 		0.0, 0.0
 	};
@@ -24472,13 +24474,14 @@ void qb_do_sample_convolution_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t
 }
 
 void qb_do_sample_convolution_3x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
-	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float32_t x0 = op4 - ((float32_t) (op8 - 1)) * 0.5f;
+	float32_t y0 = op5 - ((float32_t) (op7 - 1)) * 0.5f;
 	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
 	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
 	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
 	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float32_t sum[3] = {
 		0.0f, 0.0f, 0.0f
 	};
@@ -24567,13 +24570,14 @@ void qb_do_sample_convolution_3x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t 
 }
 
 void qb_do_sample_convolution_3x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
-	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float64_t x0 = op4 - ((float64_t) (op8 - 1)) * 0.5;
+	float64_t y0 = op5 - ((float64_t) (op7 - 1)) * 0.5;
 	int32_t ix0 = (int32_t) floor(x0 - 0.5);
 	int32_t iy0 = (int32_t) floor(y0 - 0.5);
 	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
 	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float64_t sum[3] = {
 		0.0, 0.0, 0.0
 	};
@@ -24730,13 +24734,14 @@ void qb_do_sample_convolution_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t
 }
 
 void qb_do_sample_convolution_4x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
-	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float32_t x0 = op4 - ((float32_t) (op8 - 1)) * 0.5f;
+	float32_t y0 = op5 - ((float32_t) (op7 - 1)) * 0.5f;
 	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
 	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
 	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
 	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float32_t sum[4] = {
 		0.0f, 0.0f, 0.0f, 0.0f
 	};
@@ -24838,13 +24843,14 @@ void qb_do_sample_convolution_4x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t 
 }
 
 void qb_do_sample_convolution_4x_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
-	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float64_t x0 = op4 - ((float64_t) (op8 - 1)) * 0.5;
+	float64_t y0 = op5 - ((float64_t) (op7 - 1)) * 0.5;
 	int32_t ix0 = (int32_t) floor(x0 - 0.5);
 	int32_t iy0 = (int32_t) floor(y0 - 0.5);
 	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
 	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float64_t sum[4] = {
 		0.0, 0.0, 0.0, 0.0
 	};
@@ -25014,13 +25020,14 @@ void qb_do_sample_convolution_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t
 }
 
 void qb_do_sample_convolution_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *op6_ptr, uint32_t op7, uint32_t op8, float32_t op9, float32_t op10, float32_t *res_ptr) {
-	float32_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float32_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float32_t x0 = op4 - ((float32_t) (op8 - 1)) * 0.5f;
+	float32_t y0 = op5 - ((float32_t) (op7 - 1)) * 0.5f;
 	int32_t ix0 = (int32_t) floorf(x0 - 0.5f);
 	int32_t iy0 = (int32_t) floorf(y0 - 0.5f);
 	float32_t fx = (x0 - 0.5f) - floorf(x0 - 0.5f);
 	float32_t fy = (y0 - 0.5f) - floorf(y0 - 0.5f);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float32_t sum[1] = {
 		0.0f
 	};
@@ -25083,13 +25090,14 @@ void qb_do_sample_convolution_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3
 }
 
 void qb_do_sample_convolution_F64(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *op6_ptr, uint32_t op7, uint32_t op8, float64_t op9, float64_t op10, float64_t *res_ptr) {
-	float64_t x0 = op4 - ((double) (op8 - 1)) / 2;
-	float64_t y0 = op5 - ((double) (op7 - 1)) / 2;
+	float64_t x0 = op4 - ((float64_t) (op8 - 1)) * 0.5;
+	float64_t y0 = op5 - ((float64_t) (op7 - 1)) * 0.5;
 	int32_t ix0 = (int32_t) floor(x0 - 0.5);
 	int32_t iy0 = (int32_t) floor(y0 - 0.5);
 	float64_t fx = (x0 - 0.5) - floor(x0 - 0.5);
 	float64_t fy = (y0 - 0.5) - floor(y0 - 0.5);
-	int32_t ix, iy, c, r;
+	int32_t ix, iy;
+	uint32_t c, r;
 	float64_t sum[1] = {
 		0.0
 	};

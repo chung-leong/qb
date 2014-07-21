@@ -949,6 +949,10 @@ int32_t qb_execute_rewind(qb_interpreter_context *cxt) {
 #endif
 
 void qb_execute_internal(qb_interpreter_context *cxt) {
+	USE_TSRM
+	if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
+		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+	}
 	qb_initialize_local_variables(cxt);
 	qb_execute_in_current_thread(cxt);
 	qb_finalize_variables(cxt);

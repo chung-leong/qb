@@ -200,7 +200,6 @@ qb_thread *qb_get_current_thread(void);
 int qb_in_main_thread(void);
 
 int qb_initialize_thread_pool(TSRMLS_D);
-void qb_add_workers(qb_main_thread *thread);
 void qb_free_thread_pool(void);
 
 #endif

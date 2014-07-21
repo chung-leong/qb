@@ -350,7 +350,6 @@ int qb_initialize_main_thread(qb_main_thread *thread TSRMLS_DC) {
 	thread->tsrm_ls = tsrm_ls;
 #endif
 
-
 	qb_set_current_thread((qb_thread*) thread);
 
 	qb_lock_event_sink(&thread->event_sink);
@@ -684,28 +683,30 @@ THREAD_PROC_RETURN_TYPE qb_worker_thread_proc(void *arg) {
 	return THREAD_PROC_RETURN_VALUE;
 }
 
-void qb_add_workers(qb_main_thread *thread) {
-	long i;
+static void qb_add_workers(qb_main_thread *thread) {
+	if(pool->worker_count < pool->global_thread_limit) {
+		long i;
 #ifndef WIN32
-	// disable all signals so threads will inherit none
-	qb_disable_signals(thread);
+		// disable all signals so threads will inherit none
+		qb_disable_signals(thread);
 #endif
-	for(i = 0; i < pool->global_thread_limit; i++) {
-		qb_worker_thread *worker = &pool->workers[pool->worker_count];
-		if(qb_initialize_worker_thread(worker, (qb_thread *) thread)) {
-			// wait for thread to enter main loop
-			qb_handle_main_thread_events(thread, QB_EVENT_WORKER_ADDED);
-			pool->worker_count++;
-		} else {
-			break;
+		for(i = 0; i < pool->global_thread_limit; i++) {
+			qb_worker_thread *worker = &pool->workers[pool->worker_count];
+			if(qb_initialize_worker_thread(worker, (qb_thread *) thread)) {
+				// wait for thread to enter main loop
+				qb_handle_main_thread_events(thread, QB_EVENT_WORKER_ADDED);
+				pool->worker_count++;
+			} else {
+				break;
+			}
 		}
-	}
 #ifndef WIN32
-	qb_enable_signals(thread);
+		qb_enable_signals(thread);
 #endif
+	}
 }
 
-void qb_restart_workers(qb_main_thread *main_thread) {
+static void qb_restart_workers(qb_main_thread *main_thread) {
 	long i;
 #ifndef WIN32
 	qb_disable_signals(main_thread);
@@ -724,7 +725,7 @@ void qb_restart_workers(qb_main_thread *main_thread) {
 #endif
 }
 
-int qb_wake_workers(qb_thread *thread, long count) {
+static int qb_wake_workers(qb_thread *thread, long count) {
 	long i, awaken = 0;
 	for(i = 0; i < pool->worker_count && count > 0; i++) {
 		qb_worker_thread *worker = &pool->workers[i];
@@ -745,6 +746,15 @@ void qb_run_task_group(qb_task_group *group, int iterative) {
 	qb_thread *thread = group->owner;
 	qb_main_thread *main_thread = qb_get_thread_owner(thread);
 	int workers_available = FALSE;
+#ifdef ZTS
+	void ***tsrm_ls = main_thread->tsrm_ls;
+#endif
+
+	// create the pool if it hasn't been done so yet
+	if(!pool) {
+		qb_initialize_thread_pool(TSRMLS_C);
+		qb_add_workers(main_thread);
+	}
 
 	if(main_thread->worker_count + 1 < pool->per_request_thread_limit || iterative) {
 		long count = pool->per_request_thread_limit - main_thread->worker_count;
@@ -830,78 +840,96 @@ void qb_run_in_main_thread(qb_thread_proc proc, void *param1, void *param2, int 
 }
 
 void qb_terminate_associated_workers(qb_main_thread *main_thread) {
-	qb_task_group *group, *queue_head = NULL, *queue_tail = NULL, *next_group;
-	long i;
-	long workers_terminated = 0;
+	if(pool) {
+		qb_task_group *group, *queue_head = NULL, *queue_tail = NULL, *next_group;
+		long i;
+		long workers_terminated = 0;
 
-	// remove outstanding task groups belonging to the main thread
-	qb_lock_mutex(&pool->task_queue_mutex, FALSE);
-	for(group = pool->task_queue_head; group; group = group->next_group) {
-		qb_main_thread *owner_main_thread = qb_get_thread_owner(group->owner);
-		if(owner_main_thread == main_thread) {
-			qb_remove_task_group_no_lock(group);
+		// remove outstanding task groups belonging to the main thread
+		qb_lock_mutex(&pool->task_queue_mutex, FALSE);
+		for(group = pool->task_queue_head; group; group = group->next_group) {
+			qb_main_thread *owner_main_thread = qb_get_thread_owner(group->owner);
+			if(owner_main_thread == main_thread) {
+				qb_remove_task_group_no_lock(group);
 
-			// stick the removed groups into a list so we can free them later
-			// after the threads have been terminated
-			if(queue_tail) {
-				queue_tail->next_group = group;
-				group->previous_group = queue_tail;
-				queue_tail = group;
-			} else {
-				queue_head = queue_tail = group;
-			}
-		}
-	}
-	qb_unlock_mutex(&pool->task_queue_mutex);
-
-	// terminate and restart threads currently associated with this main thread
-	if(main_thread->worker_count > 0) {
-		// unlock the event sink so workers aren't blocked because they're trying to
-		// communicate with the main thread
-		qb_unlock_event_sink(&main_thread->event_sink);
-
-		for(i = 0; i < pool->worker_count; i++) {
-			qb_worker_thread *worker = &pool->workers[i];
-			if(worker->current_owner == main_thread) {
-				// ask the thread to terminate itself first, then try to kill it
-				int terminated;
-				if(qb_send_event(&worker->event_sink, (qb_thread *) main_thread, QB_EVENT_TERMINATION, TRUE)) {
-					terminated = TRUE;
-				} else if(qb_terminate_worker_thread(worker)) {
-					terminated = TRUE;
+				// stick the removed groups into a list so we can free them later
+				// after the threads have been terminated
+				if(queue_tail) {
+					queue_tail->next_group = group;
+					group->previous_group = queue_tail;
+					queue_tail = group;
 				} else {
-					terminated = FALSE;
-				}
-				if(terminated) {
-					// wait for it to exit
-					qb_wait_for_worker_termination(worker);
-					workers_terminated++;
-
-					// free the resources
-					qb_free_worker_thread(worker);
+					queue_head = queue_tail = group;
 				}
 			}
 		}
-		main_thread->worker_count = 0;
-		qb_lock_event_sink(&main_thread->event_sink);
-	}
+		qb_unlock_mutex(&pool->task_queue_mutex);
+
+		// terminate and restart threads currently associated with this main thread
+		if(main_thread->worker_count > 0) {
+			// unlock the event sink so workers aren't blocked because they're trying to
+			// communicate with the main thread
+			qb_unlock_event_sink(&main_thread->event_sink);
+
+			for(i = 0; i < pool->worker_count; i++) {
+				qb_worker_thread *worker = &pool->workers[i];
+				if(worker->current_owner == main_thread) {
+					// ask the thread to terminate itself first, then try to kill it
+					int terminated;
+					if(qb_send_event(&worker->event_sink, (qb_thread *) main_thread, QB_EVENT_TERMINATION, TRUE)) {
+						terminated = TRUE;
+					} else if(qb_terminate_worker_thread(worker)) {
+						terminated = TRUE;
+					} else {
+						terminated = FALSE;
+					}
+					if(terminated) {
+						// wait for it to exit
+						qb_wait_for_worker_termination(worker);
+						workers_terminated++;
+
+						// free the resources
+						qb_free_worker_thread(worker);
+					}
+				}
+			}
+			main_thread->worker_count = 0;
+			qb_lock_event_sink(&main_thread->event_sink);
+		}
 
 #ifndef WIN32
-	qb_enable_time_out_signal(main_thread);
+		qb_enable_time_out_signal(main_thread);
 #endif
 
-	if(workers_terminated > 0) {
-		// restart threads that were terminated
-		qb_restart_workers(main_thread);
-		fflush(stdout);
-	}
+		if(workers_terminated > 0) {
+			// restart threads that were terminated
+			qb_restart_workers(main_thread);
+			fflush(stdout);
+		}
 
-	// free the group
-	for(group = queue_head; group; group = next_group) {
-		next_group = group->next_group;
-		qb_free_task_group(group);
+		// free the group
+		for(group = queue_head; group; group = next_group) {
+			next_group = group->next_group;
+			qb_free_task_group(group);
+		}
 	}
 }
+
+#ifndef WIN32
+static void qb_invalidate_thread_pool(void) {
+	// all the threads are dead after fork()
+	// get rid of the synchronization objects
+	if(pool) {
+		int i;
+		for(i = 0; i < pool->worker_count; i++) {
+			qb_free_worker_thread(&pool->workers[i]);
+		}
+		qb_free_mutex(&pool->task_queue_mutex);
+		memset(pool, 0, sizeof(qb_thread_pool));
+		pool = NULL;
+	}
+}
+#endif
 
 int qb_initialize_thread_pool(TSRMLS_D) {
 	if(!pool) {
@@ -912,6 +940,10 @@ int qb_initialize_thread_pool(TSRMLS_D) {
 		} else {
 			pool->global_thread_limit = 0;
 		}
+
+#ifndef WIN32
+		pthread_atfork(NULL, NULL, qb_invalidate_thread_pool);
+#endif
 
 		pool->workers = malloc(sizeof(qb_worker_thread) * pool->global_thread_limit);
 		pool->worker_count = 0;
@@ -928,10 +960,8 @@ int qb_initialize_thread_pool(TSRMLS_D) {
 			pthread_create(&pool->signal_thread, NULL, qb_signal_thread_proc, pool);
 		}
 #endif
-		return TRUE;
-	} else {
-		return FALSE;
 	}
+	return TRUE;
 }
 
 void qb_free_thread_pool(void) {
@@ -964,6 +994,7 @@ void qb_free_thread_pool(void) {
 			}
 		}
 		qb_free_mutex(&pool->task_queue_mutex);
+		pool = NULL;
 	}
 }
 
