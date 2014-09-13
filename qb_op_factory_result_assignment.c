@@ -506,8 +506,9 @@ static int32_t qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_fact
 		}
 		if(ce) {
 			zval **p_value;
-			zend_hash_find(&ce->constants_table, name_str, name_len + 1, (void **) &p_value);
-			value = *p_value;
+			if(zend_hash_find(&ce->constants_table, name_str, name_len + 1, (void **) &p_value) == SUCCESS) {
+				value = *p_value;
+			}
 		} else {
 			zend_constant *zconst;
 			if(zend_hash_find(EG(zend_constants), name_str, name_len + 1, (void **) &zconst) == SUCCESS) {

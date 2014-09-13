@@ -133,7 +133,7 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 
 	position = php_stream_tell(stream);
 	php_stream_seek(stream, 0, SEEK_SET);
-	if((m->dst_address_flags & QB_ADDRESS_STRING) && (m->dst_element_type >= QB_TYPE_I16)) {
+	if(need_utf8_decoding) {
 		uint32_t read = 0, i, j = 0, state = 0, codepoint;
 		uint8_t buffer[1024];
 		do {
