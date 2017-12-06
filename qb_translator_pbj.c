@@ -1131,7 +1131,7 @@ static int32_t qb_process_pbj_load_constant(qb_pbj_translator_context *cxt, qb_p
 		if(pop->opcode != PBJ_LOAD_CONSTANT) {
 			break;
 		} else if(pop->destination.register_id != next_reg_id || pop->destination.channel_id != next_channel) {
-			if(constant_count != 3 || constant_count != 6) {
+			if(constant_count != 3 && constant_count != 6) {
 				break;
 			}
 		} else {
